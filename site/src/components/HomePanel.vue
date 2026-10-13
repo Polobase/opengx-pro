@@ -197,8 +197,8 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <li v-reveal>
           <span class="n">1</span>
           <h3>Put the unit into update mode</h3>
-          <p>Switch it off. Hold <kbd>STOP</kbd> and press <kbd>POWER</kbd>. The screen stays dark: the unit now waits for
-            new software.</p>
+          <p>Switch it off. Hold <kbd>Stop</kbd> and press <kbd>Power</kbd>. The unit now waits for new software. The
+            Install page shows this as a moving picture.</p>
         </li>
         <li v-reveal="80">
           <span class="n">2</span>

@@ -4,6 +4,7 @@ import { BytePort } from '../lib/byteport'
 import { flashImage, readHardwareId } from '../lib/flasher'
 import { describeHardwareId, type FirmwareImage } from '../lib/image'
 import PortHint from './PortHint.vue'
+import UpdateModeFigure from './UpdateModeFigure.vue'
 
 const props = defineProps<{ image: FirmwareImage | null; what: string; after: string }>()
 
@@ -107,9 +108,20 @@ onBeforeUnmount(release)
 <template>
   <ol class="steps">
     <li :class="{ current: status === 'idle' || status === 'noanswer' }">
-      <h3>Put the unit into update mode</h3>
-      <p>Connect the GX Pro to this computer by USB. Switch it off, then <b>hold STOP and press POWER</b>. The screen stays
-        dark: the unit now waits for an update.</p>
+      <div class="step-fig">
+        <div>
+          <h3>Put the unit into update mode</h3>
+          <p>Connect the unit to this computer with its USB cable. Then:</p>
+          <ol class="mini">
+            <li><b>Switch the unit off:</b> hold <kbd>Power</kbd> for two seconds.</li>
+            <li><b>Hold <kbd>Stop</kbd></b> and keep it held.</li>
+            <li><b>Press <kbd>Power</kbd></b>, then let both go.</li>
+          </ol>
+          <p>The screen shows “Firmware Update” (on some units it stays dark). The unit now waits for the new software.
+            Changed your mind? <kbd>Start</kbd> leaves update mode; nothing has been changed.</p>
+        </div>
+        <UpdateModeFigure />
+      </div>
     </li>
     <li :class="{ current: ['idle', 'connecting', 'wrong', 'noanswer', 'ready'].includes(status) }">
       <h3>Choose the USB port</h3>
@@ -140,7 +152,8 @@ onBeforeUnmount(release)
     </li>
     <li :class="{ current: status === 'done' }">
       <h3>Restart</h3>
-      <p v-if="status === 'done'" class="note ok"><b>Done.</b> Switch the unit off and on again. {{ after }}</p>
+      <p v-if="status === 'done'" class="note ok"><b>Done.</b> The unit's screen may show “OK!”. Switch the unit off and on
+        again. {{ after }}</p>
       <p v-else>Switch the unit off and on again. {{ after }}</p>
     </li>
   </ol>

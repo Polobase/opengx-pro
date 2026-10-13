@@ -26,7 +26,7 @@ function press(k: string) {
 <template>
   <div class="keysdemo">
     <UnitMock :src="screen(key === 'START' && paused ? 'dash_paused' : steps[key]!.shot)" :alt="steps[key]!.says" :lit="[key]" interactive
-              label="press a key" @key="press" />
+              @key="press" />
     <div class="keysdemo-text">
       <span class="eyebrow">Try it here</span>
       <h2>Eight keys. They still do what you know.</h2>
