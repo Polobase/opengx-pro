@@ -102,6 +102,7 @@ void nxg_fix_defaults(void)
     for (unsigned i = 0; i < 29u; i++)
         g_nxg.cal[i] = (int16_t)(i >= 21u ? 31990 + (i % 2u) * 20 : i ? 1234 + i * 111 : 32000);
     g_nxg.panel = 'A';
+    g_nxg.presets = 1;   /* as the released image: one built-in preset */
     struct nx_uiset u;
     nx_uiset_defaults(&u);
     u.dim = 0;                /* never: the gallery's virtual time must not dim a shot */
@@ -124,7 +125,8 @@ int nx_uc_act(const struct nx_action *a)
 
 unsigned nx_uc_name(unsigned slot, char *out)
 {
-    const char *s = slot < 32u ? g_nxg.names[slot] : slot == NX_UC_PRESET ? "Demo sweep" : 0;
+    const char *s = slot < 32u ? g_nxg.names[slot] : slot == NX_UC_PRESET ? "Radionics (Boost) Manifestation"
+        : slot == NXG_SLOT_TSET ? "Remove Intestinal Toxins" : 0;
     unsigned n = 0;
     for (; s && s[n] && n < NX_UC_NAME_MAX; n++)
         out[n] = s[n];
@@ -341,20 +343,27 @@ int nx_uc_manual_play(unsigned ch)
 #endif
 
 #if NX_FEAT_TERRAIN
-/* Made-up protocols (the real ones, from Spooky2's presets: src/nx/data/nx_terrain_data.c). */
-static const struct nx_tview k_tview[2] = {
-    { "Demo", "Demo cleanse", NX_TP_REMOTE, 11, 15, 6, 6, 1, 12, 0, 1, 15180 },
-    { "Demo", "Demo kidney", NX_TP_CONTACT, 11, 22, 5, 3, 2, 0, 0, 0, 0 },
+/* The six protocols as the built-in table has them (src/nx/data/nx_terrain_data.c): names, days,
+ * items and the set at each position. The positions are made up: the first two some days in, the
+ * others at their start. */
+#define NXG_TERRAINS 6u
+static const struct nx_tview k_tview[NXG_TERRAINS] = {
+    { "Terrain", "Remove Intestinal Toxins", NX_TP_REMOTE, 11, 15, 5, 6, 1, 12, 0, 0, 15180 },
+    { "Terrain", "Remove Chemical Materials", NX_TP_CONTACT, 11, 22, 5, 3, 2, 0, 0, 0, 0 },
+    { "Terrain-Mercury", "Remove Metals Minus Mercury", NX_TP_REMOTE, 11, 15, 0, 1, 0, 24, 0, 0, 0 },
+    { "Terrain-Mercury", "Remove Metals Minus Mercury", NX_TP_CONTACT, 11, 22, 0, 1, 1, 0, 0, 0, 0 },
+    { "Terrain-Nonviolent", "Remove Metals", NX_TP_REMOTE, 10, 13, 0, 1, 0, 24, 0, 0, 0 },
+    { "Terrain-Nonviolent", "Remove Metals", NX_TP_CONTACT, 10, 20, 0, 1, 1, 0, 0, 0, 0 },
 };
 
 unsigned nx_uc_terrain_count(void)
 {
-    return 2;
+    return NXG_TERRAINS;
 }
 
 int nx_uc_terrain_view(unsigned id, struct nx_tview *v)
 {
-    if (id < 1u || id > 2u)
+    if (id < 1u || id > NXG_TERRAINS)
         return 0;
     *v = k_tview[id - 1u];
     for (unsigned ch = 0; ch < 2u; ch++)
@@ -384,7 +393,7 @@ void nx_uc_terrain_power(unsigned id)
 #endif
 
 #if NX_FEAT_PRESET
-unsigned nx_uc_preset_count(void)   /* a made-up preset (the real one: src/nx/data/nx_preset_data.c) */
+unsigned nx_uc_preset_count(void)   /* the built-in preset's name and shape (src/nx/data/nx_preset_data.c) */
 {
     return g_nxg.presets;
 }

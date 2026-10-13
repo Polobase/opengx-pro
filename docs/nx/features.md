@@ -592,16 +592,16 @@ They use the drawn splash. To render them again:
 | | |
 |---|---|
 | ![Chains](../../tests/gallery/nx/chains.png) | ![Chain editor](../../tests/gallery/nx/chain_edit.png) |
-| menu > Chains: the built-in rows first (here two made-up Terrain protocols), then the chains and plans | Chain editor |
+| menu > Chains, scrolled down to the chains: the built-in rows first (the six Terrain protocols and the preset), then the chains and plans | Chain editor |
 | ![Plan editor](../../tests/gallery/nx/plan_edit.png) | |
 | Plan editor | |
 
 ### Terrain Protocol and manual generator
 
-The Terrain shots use made-up protocols and sets ("Demo", "Demo cleanse", "Demo kidney":
-`src/nx/nxg_core.c`, the names of `tests/host/nx/terrain_fixture.c`), not the tables of the
-image. On a unit the six rows are "Terrain · Remote", "Terrain · Contact" and so on, with the
-set names of Spooky2's presets (section 9.12).
+The Terrain shots show the six protocols with the names, days and sets of the image's table
+(copied by hand into `src/nx/nxg_core.c`; the gallery does not run the Terrain engine). The
+positions in them are examples. The host tests keep their own made-up tables
+(`tests/host/nx/terrain_fixture.c`).
 
 | | |
 |---|---|
@@ -649,9 +649,9 @@ set names of Spooky2's presets (section 9.12).
 | ![PC monitor, waveform and amplitude](../../tests/gallery/nx/pc_monitor_info.png) | ![Calibration](../../tests/gallery/nx/calibration.png) |
 | PC monitor: waveforms, amplitudes, gating | Calibration grid |
 | ![PC monitor, wave tables of 11 cycles](../../tests/gallery/nx/pc_monitor_wcm.png) | ![Chains with a built-in preset](../../tests/gallery/nx/chains_preset.png) |
-| PC monitor: the output frequency of wave tables with 11 and 16 cycles; Out2 the inverse | menu > Chains: the built-in preset (here a made-up one, "Demo sweep") after the Terrain rows, loaded on G2 |
+| PC monitor: the output frequency of wave tables with 11 and 16 cycles; Out2 the inverse | menu > Chains: the built-in preset, "Radionics (Boost) Manifestation", after the Terrain rows, loaded on G2 |
 | ![Dashboard, built-in preset](../../tests/gallery/nx/dash_preset.png) | |
-| The built-in preset (the made-up one) in a sweep: the output frequency, the next step's start | |
+| The built-in preset in a sweep: the output frequency, the next step's start | |
 | ![Splash](../../tests/gallery/nx/splash_1100.png) | ![Goodbye](../../tests/gallery/nx/goodbye.png) |
 | Splash (the drawn one, black in every theme) | Goodbye |
 

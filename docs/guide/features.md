@@ -75,8 +75,9 @@ The program list keeps the original's seven rows. The detail lists every step.
 
 ![The list of menu > Chains](../../tests/gallery/nx/chains.png) ![Manual generator, a sweep](../../tests/gallery/nx/manual_sweep.png)
 
-Menu > Chains is one list: the built-in programmes first (in the picture two sample rows,
-"Demo · Remote" and "Demo · Contact"), then the chains and the plans. The manual generator sets a
+Menu > Chains is one list: the built-in programmes first (the six rows of the Terrain Protocol
+and "Radionics (Boost) Manifestation"), then the chains and the plans. In the picture the list is
+scrolled down to the chains. The manual generator sets a
 frequency or a sweep by hand.
 
 ![Timers](../../tests/gallery/nx/settings_timers.png) ![Resume after a power cut](../../tests/gallery/nx/resume_offer.png)
@@ -154,11 +155,8 @@ The set-end notice of a Contact session.
 
 The preset's row after the Terrain rows, loaded on G2, and its dashboard in a sweep.
 
-The names in these pictures are sample data: the rows "Demo · Remote" and "Demo · Contact", the
-sets "Demo cleanse" and "Demo kidney" and the preset "Demo sweep" are made up, and the Terrain
-dashboard shows the gallery's sample program. On a unit the rows are "Terrain · Remote",
-"Terrain · Contact" and so on, the sets carry the names of Spooky2's presets, and the preset is
-"Radionics (Boost) Manifestation".
+The rows, the names of the sets and the preset in these pictures are those of the unit. The
+positions (day 6 of 11, day 3 of 11) are examples.
 
 ## With Spooky2 (PC mode)
 

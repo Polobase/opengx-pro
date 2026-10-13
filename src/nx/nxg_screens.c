@@ -143,6 +143,18 @@ static void all_done(void)   /* G1 has finished, G2 is empty: "power off when al
 #endif
 
 #if NX_FEAT_CHAINS
+static unsigned builtin_rows(void)   /* the rows of menu > Chains before "Chain 1" */
+{
+    unsigned n = 0;
+#if NX_FEAT_TERRAIN
+    n += nx_uc_terrain_count();
+#endif
+#if NX_FEAT_PRESET
+    n += nx_uc_preset_count();
+#endif
+    return n;
+}
+
 static void chain_on(void)   /* G1 plays chain 1 (Lyme, Detox, Immune): the second of three */
 {
     g_nxg.vm.g[0].chain = 1;
@@ -151,10 +163,9 @@ static void chain_on(void)   /* G1 plays chain 1 (Lyme, Detox, Immune): the seco
 }
 #endif
 #if NX_FEAT_PRESET
-static void preset_on(void)   /* G2 plays the made-up preset in a sweep: step 4 of 18, 80.41 Hz, 396 Hz next */
+static void preset_on(void)   /* G2 plays the built-in preset in a sweep: step 4 of 18, 80.41 Hz, 396 Hz next */
 {
     struct nx_gen_vm *g = &g_nxg.vm.g[1];
-    g_nxg.presets = 1;
     g->state = NXG_RUNNING;
     g->slot = NX_UC_PRESET;
     g->loop = 1;
@@ -172,11 +183,24 @@ static void preset_on(void)   /* G2 plays the made-up preset in a sweep: step 4 
 }
 #endif
 #if NX_FEAT_TERRAIN
-static void terrain_on(void)   /* G1 plays the made-up Remote protocol 1, day 6 */
+static void terrain_on(void)   /* G1 plays Terrain · Remote (protocol 1), day 6: step 12 of the set's 32 */
 {
-    g_nxg.vm.g[0].terrain = 1;
-    g_nxg.vm.g[0].t_day = 6;
-    g_nxg.vm.g[0].t_days = 11;
+    struct nx_gen_vm *g = &g_nxg.vm.g[0];
+    g->terrain = 1;
+    g->t_day = 6;
+    g->t_days = 11;
+    g->slot = NXG_SLOT_TSET;   /* as the table has the set: 32 steps of 78 s, square, 5 V */
+    g->wave = 12;
+    g->ampl_cv = 500;
+    g->step = 12;
+    g->count = 32;
+    g->dwell_s = 78;
+    g->total_s = 32u * 78u;
+    g->left_s = g->total_s - 11u * 78u - 30u;
+    g->step_left_s = 48;
+    g->frac = (uint16_t)((uint32_t)(g->total_s - g->left_s) * 65535u / g->total_s);
+    g->freq = 1658u;           /* 165 Hz */
+    g->next = 2008u;
 }
 #endif
 
@@ -387,6 +411,11 @@ static void settings(void)
     begin(NX_THEME_DARK, chain_on);
     nx_ui_push(&nx_scr_chains, 0, NX_TR_NONE);
     run(300);
+    for (unsigned i = 0; i < builtin_rows() + NX_CHAINS - 1u; i++)
+        press(NX_KEY_DOWN, 80);   /* to "Chain 4": the chains come into view below the built-in rows */
+    for (unsigned i = 0; i < NX_CHAINS - 1u; i++)
+        press(NX_KEY_UP, 80);     /* back to "Chain 1" */
+    run(400);
     nxg_take("chains");
     nx_ui_push(&nx_scr_chain_edit, 1, NX_TR_NONE);
     run(300);

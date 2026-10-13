@@ -20,6 +20,10 @@ void nxg_settle(void);
 /* nxg_settle, then nxg_shot(g_nxg_shots++, name). */
 void nxg_take(const char *name);
 
+/* The source a generator has loaded while the gallery's Terrain protocol 1 plays: built-in set 4
+ * (NX_SRC_SET + 4 of nx_src.h), "Remove Intestinal Toxins". */
+#define NXG_SLOT_TSET 0x44u
+
 struct nxg_fix {
     struct nx_vm vm;                   /* what nx_uc_vm returns */
     const char *names[32];             /* slot names (NULL: none) */
@@ -31,7 +35,7 @@ struct nxg_fix {
     uint8_t resume_offer;              /* what nx_uc_resume_offer returns */
     uint8_t resume_on;                 /* the resume setting */
     uint8_t resume_auto;               /* the offer is the auto-start */
-    uint8_t presets;                   /* built-in presets with sweeps (0: none, as in most shots) */
+    uint8_t presets;                   /* built-in presets with sweeps (1, as in the released image) */
 };
 
 extern struct nxg_fix g_nxg;
