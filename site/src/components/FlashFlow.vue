@@ -3,6 +3,7 @@ import { computed, onBeforeUnmount, ref } from 'vue'
 import { BytePort } from '../lib/byteport'
 import { flashImage, readHardwareId } from '../lib/flasher'
 import { describeHardwareId, type FirmwareImage } from '../lib/image'
+import { FEEDBACK_URL } from '../lib/links'
 import PortHint from './PortHint.vue'
 import UpdateModeFigure from './UpdateModeFigure.vue'
 
@@ -153,7 +154,7 @@ onBeforeUnmount(release)
     <li :class="{ current: status === 'done' }">
       <h3>Restart</h3>
       <p v-if="status === 'done'" class="note ok"><b>Done.</b> The unit's screen may show “OK!”. Switch the unit off and on
-        again. {{ after }}</p>
+        again. {{ after }} <a :href="FEEDBACK_URL" target="_blank" rel="noopener">Tell us how it went</a>.</p>
       <p v-else>Switch the unit off and on again. {{ after }}</p>
     </li>
   </ol>

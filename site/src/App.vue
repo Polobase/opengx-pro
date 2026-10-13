@@ -73,7 +73,7 @@ const supported = webSerialSupported()
     </div>
   </header>
 
-  <main :class="route.section">
+  <main>
     <HomePanel v-if="route.section === 'home'" />
     <template v-else>
       <header v-if="current.title" class="page-head">

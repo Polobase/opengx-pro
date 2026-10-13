@@ -33,7 +33,7 @@ function press(k: string) {
       <p class="lead">Press a key on the drawing. The pictures are real screens of the firmware.</p>
       <p class="says" aria-live="polite"><kbd>{{ key }}</kbd> {{ key === 'START' && paused ? 'Paused. START plays on, with the time left where it was.' : steps[key]!.says }}</p>
       <p class="muted">Prefer the keys exactly as they were? One switch in the settings, “Original key behaviour”, gives them back.
-        <a href="#/docs/keys">All keys and screens</a></p>
+        <a href="#/docs/use">Step by step: how to use it</a></p>
     </div>
   </div>
 </template>

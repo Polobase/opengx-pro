@@ -1,0 +1,59 @@
+name: I tried it on my unit
+description: Tell us how OpenGX Pro went on your GeneratorX Pro. Good news counts as much as problems.
+title: "Tried it: "
+labels: ["beta feedback"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for trying OpenGX Pro. A few lines are enough. You can go back to the original firmware at any time: https://polobase.github.io/opengx-pro/#/restore
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Settings → About → Firmware, or the bottom left of the start screen.
+      placeholder: "0.9.0"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Did installing work?
+      options:
+        - "Yes, first try"
+        - "Yes, after a second try"
+        - "No"
+    validations:
+      required: true
+  - type: dropdown
+    id: updatescreen
+    attributes:
+      label: In update mode (Stop held, Power pressed), what did the screen show?
+      options:
+        - "“Firmware Update”"
+        - "It stayed dark"
+        - "Something else / I did not look"
+  - type: checkboxes
+    id: tried
+    attributes:
+      label: What did you try?
+      options:
+        - label: A stored program, played from the unit
+        - label: Both generators at the same time
+        - label: Spooky2 on the computer (PC mode)
+        - label: The Terrain Protocol or the built-in preset
+        - label: The manual generator or a sweep
+        - label: Chains, plans or timers
+        - label: Going back to the original firmware
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: What worked, what did not, what surprised you. A photo of the screen helps (drag it in here).
+    validations:
+      required: true
+  - type: input
+    id: system
+    attributes:
+      label: Computer and browser used for installing
+      placeholder: "Windows 11, Chrome"

@@ -105,7 +105,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 }
 .btn.primary:hover, .button.primary:hover, button.primary:hover:not(:disabled) { filter: brightness(1.07); border-color: transparent; }
 .btn.big { padding: 14px 24px; font-size: 16.5px; border-radius: 14px; }
-.btn .sub { font-weight: 550; font-size: 13px; opacity: 0.92; padding-left: 12px; border-left: 1px solid color-mix(in srgb, currentColor 40%, transparent); }
+.btn .sub { color: inherit; font-weight: 600; font-size: 13.5px; padding-left: 12px; border-left: 1px solid color-mix(in srgb, currentColor 45%, transparent); }
 button:disabled { opacity: 0.45; cursor: not-allowed; }
 .btn.coffee { background: #ffdd00; color: #1b1300; border-color: transparent; padding: 8px 14px; font-size: 14px; }
 .btn.coffee:hover { filter: brightness(1.05); border-color: transparent; }
@@ -418,8 +418,8 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .card p { margin: 0 0 8px; color: var(--ink-2); }
 .card input { width: 100%; font: inherit; padding: 9px 11px; border-radius: 10px; border: 1px solid var(--rule-2); background: var(--panel); color: var(--ink); }
 .result { margin-top: 12px; }
-.big { font-size: 36px; font-weight: 730; letter-spacing: -0.03em; }
-.big span { font-size: 15px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
+.result .big { font-size: 36px; font-weight: 730; letter-spacing: -0.03em; }
+.result .big span { font-size: 15px; font-weight: 500; color: var(--ink-3); letter-spacing: 0; }
 .small-stats { color: var(--ink-2); font-size: 14px; margin-bottom: 6px; }
 .hist { width: 100%; max-width: 560px; height: auto; display: block; }
 .hist rect { fill: var(--accent); }
@@ -590,3 +590,56 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .updfig li { counter-increment: u; font-size: 13.5px; color: var(--ink-3); padding: 3px 10px; border-radius: 8px; transition: background 0.3s, color 0.3s; }
 .updfig li::before { content: counter(u) '. '; font-variant-numeric: tabular-nums; }
 .updfig li.on { background: var(--accent-soft); color: var(--ink); font-weight: 600; }
+
+/* ---- how to use it: steps on the left, the unit on the right ---- */
+.howto { min-width: 0; }
+.howto h1 { font-size: clamp(27px, 3.4vw, 38px); letter-spacing: -0.035em; margin: 0 0 10px; }
+.howto .chips { margin-bottom: 22px; }
+.howto-stage { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 28px; align-items: start; margin-bottom: 18px; }
+.howto-steps { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.howto-steps button { display: flex; gap: 14px; width: 100%; text-align: left; padding: 12px 14px; border-radius: 14px; background: transparent; border: 1px solid transparent; color: var(--ink-2); transition: background 0.25s, border-color 0.25s; }
+.howto-steps button:hover { background: var(--panel-2); }
+.howto-steps .num { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; font-weight: 700; font-size: 14px; background: var(--bg-2); color: var(--ink-3); transition: background 0.25s, color 0.25s; }
+.howto-steps b { display: block; font-size: 16.5px; font-weight: 620; color: var(--ink); letter-spacing: -0.01em; }
+.howto-steps .text { display: block; font-size: 14.5px; line-height: 1.45; max-height: 0; opacity: 0; overflow: hidden; transition: max-height 0.4s var(--ease), opacity 0.3s, margin 0.3s; }
+.howto-steps li.on button { background: var(--panel-2); border-color: var(--rule-2); box-shadow: var(--shadow); }
+.howto-steps li.on .text { max-height: 120px; opacity: 1; margin-top: 4px; }
+.howto-steps li.on .num { background: var(--accent); color: var(--accent-ink); }
+.howto-steps li.done .num { background: var(--accent-soft); color: var(--accent); }
+.howto-unit { position: sticky; top: calc(var(--nav-h) + 20px); display: grid; justify-items: center; gap: 14px; }
+.howto-unit .unit { box-shadow: 0 1px 0 #fff inset, 0 -2px 0 rgb(0 0 0 / 0.18) inset, var(--shadow-lg), 0 0 0 1px rgb(0 0 0 / 0.3); }
+.howto-now { margin: 0; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center; font-size: 16px; font-weight: 600; min-height: 32px; }
+.howto-now i { font-style: normal; font-weight: 500; color: var(--ink-3); }
+.howto-now kbd { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-size: 14px; padding: 4px 10px; }
+.howto-nav { display: flex; align-items: center; gap: 14px; color: var(--ink-3); font-size: 14px; font-variant-numeric: tabular-nums; }
+.howto-nav button { font: 600 15px var(--font); padding: 9px 18px; border-radius: 12px; border: 1px solid var(--rule-2); background: var(--panel); color: var(--ink); }
+.howto-nav button.primary { border-color: transparent; }
+@media (max-width: 1080px) {
+  .howto-stage { grid-template-columns: 1fr; }
+  .howto-unit { position: static; order: -1; }
+}
+
+/* ---- narrow screens: less padding, the number of a step above its text ---- */
+@media (max-width: 560px) {
+  .wrap { padding: 0 14px; }
+  .panel { padding: 18px; }
+  .steps > li { padding: 58px 16px 16px; }
+  .steps > li::before { left: 16px; top: 16px; }
+  .unit-screen img { width: min(320px, calc(100vw - 112px)); }
+  .updfig .unit.small .unit-pad { grid-template-columns: repeat(2, 30px); gap: 5px 6px; padding: 6px; }
+  .updscreen { width: 150px; height: 112px; padding: 14px 4px 12px; }
+  .updscreen span { font-size: 8.5px; }
+  .marquee { margin-left: -14px; margin-right: -14px; }
+  .section { padding-top: 64px; }
+  .band { margin-top: 64px; padding: 52px 0; }
+}
+
+/* ---- testers ---- */
+.testers { display: grid; grid-template-columns: 1.1fr 1fr; gap: 40px; align-items: center; padding: 40px; border-radius: 24px; border: 1px solid var(--rule);
+  background: radial-gradient(600px circle at 0% 0%, color-mix(in srgb, var(--accent) 16%, transparent), transparent 60%), var(--panel); box-shadow: var(--shadow); }
+.testers h2 { font-size: clamp(25px, 3vw, 36px); font-weight: 720; letter-spacing: -0.035em; margin: 10px 0 12px; }
+.testers ol { margin: 0; padding: 0; list-style: none; counter-reset: t; display: grid; gap: 10px; }
+.testers li { counter-increment: t; position: relative; padding: 12px 14px 12px 50px; border-radius: 12px; background: var(--panel-2); border: 1px solid var(--rule); color: var(--ink-2); }
+.testers li::before { content: counter(t); position: absolute; left: 12px; top: 10px; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; font-size: 14px; background: var(--accent-soft); color: var(--accent); }
+.testers li b { color: var(--ink); }
+@media (max-width: 860px) { .testers { grid-template-columns: 1fr; padding: 24px; gap: 24px; } }

@@ -1,0 +1,73 @@
+<!doctype html>
+<!-- The picture that shows when the site is shared (Facebook, messengers): public/og.png, 1200 x 630.
+     Render it again after a change, from the site folder:
+       npx playwright screenshot --viewport-size=1200,630 scripts/og.html public/og.png
+     and the home-screen icon:
+       npx playwright screenshot --viewport-size=180,180 "scripts/og.html#icon" public/apple-touch-icon.png -->
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<style>
+  @font-face { font-family: Inter; font-weight: 100 900; src: url('../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2') format('woff2'); }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; width: 1200px; height: 630px; overflow: hidden; background: #05070a; color: #f1f4f6; font-family: Inter, system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
+  .bg i { position: absolute; border-radius: 50%; filter: blur(90px); }
+  .bg .a { width: 620px; height: 620px; left: -200px; top: -260px; background: #0d6f7d; opacity: 0.7; }
+  .bg .b { width: 520px; height: 520px; right: -160px; top: -200px; background: #7a4a06; opacity: 0.5; }
+  .bg .c { width: 760px; height: 520px; left: 30%; bottom: -380px; background: #7d1620; opacity: 0.5; }
+  .bg .grid { position: absolute; inset: 0; border-radius: 0; filter: none;
+    background-image: linear-gradient(rgb(255 255 255 / 0.05) 1px, transparent 1px), linear-gradient(90deg, rgb(255 255 255 / 0.05) 1px, transparent 1px);
+    background-size: 48px 48px; -webkit-mask-image: radial-gradient(ellipse 75% 70% at 40% 40%, #000 20%, transparent 80%); }
+  main { position: absolute; inset: 0; display: grid; grid-template-columns: 1fr auto; align-items: center; gap: 36px; padding: 56px 60px 56px 64px; }
+  .logo { display: flex; align-items: center; gap: 14px; font-size: 30px; font-weight: 700; letter-spacing: -0.02em; }
+  .logo em { font: 700 14px Inter; letter-spacing: 0.1em; text-transform: uppercase; padding: 4px 11px; border-radius: 99px; background: #f5b544; color: #1b1300; font-style: normal; }
+  h1 { font-size: 66px; line-height: 1.02; font-weight: 760; letter-spacing: -0.045em; margin: 30px 0 22px; }
+  h1 span { background: linear-gradient(100deg, #3fd0e0 5%, #c9f4f8 45%, #f5b544 95%); -webkit-background-clip: text; color: transparent; }
+  p { font-size: 25px; line-height: 1.35; color: #b3bec7; margin: 0 0 26px; max-width: 560px; }
+  ul { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 10px 12px; max-width: 600px; }
+  li { font-size: 19px; font-weight: 600; padding: 8px 15px; border-radius: 99px; background: rgb(255 255 255 / 0.08); border: 1px solid rgb(255 255 255 / 0.16); color: #e6ecf0; }
+  .unit { padding: 16px 20px 20px; border-radius: 28px; color: #2b3035; transform: rotate(2.2deg);
+    background: linear-gradient(160deg, #eef0f2 0%, #c9ced3 45%, #a3aab1 100%); border: 1px solid #f6f7f8;
+    box-shadow: 0 1px 0 #fff inset, 0 -2px 0 rgb(0 0 0 / 0.18) inset, 0 50px 90px rgb(0 0 0 / 0.6), 0 0 120px rgb(63 208 224 / 0.25); }
+  .unit-name { font: 600 17px Georgia, serif; padding: 0 2px 11px; }
+  .unit-name b { color: #b3261e; font-weight: 600; }
+  .face { display: flex; align-items: center; gap: 18px; }
+  .screen { padding: 9px; border-radius: 10px; background: #050607; box-shadow: 0 0 0 1px #6f767d, 0 0 0 3px #d9dde1, 0 0 0 4px #8a9199; }
+  .screen img { display: block; width: 400px; height: 300px; image-rendering: pixelated; border-radius: 2px; }
+  .pad { display: grid; grid-template-columns: repeat(2, 56px); grid-template-rows: 36px 46px 46px 36px; gap: 10px 13px; padding: 13px; border-radius: 16px; box-shadow: 0 0 0 1px #8f969d inset; background: linear-gradient(160deg, #d5d9dd, #b9bfc5); }
+  .pad span { display: grid; place-items: center; font: 600 13px Inter; background: linear-gradient(180deg, #fff, #dfe3e6); border: 1px solid #7c838a; border-radius: 9px; box-shadow: 0 2px 3px rgb(0 0 0 / 0.25); }
+  .pad .pw { width: 38px; height: 38px; border-radius: 50%; justify-self: center; align-self: center; color: #b3261e; font-size: 17px; }
+  .pad .lit { background: linear-gradient(180deg, #a5f0f7, #3fd0e0); border-color: #0d8b99; box-shadow: 0 0 0 3px rgb(63 208 224 / 0.45), 0 0 22px rgb(63 208 224 / 0.9); }
+  .pad .top { border-radius: 12px 12px 3px 3px; margin-bottom: -5px; } .pad .bot { border-radius: 3px 3px 12px 12px; margin-top: -5px; }
+  body.icon main, body.icon .bg { display: none; }
+  .icon-art { display: none; }
+  body.icon { width: 180px; height: 180px; background: #000; }
+  body.icon .icon-art { display: grid; place-items: center; width: 180px; height: 180px; }
+</style>
+</head>
+<body>
+  <div class="bg"><i class="a"></i><i class="b"></i><i class="c"></i><i class="grid"></i></div>
+  <main>
+    <div>
+      <div class="logo">
+        <svg width="44" height="44" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11.5" fill="none" stroke="#fff" stroke-width="4.2"/><path d="M9.6 16c1.6-4.6 3.2-4.6 4.8 0s3.2 4.6 4.8 0 1.9-3.2 3.2-1.2" fill="none" stroke="#ff4d4d" stroke-width="1.9" stroke-linecap="round"/></svg>
+        OpenGX Pro <em>beta</em>
+      </div>
+      <h1>More from the screen of your <span>GeneratorX&nbsp;Pro</span></h1>
+      <p>Free, open firmware for the Spooky2 GeneratorX Pro. Install it from your browser, go back any time.</p>
+      <ul><li>Terrain Protocol built in</li><li>Works with Spooky2</li><li>Your programs stay</li></ul>
+    </div>
+    <div class="unit">
+      <div class="unit-name">GeneratorX <b>Pro</b></div>
+      <div class="face">
+        <div class="screen"><img src="../../tests/gallery/nx/dash_running.png" alt="" /></div>
+        <div class="pad"><span>Stop</span><span class="pw">⏻</span><span class="top">▲</span><span class="top">G1</span><span class="bot">▼</span><span class="bot">G2</span><span class="lit">Start</span><span>Loop</span></div>
+      </div>
+    </div>
+  </main>
+  <div class="icon-art">
+    <svg width="132" height="132" viewBox="0 0 32 32"><circle cx="16" cy="16" r="11.5" fill="none" stroke="#fff" stroke-width="4.2"/><path d="M9.6 16c1.6-4.6 3.2-4.6 4.8 0s3.2 4.6 4.8 0 1.9-3.2 3.2-1.2" fill="none" stroke="#ff4d4d" stroke-width="1.9" stroke-linecap="round"/></svg>
+  </div>
+  <script>if (location.hash === '#icon') document.body.classList.add('icon')</script>
+</body>
+</html>

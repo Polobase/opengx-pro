@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { REPO_URL } from '../lib/links'
+import { FEEDBACK_URL, REPO_URL } from '../lib/links'
 import { rowCount } from '../lib/matrix'
 import { loadReleases, preferred, type Release } from '../lib/releases'
 import { vReveal } from '../lib/reveal'
@@ -215,6 +215,29 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <a class="btn primary big" href="#/install">Go to Install</a>
         <a class="btn big" href="#/restore">How to go back</a>
       </p>
+    </div>
+  </section>
+
+  <section class="wrap section">
+    <div class="testers" v-reveal>
+      <div>
+        <span class="eyebrow">Beta testers welcome</span>
+        <h2>Try it on your unit and tell us how it went</h2>
+        <p class="lead">OpenGX Pro passes its tests on the computer. What it needs now is real units and real use. Ten
+          minutes are enough: install it, play a program, connect Spooky2, and go back to the original if you like.</p>
+        <p class="row">
+          <a class="btn primary" :href="FEEDBACK_URL" target="_blank" rel="noopener">Tell us how it went</a>
+          <a class="btn" href="#/docs/known-issues">What is not checked yet</a>
+        </p>
+        <p class="muted">The form needs a free GitHub account. No account? Answer where you found this page; it gets read.</p>
+      </div>
+      <ol>
+        <li><b>Install</b> and look at the start screen: does it say OpenGX Pro?</li>
+        <li><b>Play a stored program</b> on G1 and one on G2.</li>
+        <li><b>Connect Spooky2</b> and run a preset as you always do.</li>
+        <li><b>Try something new:</b> the Terrain Protocol, the manual generator, a chain.</li>
+        <li><b>Go back</b> to the original once, so you know the way.</li>
+      </ol>
     </div>
   </section>
 
