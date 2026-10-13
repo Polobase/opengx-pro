@@ -24,8 +24,8 @@ ORIGINAL := original/GxDisplayFW.bin
 PYTHON   := python3                  # build steps use the standard library only
 FLASHER  := .venv/bin/python tools/flash_gx_pro.py
 
-# Personal settings (never committed): e.g. TERRAIN_DIR and PRESET_FILE, the folders of your own
-# Spooky2 presets for a private build (below). Variables only.
+# Personal settings (never committed): e.g. TERRAIN_DIR and PRESET_FILE, where your Spooky2
+# installation keeps its presets, for `make nx-data` (below). Variables only.
 -include local.mk
 
 CROSS   := arm-none-eabi-
@@ -81,38 +81,35 @@ ifeq ($(APP)$(NX_VENDOR),nx1)
 CFLAGS_nx   += -DNX_VENDOR_SPLASH=1
 VENDOR_OBJ  := $(BUILD)/nx_vendor.o
 endif
-# The built-in Terrain Protocol (tools/gen_nx_terrain.py): generated from the user's own Spooky2
-# presets into $(BUILD) and never committed. TERRAIN_DIR (local.mk or the command line) names the
-# folder "Preset Collections/Detox/Terrain Protocol" of a Spooky2 installation; without it, and
-# with NX_TERRAIN=0, the image has no Terrain rows. After changing the presets:
-# rm $(BUILD)/nx_terrain_data.c.
+# The built-in Terrain Protocol and the built-in preset with sweeps: data tables taken from
+# Spooky2's presets (tools/gen_nx_terrain.py, tools/gen_nx_preset.py; docs/nx/THIRD_PARTY.md),
+# committed in src/nx/data/ so that every build has the same ones. NX_TERRAIN=0 builds without the
+# Terrain rows, NX_PRESETS=0 without the preset row. `make nx-data` writes the tables again from a
+# Spooky2 installation: TERRAIN_DIR names its folder "Preset Collections/Detox/Terrain Protocol",
+# PRESET_FILE one preset .txt (local.mk or the command line).
 TERRAIN_DIR ?=
-NX_TERRAIN  ?= $(if $(shell test -d "$(TERRAIN_DIR)" && echo 1),1,0)
+PRESET_FILE ?=
+NX_TERRAIN  ?= 1
+NX_PRESETS  ?= 1
 ifeq ($(APP)$(NX_TERRAIN),nx1)
 CFLAGS_nx   += -DNX_TERRAIN_DATA=1
-TERRAIN_OBJ := $(BUILD)/nx_terrain_data.o
+TERRAIN_OBJ := $(BUILD)/nx/data/nx_terrain_data.o
 endif
-# The built-in preset with sweeps (tools/gen_nx_preset.py): generated from the user's own Spooky2
-# preset into $(BUILD) and never committed. PRESET_FILE (local.mk or the command line) names one
-# preset .txt of a Spooky2 installation; without it, and with NX_PRESETS=0, the image has no preset
-# row. After changing the preset: rm $(BUILD)/nx_preset_data.c.
-PRESET_FILE ?=
-NX_PRESETS  ?= $(if $(shell test -f "$(PRESET_FILE)" && echo 1),1,0)
 ifeq ($(APP)$(NX_PRESETS),nx1)
 CFLAGS_nx   += -DNX_PRESET_DATA=1
-PRESET_OBJ  := $(BUILD)/nx_preset_data.o
+PRESET_OBJ  := $(BUILD)/nx/data/nx_preset_data.o
 endif
 # A device-test build whose program time runs NX_TIME_X times faster (dwells, Terrain hours; not the
 # manual sweeps): make APP=nx NX_TIME_X=60 BUILD=build/nx-x60. Never for normal use.
 ifdef NX_TIME_X
 CFLAGS_nx   += -DNX_DWELL_UNITS=$(shell echo $$((1000 / $(NX_TIME_X))))u
 endif
-# The image that is published (`make release`, below) holds only what is ours to give away: no
-# artwork from the original image, no data from Spooky2 presets, and no test timing or LCD
-# overrides. src/nx/nx_config.h and tools/release_check.py check the same again.
+# The image that is published (`make release`, below): no artwork from the original image, the
+# Terrain Protocol and the preset from the committed tables, and no test timing or LCD overrides.
+# src/nx/nx_config.h and tools/release_check.py check the same again.
 ifeq ($(APP)$(NX_RELEASE),nx1)
-ifneq ($(NX_VENDOR)$(NX_TERRAIN)$(NX_PRESETS)$(NX_TIME_X)$(NX_LCD_OPTS),000)
-$(error release build: NX_VENDOR, NX_TERRAIN and NX_PRESETS must be 0, NX_TIME_X and NX_LCD_OPTS empty)
+ifneq ($(NX_VENDOR)$(NX_TERRAIN)$(NX_PRESETS)$(NX_TIME_X)$(NX_LCD_OPTS),011)
+$(error release build: NX_VENDOR must be 0, NX_TERRAIN and NX_PRESETS 1, NX_TIME_X and NX_LCD_OPTS empty)
 endif
 CFLAGS_nx   += -DNX_RELEASE=1
 endif
@@ -183,18 +180,6 @@ $(BUILD)/nx_vendor.c: tools/gen_nx_vendor.py tools/gen_assets.py $(ORIGINAL) | $
 $(BUILD)/nx_vendor.o: $(BUILD)/nx_vendor.c src/nx/nx_vendor.h $(BUILD)/cflags.stamp
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BUILD)/nx_terrain_data.c: tools/gen_nx_terrain.py | $(BUILD)
-	$(PYTHON) tools/gen_nx_terrain.py "$(TERRAIN_DIR)" $@
-
-$(BUILD)/nx_terrain_data.o: $(BUILD)/nx_terrain_data.c src/nx/nx_terrain_data.h $(BUILD)/cflags.stamp
-	$(CC) $(CFLAGS) -c $< -o $@
-
-$(BUILD)/nx_preset_data.c: tools/gen_nx_preset.py | $(BUILD)
-	$(PYTHON) tools/gen_nx_preset.py "$(PRESET_FILE)" $@
-
-$(BUILD)/nx_preset_data.o: $(BUILD)/nx_preset_data.c src/nx/nx_preset_data.h $(BUILD)/cflags.stamp
-	$(CC) $(CFLAGS) -c $< -o $@
-
 # Stamp files that change only when the flags change (CFLAGS_<APP>; LDFLAGS e.g. NX_FLASH_LIMIT), so
 # the objects are recompiled and the elf re-linked (re-running the size assert) although no
 # source changed.
@@ -246,14 +231,14 @@ $(PADDED): $(BUILD)/$(TARGET).bin tools/pad_image.py tools/gxfw.py
 flash-padded: $(PADDED)
 	$(FLASHER) -f $<
 
-# The image that is published: APP=nx from scratch in build/release, with nothing in it that is not
-# ours to give away (the guard above), checked and named by tools/release_check.py:
+# The image that is published: APP=nx from scratch in build/release, under the guard above, checked
+# and named by tools/release_check.py:
 # build/release/opengx-pro-<version>.bin (the update file), its .sha256 and manifest.json.
 # `make release STRICT=1` (the release workflow) also refuses uncommitted changes and a tag that
 # is not v<version>.
 RELEASE_DIR  := build/release
-RELEASE_VARS := APP=nx BUILD=$(RELEASE_DIR) NX_RELEASE=1 NX_VENDOR=0 NX_TERRAIN=0 NX_PRESETS=0 \
-                TERRAIN_DIR= PRESET_FILE= NX_TIME_X= NX_LCD_OPTS= NX_FLASH_LIMIT= NX_NOINIT_ADDR=
+RELEASE_VARS := APP=nx BUILD=$(RELEASE_DIR) NX_RELEASE=1 NX_VENDOR=0 NX_TERRAIN=1 NX_PRESETS=1 \
+                NX_TIME_X= NX_LCD_OPTS= NX_FLASH_LIMIT= NX_NOINIT_ADDR=
 release:
 	rm -rf $(RELEASE_DIR)
 	$(MAKE) $(RELEASE_VARS) all nx-size
@@ -279,6 +264,14 @@ conformance:
 	node "$(CONFORMANCE_DIR)/dist/cli.js" conformance --device genx-pro --port "$(PORT)" \
 	  $(if $(COMPARE),--compare "$(COMPARE)") --record "$(RECORD)"
 
+# The Terrain and preset tables again from a Spooky2 installation (standard library only):
+#   make nx-data TERRAIN_DIR=".../Preset Collections/Detox/Terrain Protocol" PRESET_FILE=".../a preset.txt"
+nx-data:
+	@test -d "$(TERRAIN_DIR)" || { echo "set TERRAIN_DIR to the folder Preset Collections/Detox/Terrain Protocol of a Spooky2 installation"; exit 2; }
+	@test -f "$(PRESET_FILE)" || { echo "set PRESET_FILE to a preset .txt of a Spooky2 installation"; exit 2; }
+	$(PYTHON) tools/gen_nx_terrain.py "$(TERRAIN_DIR)" src/nx/data/nx_terrain_data.c
+	$(PYTHON) tools/gen_nx_preset.py "$(PRESET_FILE)" src/nx/data/nx_preset_data.c
+
 # nx UI assets (docs/nx/fw2-design.md "UI / UX"). The generated tables src/nx/nx_assets.{c,h} and src/nx/nx_str_ids.h are
 # committed, so building the firmware needs no Python packages. These targets use the .venv
 # (Pillow with FreeType and raqm, tools/requirements.txt); nx-assets-fetch needs the network once.
@@ -303,5 +296,5 @@ nx-size: $(BUILD)/$(TARGET).elf
 clean:
 	rm -rf build
 
-.PHONY: all flash flash-original padded flash-padded release flash-release conformance clean FORCE nx-assets-fetch nx-assets-test nx-assets nx-assets-check nx-assets-preview
+.PHONY: all flash flash-original padded flash-padded release flash-release nx-data conformance clean FORCE nx-assets-fetch nx-assets-test nx-assets nx-assets-check nx-assets-preview
 -include $(OBJS:.o=.d)

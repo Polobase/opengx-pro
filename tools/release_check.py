@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 """Check a release build of the nx firmware (`make release`) and name its files.
 
-The image that is published must hold only what is ours to give away and must fit what the
-bootloader is proven to take. This tool checks the finished build directory:
+The image that is published must hold nothing of the original firmware image, must carry the
+built-in Terrain Protocol and preset from the committed tables, and must fit what the bootloader
+is proven to take. This tool checks the finished build directory:
 
-  - the compiler flags: NX_RELEASE=1, no vendor splash, no Terrain or preset data, no test timing;
-  - the map file and the directory: no object or source generated from the original image or from
-    Spooky2 presets (nx_vendor, nx_terrain_data, nx_preset_data, assets);
+  - the compiler flags: NX_RELEASE=1, the Terrain and preset tables on, no vendor splash, no test
+    timing;
+  - the map file and the directory: no object or source generated from the original image
+    (nx_vendor, assets), and the two tables linked from src/nx/data/;
   - the image is not larger than --limit (FLASH_PROVEN);
   - the update file is exactly the image encoded with ID X2Vx.
 
@@ -36,10 +38,13 @@ import gxfw  # noqa: E402
 ROOT = Path(__file__).resolve().parent.parent
 FW_ID = b"X2Vx"
 BLOCK_SIZE = 2048   # bytes of image per update packet
-# Flags and files of data that is not ours to give away (the Makefile's NX_VENDOR, NX_TERRAIN,
-# NX_PRESETS, and the classic apps' assets), and of the test timing (NX_TIME_X).
-BAD_FLAGS = ("-DNX_VENDOR_SPLASH", "-DNX_TERRAIN_DATA", "-DNX_PRESET_DATA", "-DNX_DWELL_UNITS")
-BAD_STEMS = ("nx_vendor", "nx_terrain_data", "nx_preset_data", "assets")
+# Flags and files of what comes out of the original firmware image (the Makefile's NX_VENDOR and
+# the classic apps' assets) and of the test timing (NX_TIME_X): never in a release.
+BAD_FLAGS = ("-DNX_VENDOR_SPLASH", "-DNX_DWELL_UNITS")
+BAD_STEMS = ("nx_vendor", "assets")
+# The built-in Terrain Protocol and preset: in every release, from the committed tables.
+NEED_FLAGS = ("-DNX_TERRAIN_DATA=1", "-DNX_PRESET_DATA=1")
+NEED_OBJECTS = ("nx/data/nx_terrain_data.o", "nx/data/nx_preset_data.o")
 
 
 def git(*args: str) -> str:
@@ -74,9 +79,12 @@ def main() -> int:
     if "-DNX_RELEASE=1" not in flags:
         errors.append("not a release build: -DNX_RELEASE=1 is missing from the compiler flags")
     errors += [f"compiler flag {f} in a release build" for f in BAD_FLAGS if f in flags]
+    errors += [f"compiler flag {f} is missing" for f in NEED_FLAGS if f not in flags]
 
-    objects = set(re.findall(r"([\w.-]+)\.o\b", (build / "gxpro.map").read_text()))
+    linked = (build / "gxpro.map").read_text()
+    objects = set(re.findall(r"([\w.-]+)\.o\b", linked))
     errors += [f"{stem}.o is linked into the image" for stem in BAD_STEMS if stem in objects]
+    errors += [f"{o} (the committed table) is not linked into the image" for o in NEED_OBJECTS if o not in linked]
     errors += [f"{p.relative_to(build)} is in the build directory"
                for stem in BAD_STEMS for p in sorted(build.rglob(f"{stem}.[co]"))]
 

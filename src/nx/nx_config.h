@@ -159,13 +159,13 @@
 #define NX_FEAT_SUPPORT 1    /* Settings > About > Support the project: the QR code of the donation page */
 #endif
 
-/* 1: the image that is published (`make release`). It holds only what is ours to give away: no
- * artwork from the original image and no data from Spooky2 presets. */
+/* 1: the image that is published (`make release`): no artwork from the original image, and the
+ * Terrain Protocol and the preset from the committed tables (src/nx/data/). */
 #ifndef NX_RELEASE
 #define NX_RELEASE 0
 #endif
-#if NX_RELEASE && (NX_VENDOR_SPLASH || NX_TERRAIN_DATA || NX_PRESET_DATA)
-#error "release build: NX_VENDOR, NX_TERRAIN and NX_PRESETS must be 0"
+#if NX_RELEASE && (NX_VENDOR_SPLASH || !NX_TERRAIN_DATA || !NX_PRESET_DATA)
+#error "release build: NX_VENDOR must be 0, NX_TERRAIN and NX_PRESETS 1"
 #endif
 
 /* ---- result codes of the nx modules (0 = success) ---- */

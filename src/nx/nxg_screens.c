@@ -423,8 +423,8 @@ static void settings(void)
     nx_ui_set_focus(1);
     nx_ui_push(&nx_scr_chains, 0, NX_TR_NONE);
     run(300);
-    for (unsigned i = 0; i < 6u; i++)
-        press(NX_KEY_DOWN, 80);   /* the preset's row, after the plans */
+    for (unsigned i = 0; i < nx_uc_terrain_count(); i++)
+        press(NX_KEY_DOWN, 80);   /* the preset's row, after the Terrain protocols */
     run(400);
     nxg_take("chains_preset");
     begin(NX_THEME_DARK, preset_on);
@@ -434,10 +434,7 @@ static void settings(void)
 #endif
 #if NX_FEAT_TERRAIN
     begin(NX_THEME_DARK, terrain_on);
-    nx_ui_push(&nx_scr_chains, 0, NX_TR_NONE);
-    run(300);
-    for (unsigned i = 0; i < 6u; i++)
-        press(NX_KEY_DOWN, 80);   /* the first Terrain row */
+    nx_ui_push(&nx_scr_chains, 0, NX_TR_NONE);   /* the list opens on the first Terrain row */
     run(400);
     nxg_take("chains_terrain");
     nx_ui_push(&nx_scr_terrain, 1, NX_TR_NONE);

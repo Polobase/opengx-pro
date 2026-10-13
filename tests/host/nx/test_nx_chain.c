@@ -246,8 +246,8 @@ void test_nx_chain(void)
     press(NX_KEY_DOWN, 100);
     press(NX_KEY_START, 100);
     CHECK(nx_ui_top() == &nx_scr_chains);
-    press(NX_KEY_DOWN, 100);
-    press(NX_KEY_DOWN, 100);
+    for (unsigned i = 0; i < nx_uc_terrain_count() + nx_uc_preset_count() + 2u; i++)
+        press(NX_KEY_DOWN, 100);   /* past the built-in rows, to chain 3 */
     press(NX_KEY_LOOP, 100);
     CHECK(nx_ui_top() == &nx_scr_chain_edit);
     press(NX_KEY_START, 100);

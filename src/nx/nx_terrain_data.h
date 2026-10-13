@@ -1,7 +1,7 @@
-/* Built-in Terrain Protocol tables (docs/nx/features.md, "Terrain Protocol"): generated from the
- * user's own Spooky2 presets by tools/gen_nx_terrain.py into build/nx/nx_terrain.c (vendor data:
- * never committed; `make APP=nx NX_TERRAIN=0` builds without), and made up for the host tests
- * (tests/host/nx/terrain_fixture.c).
+/* Built-in Terrain Protocol tables (docs/nx/features.md, "Terrain Protocol"): generated from
+ * Spooky2's Terrain presets by tools/gen_nx_terrain.py into src/nx/data/nx_terrain_data.c
+ * (committed; `make nx-data` writes it again, `make APP=nx NX_TERRAIN=0` builds without), and made
+ * up for the host tests (tests/host/nx/terrain_fixture.c).
  *
  * A set is a frequency list played k times, each entry with its own dwell, then optionally a 0 Hz
  * end step (the Contact sets' "safe to pause" notification). A protocol is either a Remote chain

@@ -1,5 +1,6 @@
-/* Chains (menu > Chains, NX_FEAT_CHAINS): the list of chains and multi-day plans (NX_FEAT_PLANS)
- * and their editor.
+/* Chains (menu > Chains, NX_FEAT_CHAINS): the list and the editor of chains and multi-day plans
+ * (NX_FEAT_PLANS). The built-in programmes stand first in the list: the Terrain protocols
+ * (NX_FEAT_TERRAIN), then the built-in presets (NX_FEAT_PRESET), then the chains and the plans.
  *
  * List keys: UP/DOWN select, G1/G2 the generator it plays on, START plays the chain (a plan: its
  * current day's chain; a built-in preset, NX_FEAT_PRESET: from its start; a Terrain protocol,
@@ -36,13 +37,37 @@ static unsigned presets_n(void)
 #endif
 }
 
-static uint8_t rows_n(void)   /* the chains, the plans, the built-in presets, then the Terrain protocols */
+static unsigned terrain_n(void)
 {
 #if NX_FEAT_TERRAIN
-    return (uint8_t)(LIST_N + presets_n() + nx_uc_terrain_count());
+    return nx_uc_terrain_count();
 #else
-    return (uint8_t)(LIST_N + presets_n());
+    return 0;
 #endif
+}
+
+static uint8_t rows_n(void)
+{
+    return (uint8_t)(terrain_n() + presets_n() + LIST_N);
+}
+
+/* What row i is, and its number within its kind (0-based): the Terrain protocols, the built-in
+ * presets, the chains, the plans. */
+enum { ROW_TERRAIN, ROW_PRESET, ROW_CHAIN, ROW_PLAN };
+static unsigned row_kind(unsigned i, unsigned *n)
+{
+    if (i < terrain_n()) {
+        *n = i;
+        return ROW_TERRAIN;
+    }
+    i -= terrain_n();
+    if (i < presets_n()) {
+        *n = i;
+        return ROW_PRESET;
+    }
+    i -= presets_n();
+    *n = i < NX_CHAINS ? i : i - NX_CHAINS;
+    return i < NX_CHAINS ? ROW_CHAIN : ROW_PLAN;
 }
 
 /* "x2" / "until stopped" */
@@ -144,24 +169,26 @@ static void chains_row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int se
     (void)sel;
     (void)sel_ms;
     int16_t ty = (int16_t)(r.y0 + (r.y1 - r.y0 - 20) / 2);
-#if NX_FEAT_PRESET
-    if (i >= LIST_N && i < LIST_N + presets_n()) {
-        preset_row(gc, i - LIST_N, ty);
+    unsigned kind = row_kind(i, &i);
+#if NX_FEAT_TERRAIN
+    if (kind == ROW_TERRAIN) {
+        terrain_row(gc, i + 1u, ty);
         return;
     }
 #endif
-#if NX_FEAT_TERRAIN
-    if (i >= LIST_N) {
-        terrain_row(gc, i - LIST_N - presets_n() + 1u, ty);
+#if NX_FEAT_PRESET
+    if (kind == ROW_PRESET) {
+        preset_row(gc, i, ty);
         return;
     }
 #endif
 #if NX_FEAT_PLANS
-    if (i >= NX_CHAINS) {
-        plan_row(gc, i - NX_CHAINS, ty);
+    if (kind == ROW_PLAN) {
+        plan_row(gc, i, ty);
         return;
     }
 #endif
+    (void)kind;
     const struct nx_chain *c = &nx_uc_chains()[i];
     char a[8], t[40];
     const char *args[1] = { a };
@@ -212,10 +239,13 @@ static int chains_key(void *st, const struct nx_kev *e)
         return 1;
     if (e->type != NXK_PRESS)
         return 1;
-    unsigned id = c->l.sel + 1u;
+    unsigned id;   /* 1-based within its kind */
+    unsigned kind = row_kind(c->l.sel, &id);
+    id++;
+    int play_or_edit = e->keys == NX_KEY_START || e->keys == NX_KEY_LOOP;
 #if NX_FEAT_PRESET
-    if (id > LIST_N && id <= LIST_N + presets_n() && (e->keys == NX_KEY_START || e->keys == NX_KEY_LOOP)) {
-        unsigned n = id - LIST_N - 1u;
+    if (kind == ROW_PRESET && play_or_edit) {
+        unsigned n = id - 1u;
         if (e->keys == NX_KEY_START && nx_ui_act(NXA_LOAD, c->target, (uint16_t)(NX_UC_PRESET + n), 0) == NX_OK
             && nx_ui_act(NXA_PLAY, c->target, 0, (nx_uc_preset_info(n) & NX_UC_PRESET_LOOP) != 0u) == NX_OK)
             show_dash(c->target);
@@ -223,8 +253,8 @@ static int chains_key(void *st, const struct nx_kev *e)
     }
 #endif
 #if NX_FEAT_TERRAIN
-    if (id > LIST_N && (e->keys == NX_KEY_START || e->keys == NX_KEY_LOOP)) {
-        unsigned tid = id - LIST_N - presets_n();
+    if (kind == ROW_TERRAIN && play_or_edit) {
+        unsigned tid = id;
         if (e->keys == NX_KEY_START && nx_uc_terrain_play(c->target, tid) == NX_OK)
             nx_scr_terrain_started(c->target, tid);
         else
@@ -233,8 +263,8 @@ static int chains_key(void *st, const struct nx_kev *e)
     }
 #endif
 #if NX_FEAT_PLANS
-    if (id > NX_CHAINS && (e->keys == NX_KEY_START || e->keys == NX_KEY_LOOP)) {
-        unsigned pid = id - NX_CHAINS;
+    if (kind == ROW_PLAN && play_or_edit) {
+        unsigned pid = id;
         if (e->keys == NX_KEY_START && nx_uc_plan_play(c->target, pid) == NX_OK) {
             char n[4], d[4];
             nx_fmt_u(n, pid);
@@ -247,6 +277,8 @@ static int chains_key(void *st, const struct nx_kev *e)
         return 1;
     }
 #endif
+    if (kind != ROW_CHAIN && play_or_edit)   /* a kind this build has no feature for */
+        return 1;
     switch (e->keys) {
     case NX_KEY_G1:
     case NX_KEY_G2:

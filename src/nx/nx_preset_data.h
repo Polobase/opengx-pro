@@ -1,7 +1,7 @@
-/* Built-in presets with sweeps (docs/nx/features.md, "Presets with sweeps"): generated from the
- * user's own Spooky2 preset by tools/gen_nx_preset.py into build/nx/nx_preset_data.c (vendor
- * data: never committed; `make APP=nx NX_PRESETS=0` builds without), and made up for the host
- * tests (tests/host/nx/preset_fixture.c).
+/* Built-in presets with sweeps (docs/nx/features.md, "Presets with sweeps"): generated from a
+ * Spooky2 preset by tools/gen_nx_preset.py into src/nx/data/nx_preset_data.c (committed;
+ * `make nx-data` writes it again, `make APP=nx NX_PRESETS=0` builds without), and made up for the
+ * host tests (tests/host/nx/preset_fixture.c).
  *
  * A preset is a list of steps, each with its own time: a fixed frequency, or a linear sweep
  * from a to b over that time. It plays a wave table of `cycles` sine cycles (Spooky2's Wave

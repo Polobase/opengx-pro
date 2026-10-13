@@ -258,7 +258,7 @@ static void protocols(void)
     stop(1);
     run_s(1);
 
-    /* the keys: menu > Chains > the Remote row (after 4 chains and 2 plans) > LOOP: its screen,
+    /* the keys: menu > Chains > the Remote row (the first of the list) > LOOP: its screen,
      * DOWN: the next set, START: plays it on G1 */
     struct nx_uiset u;
     nx_uiset_defaults(&u);
@@ -272,11 +272,7 @@ static void protocols(void)
     nxw_run_ms(250);
     nxw_press(NX_KEY_START, 100);
     nxw_run_ms(250);
-    CHECK(nx_ui_top() == &nx_scr_chains);
-    for (unsigned i = 0; i < 6u + nx_uc_preset_count(); i++) {   /* past the chains, plans and presets */
-        nxw_press(NX_KEY_DOWN, 100);
-        nxw_run_ms(250);
-    }
+    CHECK(nx_ui_top() == &nx_scr_chains);   /* the list opens on the first Terrain protocol */
     nxw_press(NX_KEY_LOOP, 100);
     nxw_run_ms(250);
     CHECK(nx_ui_top() == &nx_scr_terrain);
@@ -292,14 +288,14 @@ static void protocols(void)
     run_s(1);
 
 #if NX_FEAT_PRESET
-    /* menu > Chains, the rows after the plans: the built-in presets. LOOP does nothing there;
+    /* menu > Chains, the rows after the Terrain protocols: the built-in presets. LOOP does nothing there;
      * G2 chooses the generator, START plays the preset on it (this one repeats) and shows it */
     nxw_press(NX_KEY_DOWN, 100);
     nxw_run_ms(250);
     nxw_press(NX_KEY_START, 100);
     nxw_run_ms(250);
     CHECK(nx_ui_top() == &nx_scr_chains);
-    for (unsigned i = 0; i < 6u; i++) {
+    for (unsigned i = 0; i < nx_uc_terrain_count(); i++) {
         nxw_press(NX_KEY_DOWN, 100);
         nxw_run_ms(250);
     }
