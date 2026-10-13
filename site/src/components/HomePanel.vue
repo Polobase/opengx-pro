@@ -36,8 +36,8 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
       <a class="pill" href="#/docs/known-issues"><b>Beta 0.9.0</b><span>free and open source</span><i aria-hidden="true">→</i></a>
       <h1>More from the screen of your <span class="grad">GeneratorX Pro</span></h1>
       <p class="hero-lead">OpenGX Pro is free software for the screen and keys of the Spooky2 GeneratorX Pro. It shows more,
-        does more without a computer (the Terrain Protocol is built in), and answers Spooky2 ten times faster. Your programs
-        stay, and you can go back to the original whenever you like.</p>
+        does more without a computer (the Terrain Protocol and “Radionics (Boost) Manifestation” are built in), and
+        answers Spooky2 ten times faster. Your programs stay, and you can go back to the original whenever you like.</p>
       <p class="hero-cta">
         <a class="btn primary big" href="#/install">Install{{ latest ? ` ${latest.version}` : '' }} <span class="sub">3 steps, about 5 minutes</span></a>
         <a class="btn ghost big" href="#/compare">What is different?</a>
@@ -99,7 +99,7 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <p>Set a frequency or a sweep with the keys and play it at once. No computer.</p>
       </article>
       <article class="tile" v-reveal="120">
-        <img :src="screen('chains')" alt="Chains and plans" width="320" height="240" loading="lazy" />
+        <img :src="screen('chains')" alt="The list of chains, below the built-in programs" width="320" height="240" loading="lazy" />
         <h3>Programs in a row</h3>
         <p>Chains play programs one after the other. A plan gives every day its chain.</p>
       </article>
@@ -160,15 +160,33 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
           <li><b>All three flavours:</b> Terrain, Terrain-Mercury and Terrain-Nonviolent, each as Remote and as Contact sets.</li>
           <li><b>It keeps count:</b> the screen shows the day, for example “Day 6/11”, and tells you when a set is finished.</li>
           <li><b>It goes on where it stopped,</b> also after switching off or a power cut.</li>
-          <li><b>A preset with sweeps too:</b> “Radionics (Boost) Manifestation” is built in. Programs uploaded from
-            Spooky2 cannot sweep; this one does.</li>
         </ul>
-        <p class="muted">The frequencies and times of both are taken from Spooky2's presets.</p>
+        <p class="muted">The frequencies, times and names are taken from Spooky2's presets.</p>
       </div>
       <div class="terrain-shots" v-reveal="120">
         <figure><img :src="screen('chains_terrain')" alt="Terrain first in the list of chains" width="320" height="240" loading="lazy" /><figcaption>First in the list</figcaption></figure>
         <figure><img :src="screen('terrain_contact')" alt="Terrain, Contact, day 3 of 11" width="320" height="240" loading="lazy" /><figcaption>Day 3 of 11, session 2 of 2</figcaption></figure>
         <figure><img :src="screen('dash_terrain')" alt="Terrain running" width="320" height="240" loading="lazy" /><figcaption>Running: “Day 6/11”</figcaption></figure>
+      </div>
+    </div>
+    <div class="wrap terrain-grid flip">
+      <div v-reveal>
+        <span class="eyebrow">Built in</span>
+        <h2>“Radionics (Boost) Manifestation” plays without a computer</h2>
+        <p class="lead">Spooky2's preset is in the unit, with its sweeps. Open Menu → Chains, go down to its row below the
+          Terrain Protocol and press START.</p>
+        <ul>
+          <li><b>With its sweeps:</b> 18 steps of 11 seconds. The frequency on the screen follows each sweep.</li>
+          <li><b>It repeats until you stop it.</b> START pauses and plays on; a sweep goes on where it was.</li>
+          <li><b>On G1 or G2:</b> choose the generator before you start.</li>
+          <li><b>Why it is built in:</b> programs uploaded from Spooky2 cannot sweep. This one does.</li>
+        </ul>
+        <p class="muted">Taken from Spooky2's preset of that name. It is new and still to be confirmed on real units:
+          <a :href="FEEDBACK_URL" target="_blank" rel="noopener">tell us</a> how it plays on yours.</p>
+      </div>
+      <div class="terrain-shots two" v-reveal="120">
+        <figure><img :src="screen('chains_preset')" alt="Radionics (Boost) Manifestation in the list, below the Terrain Protocol" width="320" height="240" loading="lazy" /><figcaption>Below the Terrain Protocol</figcaption></figure>
+        <figure><img :src="screen('dash_preset')" alt="Radionics (Boost) Manifestation playing a sweep" width="320" height="240" loading="lazy" /><figcaption>In a sweep: step 4 of 18</figcaption></figure>
       </div>
     </div>
   </section>
@@ -235,7 +253,7 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <li><b>Install</b> and look at the start screen: does it say OpenGX Pro?</li>
         <li><b>Play a stored program</b> on G1 and one on G2.</li>
         <li><b>Connect Spooky2</b> and run a preset as you always do.</li>
-        <li><b>Try something new:</b> the Terrain Protocol, the manual generator, a chain.</li>
+        <li><b>Try something new:</b> the Terrain Protocol, “Radionics (Boost) Manifestation”, the manual generator, a chain.</li>
         <li><b>Go back</b> to the original once, so you know the way.</li>
       </ol>
     </div>

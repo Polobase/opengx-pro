@@ -117,15 +117,15 @@ export const gallery: ShotGroup[] = [
   },
   {
     id: 'terrain',
-    title: 'Terrain Protocol and the built-in preset',
+    title: 'Terrain Protocol and Radionics (Boost) Manifestation',
     shots: [
       { name: 'chains_terrain', caption: 'Terrain in the list' },
       { name: 'terrain_remote', caption: 'Terrain: Remote sets' },
       { name: 'terrain_contact', caption: 'Terrain: Contact, day 3 of 11' },
       { name: 'dash_terrain', caption: 'Terrain running, day 6/11' },
       { name: 'terrain_alert', caption: 'Terrain: set finished' },
-      { name: 'chains_preset', caption: 'A built-in preset' },
-      { name: 'dash_preset', caption: 'Preset with a sweep' },
+      { name: 'chains_preset', caption: 'Radionics (Boost) Manifestation in the list' },
+      { name: 'dash_preset', caption: 'Radionics (Boost) Manifestation in a sweep' },
     ],
   },
 ]

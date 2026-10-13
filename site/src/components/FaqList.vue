@@ -41,9 +41,9 @@ import { VENDOR_DOWNLOADS_URL } from '../lib/links'
         and what was not.</p>
     </details>
     <details>
-      <summary>Is the Terrain Protocol in it?</summary>
-      <p>Yes. The Terrain Protocol (Terrain, Terrain-Mercury and Terrain-Nonviolent, as Remote and as Contact sets) and
-        the preset “Radionics (Boost) Manifestation” are built in. You find them first in the list under Menu → Chains
+      <summary>Are the Terrain Protocol and “Radionics (Boost) Manifestation” in it?</summary>
+      <p>Yes, both are built in: the Terrain Protocol (Terrain, Terrain-Mercury and Terrain-Nonviolent, as Remote and as
+        Contact sets) and the preset “Radionics (Boost) Manifestation” with its sweeps. You find them first in the list under Menu → Chains
         and start them with START, without a computer. Their frequencies and times are taken from Spooky2's presets.</p>
     </details>
     <details>

@@ -6,14 +6,14 @@ import UnitMock from './UnitMock.vue'
 /** What the firmware can do, one thing at a time, each with its real screen. Rotates by itself; a click chooses. */
 const features = [
   { id: 'now', title: 'See what is playing', text: 'The frequency, step 12 of 180, the time left, the next frequency and the waveform: all on one screen.', shot: 'dash_running', keys: ['START'] },
+  { id: 'terrain', title: 'Terrain Protocol built in', text: 'Start it on the unit: it runs the sets by itself, counts the days and goes on where it stopped.', shot: 'dash_terrain', keys: ['START'] },
+  { id: 'preset', title: 'Radionics (Boost) Manifestation built in', text: 'Spooky2’s preset plays on the unit alone, with its sweeps. No computer needed.', shot: 'dash_preset', keys: ['START'] },
   { id: 'menu', title: 'A menu on the unit', text: 'Programs, chains, the manual generator, timers and settings. Press DOWN.', shot: 'menu', keys: ['DOWN'] },
   { id: 'manual', title: 'Set a frequency by hand', text: 'The manual generator plays a frequency or a sweep at once. No computer needed.', shot: 'manual_sweep', keys: ['G1', 'G2'] },
   { id: 'chains', title: 'Programs in a row', text: 'Chains play several programs one after the other. Plans give every day its chain.', shot: 'chains', keys: ['START', 'LOOP'] },
   { id: 'resume', title: 'Picks up after a power cut', text: 'The unit remembers where it was and offers to go on.', shot: 'resume_offer', keys: ['START', 'STOP'] },
   { id: 'pc', title: 'Spooky2, in view', text: 'In PC mode the screen shows what Spooky2 plays on every output, and answers it ten times faster.', shot: 'pc_monitor_info', keys: [] },
   { id: 'night', title: 'Easy on the eyes', text: 'Themes and brightness. The screen dims by itself; the night view keeps both generators in sight.', shot: 'night_view', keys: ['UP'] },
-  { id: 'terrain', title: 'Terrain Protocol built in', text: 'Start it on the unit: it runs the sets by itself, counts the days and goes on where it stopped.', shot: 'dash_terrain', keys: ['START'] },
-  { id: 'preset', title: 'A preset with sweeps, without a PC', text: 'Spooky2’s “Radionics (Boost) Manifestation” is built in and plays with its sweeps on the unit alone.', shot: 'dash_preset', keys: ['START'] },
 ]
 const STEP_MS = 5200
 

@@ -99,6 +99,18 @@ export const topics: Topic[] = [
     ],
   },
   {
+    id: 'radionics',
+    title: 'Radionics (Boost) Manifestation',
+    steps: [
+      { keys: ['DOWN'], shot: 'chains_terrain', does: 'Menu, then Chains', see: 'The built-in programs stand first: the six rows of the Terrain Protocol, then “Radionics (Boost) Manifestation”.' },
+      { keys: ['DOWN'], shot: 'chains_preset', does: '▼ down to its row', see: 'It is the row below the Terrain Protocol.' },
+      { keys: ['G1', 'G2'], shot: 'chains_preset', does: 'G1 or G2 choose the generator', see: 'The badge at the top right shows where it will play.' },
+      { keys: ['START'], shot: 'dash_preset', does: 'Press Start', see: 'After about two seconds it plays. The frequency follows the sweep, and the screen shows the step, here “Step 4 of 18”.' },
+      { keys: ['START'], shot: 'dash_preset', does: 'Start pauses and plays on', see: 'A sweep goes on where it was. The preset repeats until you stop it.' },
+      { keys: ['STOP'], shot: 'dash_preset', does: 'Stop ends it', see: 'After that, Start plays it once from the start, and Loop plays it with repeat.' },
+    ],
+  },
+  {
     id: 'timers',
     title: 'Timers and power cuts',
     steps: [
