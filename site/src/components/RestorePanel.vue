@@ -31,7 +31,7 @@ async function pick(e: Event) {
   <section class="panel">
     <div class="intro single">
       <div>
-        <h2>Restore the original firmware</h2>
+        <h2>Choose Spooky2's updater file</h2>
         <p class="lead">The original firmware belongs to Spooky2 and is not part of this site. Take the vendor's own updater,
           <b>GX_Pro_Firmware_v7789.exe</b>, from <a :href="VENDOR_DOWNLOADS_URL" target="_blank" rel="noopener">Spooky2's download
           page</a> (unpack the .zip), and choose it here. The page takes the firmware out of the updater in your browser and

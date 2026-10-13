@@ -30,11 +30,14 @@ jobs:
         run: make -C tests/host CC=clang
       - name: The image as it is released
         run: make release
-      - name: Every feature switch off (and the two that are off by default, on)
+      - name: Every feature switch off, without the built-in tables, and the two that are off by default, on
         run: |
           for f in DIAG SLOTS CHAINS MANUAL TIMERS SUPPORT; do
             make APP=nx NX_LCD_OPTS=-DNX_FEAT_$f=0 BUILD=build/nx-off-$f
           done
+          make APP=nx NX_TERRAIN=0 BUILD=build/nx-noterrain
+          make APP=nx NX_PRESETS=0 BUILD=build/nx-nopreset
+          make APP=nx NX_TERRAIN=0 NX_PRESETS=0 BUILD=build/nx-nodata
           for f in HIST HERO48; do
             make APP=nx NX_LCD_OPTS=-DNX_FEAT_$f=1 BUILD=build/nx-on-$f
           done

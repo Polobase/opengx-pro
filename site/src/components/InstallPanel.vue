@@ -2,7 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 import type { FirmwareImage } from '../lib/image'
 import { loadFirmware, loadReleases, preferred, type Release } from '../lib/releases'
-import { REPO_URL } from '../lib/links'
+import { REPO_URL, VENDOR_DOWNLOADS_URL } from '../lib/links'
 import FlashFlow from './FlashFlow.vue'
 
 const releases = ref<Release[] | null>(null)
@@ -37,10 +37,17 @@ watch(chosen, async (release) => {
   <section class="panel">
     <div class="intro single">
       <div>
-        <h2>Install OpenGX Pro</h2>
-        <p class="lead">It replaces the display firmware only. Programs, names and calibration stay, Spooky2 on the PC works
-          as before, and the original firmware can be put back at any time on the
-          <a href="#/restore">Restore original</a> page.</p>
+        <h2>Before you start</h2>
+        <ul class="before">
+          <li><span><b>A desktop or laptop computer</b> with Chrome, Edge or Opera. Phones and tablets cannot do this.</span></li>
+          <li><span><b>The unit's USB cable,</b> plugged into the computer.</span></li>
+          <li><span><b>Spooky2 closed</b> while you install, so that it does not use the cable at the same time.</span></li>
+          <li><span><b>For the way back:</b> get <a :href="VENDOR_DOWNLOADS_URL" target="_blank" rel="noopener">Spooky2's updater
+            file</a> now, then you have it when you want it.</span></li>
+        </ul>
+        <p class="lead">Only the software of the screen and keys is replaced. Your programs, their names and the calibration
+          stay, and Spooky2 works as before.</p>
+        <h2>Choose a version</h2>
         <template v-if="releases && releases.length">
           <label class="pick">
             <span>Version</span>
@@ -62,9 +69,9 @@ watch(chosen, async (release) => {
           <p v-if="chosen?.channel === 'beta'" class="note warn"><b>Beta.</b> Not everything has been checked on a real unit
             yet: see <a href="#/docs/known-issues">Known issues</a>.</p>
         </template>
-        <p v-else-if="releases" class="note warn">No version is published yet. You can build the firmware yourself
-          (<a href="#/docs/build">Build from source</a>) and install your file on the
-          <a href="#/restore">Restore original</a> page, which takes any display firmware file.</p>
+        <p v-else-if="releases" class="note warn"><b>The first version is not published yet.</b> It is being checked on a
+          real unit and will appear here when that is done. If you build the firmware yourself
+          (<a href="#/docs/build">Build from source</a>), the <a href="#/restore">Go back</a> page installs your file.</p>
         <p v-else-if="!error" class="muted">Loading the list of versions…</p>
         <p v-if="error" class="note err" role="alert">{{ error }}</p>
         <p class="muted">All versions and their notes: <a :href="`${REPO_URL}/releases`" target="_blank" rel="noopener">releases
