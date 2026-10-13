@@ -121,7 +121,9 @@ default to an SDK newer than the installed linker reads; point `SDKROOT` at the 
    the way back to the original firmware.
 4. Publish the release. The site is rebuilt and offers the new version; older versions stay.
 
-A file that has not been on a real unit is not published.
+A file that has not been on a real unit is not published. The one exception is the first beta,
+0.9.0: it was published for testing before the checklist was run, and its release notes and
+`docs/guide/known-issues.md` say so.
 
 ## Style
 

@@ -2,8 +2,11 @@
 
 OpenGX Pro 0.9.0 is a beta. Its code is tested on a computer and on an emulated board, but most
 of it has not yet been checked on a real unit. This page says what was checked and how, what is
-still open, and which limits are known. State: 2026-10-13, before the release checklist was run
-with the release file.
+still open, and which limits are known. State: 2026-10-14.
+
+0.9.0 was published as a beta before the release checklist was run with the release file, so
+that owners can try it and report. The file of 0.9.0 itself had not run on a real unit when it
+was published; what ran on a unit were the development builds named below.
 
 ## How it was tested
 
@@ -52,9 +55,9 @@ in the host tests and on the emulated board; on a unit they have not been checke
 | Going back through the site | Restoring the original from the vendor's updater file in the browser |
 | A stopped update | An update interrupted on purpose has not been tried ([Install](./install.md)) |
 
-Before a version is published, the maintainer goes through
-[`docs/release-checklist.md`](../release-checklist.md) on a real unit with exactly the release
-file.
+The maintainer goes through [`docs/release-checklist.md`](../release-checklist.md) on a real
+unit with exactly the release file. For 0.9.0 this is still to be done; its results will be
+written here.
 
 ## Known limits
 

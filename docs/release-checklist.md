@@ -2,7 +2,8 @@
 
 The maintainer goes through this list on a real unit before a release is published, with exactly
 the file of the draft release ([`CONTRIBUTING.md`](../CONTRIBUTING.md), "Releases"). A file that
-has not passed it is not published. Generator outputs stay unconnected unless a step needs them.
+has not passed it is not published; the first beta, 0.9.0, is the exception (published for
+testing before this list was run). Generator outputs stay unconnected unless a step needs them.
 Fill in the result column; note anything odd with a photo. What was checked goes into the release
 notes and into [Known issues](guide/known-issues.md).
 
