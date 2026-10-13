@@ -6,7 +6,8 @@ still open, and which limits are known. State: 2026-10-14.
 
 0.9.0 was published as a beta before the release checklist was run with the release file, so
 that owners can try it and report. The file of 0.9.0 itself had not run on a real unit when it
-was published; what ran on a unit were the development builds named below.
+was published; what ran on a unit before were the development builds named below. Since then
+0.9.0 has been installed from the site on one unit.
 
 ## How it was tested
 
@@ -28,6 +29,10 @@ All on one unit, with development builds, on 2026-09-25:
 - **Spooky2 in PC mode with both generators at once.** One program on each generator, started
   together: both ran in parallel, as with the original firmware.
 - **Reply time** of the display to the PC ([Measurements](./measurements.md)).
+
+With the published file of 0.9.0, on 2026-10-14:
+
+- **Installing from the site.** The file was installed on one unit through the Install page.
 
 ## Not yet checked on a real unit
 
