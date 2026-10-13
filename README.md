@@ -17,8 +17,10 @@ browser, go back to the original, read the guide.
 > see [Known issues](docs/guide/known-issues.md). Going back to the original takes a minute.
 
 OpenGX Pro is an independent project. It is not affiliated with or endorsed by Spooky2; "Spooky2"
-and "GeneratorX" are names of their owner. No vendor firmware, font, picture or preset is in this
-repository or in a release.
+and "GeneratorX" are names of their owner. No vendor firmware, font, picture, document or capture
+is in this repository or in a release. The one exception is stated: two data tables for the
+built-in Terrain Protocol and the built-in preset hold frequencies, times and names taken from
+Spooky2's preset files ([`docs/nx/THIRD_PARTY.md`](docs/nx/THIRD_PARTY.md)).
 
 ## What it does
 
@@ -26,7 +28,8 @@ repository or in a release.
   a waveform view; themes, brightness, a night view.
 - **Without a PC:** the 30 stored programs as before, plus a manual generator with sweeps, chains
   and multi-day plans, timers, resume after a power cut, copy / move / erase of program slots, a
-  key lock, diagnostics.
+  key lock, diagnostics. Built in: the Terrain Protocol and one preset with sweeps, with the
+  frequencies, times and names of Spooky2's presets.
 - **With Spooky2:** the same serial replies in the same order, answered in about 2 ms instead of
   about 20 ms; a PC monitor that shows what Spooky2 plays.
 - **Open and checked:** every difference to the original is listed in
@@ -42,7 +45,8 @@ The guide: [what it can do](docs/guide/features.md) ·
 The easy way is the [site](https://polobase.github.io/opengx-pro/) (Chrome, Edge or Opera on a
 desktop computer). By hand:
 
-1. Power the unit off. Hold **STOP**, then press **POWER**: the screen stays dark, the unit waits
+1. Power the unit off. Hold **STOP**, then press **POWER**: the screen shows "Firmware Update" (on some
+   units it stays dark), the unit waits
    for an update.
 2. `make release && make flash-release`, or flash a released file:
    `.venv/bin/python tools/flash_gx_pro.py -f opengx-pro-0.9.0.bin`.
@@ -61,7 +65,8 @@ there is no copy of it.
 | What | the new firmware: this is what OpenGX Pro releases | a re-implementation of the original firmware v7789, feature for feature |
 | For | using the unit | the reference: nx is compared with it, it is compared with the original |
 | Builds from | this repository alone | this repository plus **your** copy of the vendor's update file (its fonts and pictures are taken from it at build time) |
-| Released as a file | yes (`make release`) | no: it would contain vendor material |
+| From the vendor in it | two tables of preset data (frequencies, times, names) for the built-in Terrain Protocol and preset, committed in `src/nx/data/`; nothing else | the original's fonts and pictures |
+| Released as a file | yes (`make release`) | no: it would contain the vendor's fonts and pictures |
 
 Both share the code that talks to the PC and the generators (`src/link.c`, `src/storage.c`,
 `src/runner_seq.c`, `src/core_pcmode.c`, `src/core_calmenu.c`), so the wire behaviour stays the
@@ -72,7 +77,7 @@ original's.
 | Path | Content |
 |---|---|
 | `src/` | what both firmwares share: hardware layer, protocols, storage, wire-level cores |
-| `src/nx/` | the nx firmware; `src/classic/` the classic firmware and its test apps |
+| `src/nx/` | the nx firmware; `src/nx/data/` its two tables made from Spooky2's presets; `src/classic/` the classic firmware and its test apps |
 | `ld/`, `vendor/` | linker scripts; Arm and ST CMSIS headers (Apache-2.0) |
 | `assets/nx/` | sources of the UI assets: font and icon pins, palettes, texts, the QR code |
 | `tests/host/` | host unit tests of protocol, storage and the nx modules |
@@ -93,14 +98,16 @@ original's.
 ```sh
 make release                    # the nx image as it is published -> build/release/opengx-pro-<version>.bin
 make -C tests/host              # host tests
-make APP=nx                     # a personal nx build (see below) -> build/nx/GxCustomFW.bin
+make APP=nx                     # a development build of nx -> build/nx/GxCustomFW.bin
 .venv/bin/python tools/nx_gallery.py run --host && .venv/bin/python tools/nx_gallery.py compare --source host
 (cd site && npm ci && npm test && npm run build)
 ```
 
-`make APP=nx` can build two things into a personal image that a release never contains: the
-Terrain Protocol and a preset with sweeps, generated from **your own** Spooky2 preset files. Name
-the folders in an untracked `local.mk` (`TERRAIN_DIR`, `PRESET_FILE`); see
+Every nx build, and the released image, has the Terrain Protocol and one preset with sweeps built
+in. Their tables are committed (`src/nx/data/`), so a build needs nothing from Spooky2.
+`make nx-data TERRAIN_DIR=... PRESET_FILE=...` writes the tables again from your own Spooky2
+installation (the two paths can stay in an untracked `local.mk`), and
+`make APP=nx NX_TERRAIN=0 NX_PRESETS=0` builds without them; see
 [Build from source](docs/guide/build.md).
 
 For the classic firmware and the comparison with the original, put your copy of the vendor's
@@ -130,6 +137,9 @@ Everything a change must pass, and the rules that protect the device: [`CONTRIBU
 - `tools/gen_nx_assets.py` rasterises the open fonts (Inter, SIL OFL 1.1) and icons (Material
   Symbols, Apache-2.0) and builds the QR code into `src/nx/nx_assets.{c,h}`, which are committed
   (`make nx-assets`, `make nx-assets-check`); details in [`docs/nx/THIRD_PARTY.md`](docs/nx/THIRD_PARTY.md).
+- `tools/gen_nx_terrain.py` and `tools/gen_nx_preset.py` make the tables of the built-in Terrain
+  Protocol and preset from the preset files of a Spooky2 installation into `src/nx/data/`, which
+  are committed (`make nx-data`).
 - `tools/gx_link.py` with `APP=probe`: which PC channel reaches which UART, and a backup of the
   unit's SPI flash (`dump`, about 7 minutes, into `backups/`).
 - `tools/latency_bench.py`, `tools/gx_latency.py`, `tools/gx_serial_test.py`: reply times and a
@@ -150,4 +160,7 @@ Problems and ideas: [issues](https://github.com/Polobase/opengx-pro/issues).
 
 MIT, see [`LICENSE`](LICENSE). Third-party parts (CMSIS headers, the Inter fonts, Material
 Symbols) keep their own licences: [`LICENSES/`](LICENSES/), [`docs/nx/THIRD_PARTY.md`](docs/nx/THIRD_PARTY.md).
+The two tables in `src/nx/data/` hold preset data of Spooky2 and its preset authors. They are not
+this project's own work and the MIT licence does not cover them
+([`docs/nx/THIRD_PARTY.md`](docs/nx/THIRD_PARTY.md), "Spooky2 preset data").
 The software comes without any warranty; flashing firmware is at your own risk.

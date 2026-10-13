@@ -35,7 +35,9 @@ BIN    := $(BUILD)/test_link$(if $(ASAN),_asan)
 # test_nx: its own main, the nx firmware's hook defines (as CFLAGS_nx in the top Makefile) and every
 # nx module except the device drivers, the entry files and the engine gallery (nxg_*.c, own binaries);
 # tests/host/nx/nx_world.c models the board around them. The classic runner is linked as the
-# reference of the runner equivalence test.
+# reference of the runner equivalence test. The Terrain and preset tables are the made-up ones of
+# nx/terrain_fixture.c and nx/preset_fixture.c (NX_TERRAIN_DATA, NX_PRESET_DATA below), not the
+# committed tables of src/nx/data/, which hold Spooky2's preset data.
 NX_DRIVERS := $(SRC)/nx/nx_hw.c $(SRC)/nx/nx_uart.c $(SRC)/nx/nx_wdg.c $(SRC)/nx/nx_lcd_port.c \
               $(wildcard $(SRC)/nx/main_*.c) \
               $(wildcard $(SRC)/nx/nxg_*.c)

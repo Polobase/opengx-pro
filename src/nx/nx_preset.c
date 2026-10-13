@@ -15,7 +15,7 @@
 #include "nx_vm.h"
 
 #if !NX_PRESET_DATA
-const struct nx_pdata k_nx_presets;   /* a build without the user's preset: none */
+const struct nx_pdata k_nx_presets;   /* a build with NX_PRESETS=0: none */
 #endif
 
 #define P k_nx_presets

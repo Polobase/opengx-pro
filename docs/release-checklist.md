@@ -25,7 +25,7 @@ notes and into [Known issues](guide/known-issues.md).
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 2.1 | Unit off, hold STOP, press POWER | the screen stays dark | |
+| 2.1 | Unit off, hold STOP, press POWER | the screen shows "Firmware Update" or stays dark (note which) | |
 | 2.2 | "Find the unit", choose the wrong port first, then the right one | the wrong port is refused (it answered "X1"); the right one is found ("X2") | |
 | 2.3 | Install | every block confirmed, "Done" | |
 | 2.4 | Switch off and on | splash on black: the wordmark "OpenGX Pro", the version at the foot; then the dashboard (first start: the key guide) | |
@@ -43,6 +43,13 @@ notes and into [Known issues](guide/known-issues.md).
 | 3.7 | Hold STOP for 1 s, release | a ring, then both stop | |
 | 3.8 | Play a short program to its end | "Program complete"; outputs off | |
 | 3.9 | DOWN: open every cell of the menu, STOP back | Programs, Chains, Manual, Timers, Diagnostics, Settings open; Diagnostics shows the version, both links with 0 errors | |
+| 3.10 | menu > Chains | the list opens on the first row, "Terrain · Remote": six Terrain rows (Terrain, Terrain-Mercury, Terrain-Nonviolent, each "· Remote" and "· Contact"), each with its day ("Day 1/11" on a unit that has not played it; Terrain-Nonviolent: "Day 1/10"); DOWN six times: "Radionics (Boost) Manifestation", then Chain 1 to 4 and Plan 1 and 2 | |
+| 3.11 | LOOP on "Terrain · Remote"; STOP | the Terrain screen: the set's name, its day and hours ("Day 1 of 11 · 24 h" on a unit that has not played it), "Ran … of …", "Power 5 V · LOOP changes"; back to the list | |
+| 3.12 | G1, START on "Terrain · Remote" | a toast; G1's dashboard: the set's name, RUNNING, the row's day in the status bar ("Day 1/11"), the repeat badge; Diagnostics: the G1 link with 0 errors | |
+| 3.13 | STOP; menu > Chains | STOPPED; the row shows the same day | |
+| 3.14 | G1, START on "Terrain · Contact"; after a few steps STOP | G1's dashboard: the set's name, RUNNING, the row's day in the status bar, no repeat badge; then STOPPED. Contact plays at 20 V: keep the outputs unconnected | |
+| 3.15 | menu > Chains, DOWN six times, G1, START on "Radionics (Boost) Manifestation" | G1's dashboard: the name, RUNNING, the repeat badge. For about 1.5 s the time stands (two wave tables go out), then the frequency rises from 36 Hz; "Step 1 of 18". If instead "G1 does not respond" shows and it stops: the generator did not take the table; note it | |
+| 3.16 | Watch three steps (33 s); STOP | a sweep, a steady 396 Hz, a sweep, 11 s each; then STOPPED. Diagnostics: the G1 link with 0 errors | |
 
 ## 4. PC mode with Spooky2
 

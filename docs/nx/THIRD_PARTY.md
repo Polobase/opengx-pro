@@ -1,8 +1,11 @@
 # Third-party material in the nx firmware
 
-The nx firmware (`make APP=nx`) contains no vendor material. Its UI assets come from the open
-sources below; `tools/gen_nx_assets.py` rasterises them into the tables in `src/nx/nx_assets.c`
-(declared in `src/nx/nx_assets.h`).
+The nx firmware (`make APP=nx`) contains no firmware, font, picture or document of the vendor.
+One part of it comes from Spooky2: the data of the built-in Terrain Protocol and of the built-in
+preset, two tables made from Spooky2's preset files ("Spooky2 preset data" below).
+
+Its UI assets come from the open sources below; `tools/gen_nx_assets.py` rasterises them into the
+tables in `src/nx/nx_assets.c` (declared in `src/nx/nx_assets.h`).
 The source files themselves are not committed: `make nx-assets-fetch` downloads them into
 `assets/nx/third_party/` (git-ignored) and refuses any file whose SHA-256 differs from
 `assets/nx/sources.json`. `assets/nx/assets.lock.json` records the hashes of the sources, the
@@ -67,6 +70,63 @@ project" page (`tools/nxassets/qr.py`, `assets/nx/qr.json` → `nx_qr_support`).
 the firmware: the image holds only the code's modules as a bit table, and the firmware draws them
 as squares (`src/nx/nx_scr_support.c`).
 
+## Spooky2 preset data
+
+Two tables in the repository hold data taken from Spooky2's preset collection. They are built
+into every nx build and into the released image (since 2026-10-13; before, they were made at
+build time from the user's own Spooky2 installation and were not committed).
+
+| Table | For | Holds |
+|---|---|---|
+| `src/nx/data/nx_terrain_data.c` | the built-in Terrain Protocol (menu > Chains) | Terrain, Terrain-Mercury and Terrain-Nonviolent, each as a Remote and as a Contact protocol: 6 protocols, 31 sets |
+| `src/nx/data/nx_preset_data.c` | the built-in preset with sweeps (menu > Chains) | the preset "Radionics (Boost) Manifestation": 18 steps, 198 s, repeating until stopped |
+
+**This data is not this project's own work.** The frequencies, times, names, amplitudes and
+schedules in the two tables are material of Spooky2 and of the authors of its presets. The
+project does not claim them. The MIT licence of this repository (`LICENSE`) covers the project's
+own work, the two generator tools and the table formats included; it does not cover the data in
+these two tables.
+
+Where the data comes from: the folder "Preset Collections" of a Spooky2 installation, read by
+two tools of this repository.
+
+| Tool | Reads | Takes |
+|---|---|---|
+| `tools/gen_nx_terrain.py` | the folder "Detox/Terrain Protocol": `Remote/Terrain (R) - BY.txt`, `Remote/Terrain-Mercury (R) - BY.txt` and `Remote/Terrain-Nonviolent (R) - BY.txt`; the files of `Contact/` that the notes of those three presets name in their Contact schedule; the shells in "Detox/Shells" that these presets name as their base preset | per set: its name, its frequencies with the time of each (`Loaded_Frequencies`), its waveform number and the time of the 0 Hz end step of a Contact set. Per protocol: its name and its schedule (Remote: the order of the sets, their day numbers and the 12 or 24 hours each runs; Contact: the two sessions of each day). From the shells: the amplitude (Remote 5 V, Contact 20 V) |
+| `tools/gen_nx_preset.py` | "Radionics/Spooky Radionics (Boost) Manifestation - AW.txt" and the shell it names as its base preset | its name (without "Spooky"), its 18 steps (a frequency or a sweep from one frequency to another, and the seconds of each), the cycles per wave table (`Sine_WCM`, 11) and that it repeats. The tool accepts the preset only with the waveform, amplitude and offset settings the firmware plays (Out 1 sine, Out 2 its inverse, 20 V, offsets −100 % and +100 %) and writes them as fixed values |
+
+What is not taken:
+
+- The text of the preset files: their notes and descriptions. The tool reads the notes of the
+  three Remote presets only for the lines of the Contact schedule.
+- The other versions of the Terrain Protocol (Plasma, Scalar, Laser, Coil) and every other preset
+  of the collection. The low-power Remote presets are not read either: the power levels 2.5, 1,
+  0.5 and 0.25 V of the Terrain screen are fixed values in `src/nx/nx_terrain.c` that follow them.
+- Wave tables. The firmware computes the two tables the preset needs (sine cycles) and the
+  standard sine, to the values Spooky2 sends; none is stored.
+
+Nothing else of Spooky2 is in the repository or in a release: none of its software, databases,
+waveform files, documents, pictures or logos, and no image, font or bitmap of the original display
+firmware. The serial captures of Spooky2 that were used to check the firmware are not included
+either.
+
+The tables are generated files and are not edited by hand. `make nx-data` writes them again from
+a Spooky2 installation:
+
+```sh
+make nx-data TERRAIN_DIR=".../Preset Collections/Detox/Terrain Protocol" \
+             PRESET_FILE=".../Preset Collections/Radionics/Spooky Radionics (Boost) Manifestation - AW.txt"
+```
+
+To build without this data: `make APP=nx NX_TERRAIN=0` leaves out the Terrain table,
+`make APP=nx NX_PRESETS=0` the preset table, and `make APP=nx NX_TERRAIN=0 NX_PRESETS=0` both.
+Such an image has no Terrain rows and no preset row in menu > Chains and holds neither table.
+The released image always has both: `make release` builds with them and `tools/release_check.py`
+checks that they are linked.
+
+The project makes no statement about what these protocols and this preset are for, and no health
+or treatment claim. The names on the screen are the names in the preset files.
+
 ## Distributing a firmware image
 
 The device shows the notices in short form: its About page (Settings > About) shows the project,
@@ -89,6 +149,9 @@ e.g. in the same archive or on the same release page:
   carry a notice that they were changed (the generated tables state that they were rasterised
   from the font).
 
+A released image also holds the two tables of "Spooky2 preset data" above. The About page does
+not name them; this file, which goes with a release, says what they are and where they come from.
+
 ## Own work
 
 The splash shows the wordmark "OpenGX Pro": its "O", a ring with a sine in it, is drawn by the
@@ -99,4 +162,5 @@ mark), but the Drop-1 icon sets (`assets/nx/icons.json`) list none of them. The 
 None of them uses Spooky2 logos or artwork. A few texts use Spooky2 product names to say what the
 firmware is for and what to connect: "Open firmware for the GeneratorX Pro" on the splash, and
 "Spooky Remote on the Boost BN port or Out 1" and "Pads on Boost HIGH PWR CONTACT, or Out 1" on
-the Terrain screen.
+the Terrain screen. The names of the Terrain protocols, of their sets and of the built-in preset
+are not among these texts: they come from the tables of "Spooky2 preset data" above.

@@ -6,11 +6,13 @@ project (repository `opengx-pro`): an OpenGX Pro release is an nx image built wi
 (sections 9 and 17). `APP=fw` is our classic rebuild of the original. The nx work does not change
 it: its image stays byte-identical.
 
-State: 2026-10-13, OpenGX Pro 0.9.0 (the new name and splash, the support page, the released
-image without vendor splash, Terrain data and built-in preset). Before that, 2026-10-05: the PC
-monitor's output frequency, the built-in preset with sweeps and the standard sine for the
-built-in sources; then the ghost splash, History and the 48 px digits off by default and the PC
-monitor's extras reworked. Sources: `docs/spec/`, `DEVIATIONS.md`, `docs/nx/`, the code in `src/nx/`.
+State: 2026-10-13, OpenGX Pro 0.9.0 (the new name and splash, the support page; the Terrain
+Protocol and the preset with sweeps built in by default from committed tables, in the released
+image too, and first in menu > Chains; the released image without the vendor splash). Before
+that, 2026-10-05: the PC monitor's output frequency, the built-in preset with sweeps and the
+standard sine for the built-in sources; then the ghost splash, History and the 48 px digits off
+by default and the PC monitor's extras reworked. Sources: `docs/spec/`, `DEVIATIONS.md`,
+`docs/nx/`, the code in `src/nx/`.
 
 ## 1. Summary
 
@@ -28,12 +30,16 @@ monitor's extras reworked. Sources: `docs/spec/`, `DEVIATIONS.md`, `docs/nx/`, t
   slot copy / move / erase, a richer PC monitor, chains and multi-day plans, a manual generator
   with sweeps, a page to support the project (section 9). Off by default since 2026-10-05, to
   make room: History, the 48 px frequency digits and the original's ghost splash.
-- Only in a personal build made with the user's own Spooky2 presets, never in the released
-  image: the Terrain Protocol built in and a Spooky2 preset with sweeps built in (sections 9.12
-  and 9.17).
-- The released image (`make release`, 102,860 bytes) fits the 112,640 bytes (110 KB) the
-  bootloader is proven to take (size test of 2026-09-25, section 17), with 9,780 bytes to spare.
-  It holds nothing from the original image and nothing from Spooky2 presets.
+- Built in by default since 2026-10-13, in every build and in the released image: the Terrain
+  Protocol and a Spooky2 preset with sweeps (sections 9.12 and 9.17), the first rows of
+  menu > Chains. Their tables are generated from Spooky2's preset collection and committed
+  (`src/nx/data/`). They hold frequencies, times and names that are not this project's own work
+  (`docs/nx/THIRD_PARTY.md`). `NX_TERRAIN=0` / `NX_PRESETS=0` build without them. Until then
+  they existed only in a personal build made with the user's own Spooky2 presets.
+- The image (`make APP=nx`, and the released image of `make release`: 108,456 bytes) fits the
+  112,640 bytes (110 KB) the bootloader is proven to take (size test of 2026-09-25, section 17),
+  with 4,184 bytes to spare. It holds nothing from the original image, and of Spooky2's presets
+  the two tables above and nothing else.
 
 How to read the "Kind" column:
 
@@ -162,10 +168,10 @@ A key acts when pressed. If it also has a "hold" meaning, a short press acts on 
 | – | Timers page (menu > Timers) | New |
 | – | History (menu > History), off by default (section 9.5) | New |
 | – | Diagnostics and key test (menu > Diagnostics) | New |
-| – | Chains list, chain editor, plan editor (menu > Chains) | New |
-| – | Terrain screen (menu > Chains > a Terrain row, LOOP); only in a personal build (section 9.12) | New |
+| – | Chains list (the Terrain protocols and the built-in preset first, then the chains and the plans), chain editor, plan editor (menu > Chains) | New |
+| – | Terrain screen (menu > Chains > a Terrain row, LOOP; section 9.12) | New |
 | – | manual generator (menu > Manual, or LOOP held on its dashboard) | New |
-| – | set-end card "Set finished · safe to pause" (a Terrain Contact session; only in a personal build) | New |
+| – | set-end card "Set finished · safe to pause" (a Terrain Contact session; section 9.13) | New |
 | – | slot actions sheet (program detail > LOOP), target list "Copy NN to" / "Move NN to", "Erase this program?" | New |
 | – | "Resume after power cut?" card with a 15 s ring | New |
 | – | "Start the last programs?" card with a 10 s ring (auto-start) | New |
@@ -241,20 +247,35 @@ the asset tables. Off by default since 2026-10-05, to make room for other work
 (`NX_FEAT_HERO48`) and the ghost splash (`NX_VENDOR`). `make APP=nx NX_LCD_OPTS=-DNX_FEAT_HIST=1`
 (or `NX_VENDOR=1`) builds one in again, in a personal build. Measured on 2026-10-06 in a build
 with the Terrain data and the preset (106,538 bytes then; not measured again since): any two
-of them fit; all three together are 112,930 bytes, 290 over the budget.
+of them fit; all three together are 112,930 bytes, 290 over the budget. The image of 2026-10-13
+is 108,456 bytes and leaves 4,184. By the three costs measured then (2,264, 2,120 and 2,008
+bytes) each still fits on its own, History and the 48 px digits together come to 4,128 bytes,
+and a pair with the ghost splash no longer fits. Not measured on this image.
 
 Released image and personal build. `make release` builds the image that is published (an
-OpenGX Pro release, `build/release/opengx-pro-<version>.bin`): no vendor splash, no Terrain data
-and no built-in preset, so nothing from the original image and nothing from Spooky2 presets is
-in it. The Makefile refuses a release build with `NX_VENDOR`, `NX_TERRAIN` or `NX_PRESETS` on
-(or with `NX_TIME_X` or `NX_LCD_OPTS` set), `NX_RELEASE` in `src/nx/nx_config.h` stops the
-compiler on the same, and `tools/release_check.py` checks the finished build again (flags, map
-file, build directory, size, update file). The Terrain Protocol (section 9.12), the preset with
-sweeps (section 9.17) and the ghost splash (section 9.10) exist only in a personal build, one
-you make for your own unit and do not publish: `make APP=nx` with `TERRAIN_DIR` and
-`PRESET_FILE` set in an untracked `local.mk` (the Makefile includes it) or on the command line,
-and `NX_VENDOR=1` for the ghost splash. The Makefile has no default folders: without them the
-Terrain rows and the preset row are not there.
+OpenGX Pro release, `build/release/opengx-pro-<version>.bin`). It is built from scratch with
+the default switches: with the Terrain Protocol (section 9.12) and the preset with sweeps
+(section 9.17) from the committed tables in `src/nx/data/`, and without the vendor splash, so
+nothing from the original image is in it. The Makefile refuses a release build with `NX_VENDOR`
+on, with `NX_TERRAIN` or `NX_PRESETS` off, or with `NX_TIME_X` or `NX_LCD_OPTS` set;
+`NX_RELEASE` in `src/nx/nx_config.h` stops the compiler on the first three; and
+`tools/release_check.py` checks the finished build again (flags, map file, build directory,
+size, update file).
+
+The two tables (since 2026-10-13). `tools/gen_nx_terrain.py` and `tools/gen_nx_preset.py`
+generate them from Spooky2's preset collection; they are committed, so every build has the same
+ones and needs no Spooky2 installation. `make nx-data TERRAIN_DIR=... PRESET_FILE=...` writes
+them again from a Spooky2 installation (the two variables can stay in an untracked `local.mk`,
+which the Makefile includes; a normal build does not use them). `make APP=nx NX_TERRAIN=0`
+builds without the Terrain rows, `NX_PRESETS=0` without the preset row. The tables hold
+frequencies, times and names taken from Spooky2's preset files: they are not this project's own
+work and the project does not claim them (`docs/nx/THIRD_PARTY.md`). Until 2026-10-13 they were
+made at build time into `build/` from the user's own presets, never committed, and a release was
+built without them.
+
+Still only in a personal build, one you make for your own unit: History and the 48 px digits
+(switched on with `NX_LCD_OPTS`), and the ghost splash (section 9.10; `NX_VENDOR=1`, needs your
+own copy of the original image and is never in a release).
 
 | Feature | Where | Switch | Stored |
 |---|---|---|---|
@@ -267,9 +288,9 @@ Terrain rows and the preset row are not there.
 | PC monitor: waveforms, amplitudes, gating, the output frequency of a table with several cycles | PC monitor | – (a fixed part since 2026-10-05) | – (RAM, per PC session) |
 | Chains | menu > Chains | `NX_FEAT_CHAINS` | KV key 0x0004 |
 | Multi-day plans | menu > Chains | `NX_FEAT_PLANS` (follows `NX_FEAT_CHAINS`) | KV key 0x0006 |
-| Terrain Protocol (a personal build only) | menu > Chains, below the plans | `NX_FEAT_TERRAIN` (follows `NX_FEAT_CHAINS`); its data: Makefile `NX_TERRAIN` (on when `TERRAIN_DIR` names an existing preset folder; off in the released image) | KV key 0x0007 |
+| Terrain Protocol | menu > Chains, the first rows | `NX_FEAT_TERRAIN` (follows `NX_FEAT_CHAINS`); its data: Makefile `NX_TERRAIN` (on by default: the committed table `src/nx/data/nx_terrain_data.c`; `NX_TERRAIN=0` builds without it; on in the released image) | KV key 0x0007 |
 | Manual generator and sweeps | menu > Manual | `NX_FEAT_MANUAL` | KV key 0x0008 |
-| Presets with sweeps (a personal build only) | menu > Chains, after the plans | `NX_FEAT_PRESET` (follows `NX_FEAT_CHAINS`); its data: Makefile `NX_PRESETS` (on when `PRESET_FILE` names an existing preset file; off in the released image) | – (the resume snapshot, as any program) |
+| Presets with sweeps | menu > Chains, after the Terrain protocols | `NX_FEAT_PRESET` (follows `NX_FEAT_CHAINS`); its data: Makefile `NX_PRESETS` (on by default: the committed table `src/nx/data/nx_preset_data.c`; `NX_PRESETS=0` builds without it; on in the released image) | – (the resume snapshot, as any program) |
 | The original's ghost splash (off by default; a personal build only) | splash | Makefile `NX_VENDOR=1` (needs `original/GxDisplayFW.bin`) | – |
 | Support the project | Settings > About | `NX_FEAT_SUPPORT` | – |
 | 48 px frequency digits (off by default) | dashboard | `NX_FEAT_HERO48` | – |
@@ -386,7 +407,7 @@ display is new: Spooky2 sees nothing of this.
 | Part | How it works |
 |---|---|
 | What | up to 4 chains of up to 12 program slots, with a repeat count ×1, ×2, ×3, ×5, ×10 or "until stopped" |
-| List | menu > Chains: "Chain 1"…"Chain 4" ("3 programs · ×2", or "empty · LOOP to edit"), then the plans, then the Terrain protocols (section 9.12; a personal build); the title shows the generator it plays on ("Run on G1 G2"); a play icon marks a chain that plays |
+| List | menu > Chains, one list of six rows at a time. Since 2026-10-13 the built-in programmes stand first: the Terrain protocols (section 9.12), then the built-in preset (section 9.17), then "Chain 1"…"Chain 4" ("3 programs · ×2", or "empty · LOOP to edit"), then the plans; the list opens on its first row, the first Terrain protocol (before: chains, plans, preset, Terrain). A build without a table has no rows of that kind. The title shows the generator it plays on ("Run on G1 G2"); a play icon marks a chain that plays |
 | List keys | UP/DOWN select, G1/G2 the generator, START plays (an empty chain opens the editor), LOOP edits, STOP back |
 | Playing | each program is loaded and played (repeat off) as the keys would do; when it ends by itself the next one starts; after the last one the chain starts again until it has run its repeat count. Toast "Chain 1 on G1"; the status bar shows "Chain 2/5" |
 | Waveform and amplitude | each program plays with its own: the runner sends the new program's idle configuration (waveform table `w20`/`w21`, amplitude `w28`/`w29`, offset) before its first step (`nx_runner_loaded`, called from `NXA_LOAD`). Fixed on 2026-09-25: before, a chain switched programs without sending them, so the generator kept the last program's waveform and amplitude. Slot playback through the keys is unchanged (runner differential test, emulator gates) |
@@ -433,28 +454,28 @@ Settings > Keys & lock > "Original key behaviour", default off. When on:
 
 | Part | How it works |
 |---|---|
-| What | the Terrain Protocol of Spooky2's Detox presets, built into the image of a personal build (never into the released image: "Data" below): Terrain, Terrain-Mercury and Terrain-Nonviolent, each as a Remote protocol and as a Contact protocol (six rows in menu > Chains). Built in, not a new serial command (decided on 2026-09-25) |
-| Data | `tools/gen_nx_terrain.py` reads the user's own Spooky2 presets at build time into `build/nx/nx_terrain_data.c`. Makefile `TERRAIN_DIR` names the folder "Preset Collections/Detox/Terrain Protocol" of your Spooky2 preset folder; it has no default: set it in an untracked `local.mk` (the Makefile includes it) or on the command line. Vendor data: build directory only, never committed, and never in the released image (`make release` builds with `NX_TERRAIN=0` and an empty `TERRAIN_DIR`). `NX_TERRAIN=0`, or a build without the folder, has no Terrain rows. After changing the presets: `rm build/nx/nx_terrain_data.c` |
-| Contents | 31 distinct sets, about 2.6 KB of tables. A set is a frequency list with a dwell per entry, played a number of times, then (Contact) a 0 Hz end step. The generator stops the build on anything the tables cannot play: a sweep, other tokens, more than 2 decimals, more than 200 steps |
-| Waveform | per set, from the preset's `W` token: Spooky2 wave n is generator table 10 + n (W2 square = 12, W4 inverse sawtooth = 14). A set that plays the sine (table 11) gets Spooky2's standard sine uploaded first when nx does not know the table (section 9.17, "After it") |
+| What | the Terrain Protocol of Spooky2's Detox presets, built into every image, the released one included (since 2026-10-13; before, only into a personal build made from the user's own presets): Terrain, Terrain-Mercury and Terrain-Nonviolent, each as a Remote protocol and as a Contact protocol (six rows, the first of menu > Chains). Built in, not a new serial command (decided on 2026-09-25) |
+| Data | the committed table `src/nx/data/nx_terrain_data.c` (since 2026-10-13), generated by `tools/gen_nx_terrain.py` from the folder "Preset Collections/Detox/Terrain Protocol" of a Spooky2 installation: its three Remote presets, the Contact files their notes name, and the shells for the amplitude. The table holds the frequencies, times and names of those presets: it is not this project's own work (`docs/nx/THIRD_PARTY.md`). A build does not run the tool and needs no Spooky2 installation. `make nx-data` writes the table again; Makefile `TERRAIN_DIR` names the folder (no default: on the command line, or in an untracked `local.mk`, which the Makefile includes). `make APP=nx NX_TERRAIN=0` builds without the table and has no Terrain rows; `make release` requires it. Until 2026-10-13 the table was made at build time into `build/nx/` from the user's own presets, never committed and never in a released image |
+| Contents | 31 distinct sets, about 2.6 KB of tables. A set is a frequency list with a dwell per entry, played a number of times, then (Contact) a 0 Hz end step. The generator tool stops, and writes no table, on anything the tables cannot play: a sweep, other tokens, more than 2 decimals, more than 200 steps |
+| Waveform | per set, from the preset's `W` token: Spooky2 wave n is generator table 10 + n (W2 square = 12, W4 inverse sawtooth = 14). A set that plays the sine (table 11) gets Spooky2's standard sine uploaded first when nx does not know the table (section 9.17, "After it"). None of the 31 committed sets does: 24 play table 12 (square), 7 table 14 (inverse sawtooth) |
 | Amplitude | from the preset's shell: Remote 5 V, Contact 20 V |
 | Remote | 15, 15 and 13 sets over 11, 11 and 10 days. Each set loops (repeat on) for its 24 or 12 hours of running time, then the next set starts. After the last set the protocol starts again at day 1, forever, as Spooky2's `Repeat_Chain=0`. Only running time counts: a pause or a power-off does not, as Spooky2 counts only while it runs |
 | Remote power | 5, 2.5, 1, 0.5 or 0.25 V (LOOP on the Terrain screen). Spooky2's low-power presets are the same data at a lower amplitude |
 | Contact | 11, 11 and 10 days of 2 sessions, from the schedule in the Remote preset notes. A session plays one set once (about 2 h) and ends in a 0 Hz step. When that step starts, the session counts as done: the position moves to the next session and the set-end card shows (section 9.13). After the last session the protocol is complete; START starts day 1 again |
 | Position | per protocol, in KV key 0x0007 (written when quiet, never in PC mode; a running Remote set's time every 5 min). Stopping keeps it; the next START goes on from there. Another program, PC mode or a failed load end the run |
-| List | menu > Chains, after the chains and plans: "Terrain · Remote  Day 3/11" (or "complete"), with a play icon for each generator that plays it. START plays from the position on the generator chosen with G1/G2, shows a toast and that generator's dashboard; LOOP opens the Terrain screen |
+| List | menu > Chains, the first rows; the list opens on the first of them (until 2026-10-13 they came last, after the chains, the plans and the preset): "Terrain · Remote  Day 3/11" (or "complete"), with a play icon for each generator that plays it. START plays from the position on the generator chosen with G1/G2, shows a toast and that generator's dashboard; LOOP opens the Terrain screen |
 | Terrain screen | the set's name; "Day 6.1 of 11 · 12 h" (Remote, a half day) or "Day 6 of 11 · session 1 of 2" (Contact); "Ran h:mm:ss of 12:00:00" and "Power 5 V · LOOP changes" (Remote); a hardware hint (Remote: "Spooky Remote on the Boost BN port or Out 1"; Contact: "Pads on Boost HIGH PWR CONTACT, or Out 1"); "Drink plenty of water during the protocol." |
 | Terrain screen keys | G1/G2 the generator; UP/DOWN the position one set back / on (a generator that plays it goes on at the new set; this is the "jump to the set" of the preset notes' one-generator schedule); LOOP the power level (Remote); START plays; STOP back |
 | Dashboard | the set's name; "Day 3/11" in the status bar; a Remote set shows the LOOP badge; LOOP held opens the Terrain screen |
 | Resume | the resume snapshot keeps the protocol, the set, the power level and the set's running time (the same record layout; the sets are new slot values), so after a power cut the protocol goes on. Auto-start (section 9.4) continues the protocol played last |
 | Not included | the Plasma, Scalar, Laser and Coil versions (their shells use gating, offset modes and harmonics; not checked). What differs from Spooky2: `DEVIATIONS.md`, "nx" |
-| Code | `src/nx/nx_terrain.c`, `src/nx/nx_scr_terrain.c`, `src/nx/nx_scr_chain.c`, `tools/gen_nx_terrain.py`; made-up host data in `tests/host/nx/terrain_fixture.c` |
+| Code | `src/nx/nx_terrain.c`, `src/nx/nx_scr_terrain.c`, `src/nx/nx_scr_chain.c`, the table `src/nx/data/nx_terrain_data.c`, `tools/gen_nx_terrain.py`; made-up host data in `tests/host/nx/terrain_fixture.c` |
 
 ### 9.13 Set-end alert (`NX_FEAT_TERRAIN`)
 
 | Part | How it works |
 |---|---|
-| When | a Terrain Contact session's 0 Hz end step starts (Spooky2's "safe to pause" notification); so only in a personal build with the Terrain data (section 9.12) |
+| When | a Terrain Contact session's 0 Hz end step starts (Spooky2's "safe to pause" notification); so only in a build with the Terrain table (section 9.12), which is the default |
 | Card | "Set finished · safe to pause" and "Next session in 6 to 12 h · any key", with a ring that fills in 60 s |
 | Attention | the screen wakes and the backlight pulses 3 times. The board has no buzzer: nothing is audible (decided on 2026-09-25) |
 | Keys | any key closes it, a short POWER press too; the key does nothing else |
@@ -474,7 +495,7 @@ Settings > Keys & lock > "Original key behaviour", default off. When on:
 | Sweep | a `:w24` line every 125 ms (`NX_SWEEP_TICK_MS`; Spooky2's own sweeps: about 134 ms) while the link's queue is idle; a newer value replaces a line still waiting (`NX_TXQ_COALESCE`). Linear or logarithmic from Start to End over Time. Once: then it ends like a program (toast, history, timers). Again: from Start again. Back and forth: from End back to Start, and so on |
 | Dashboard | the name "Manual"; the frequency follows the sweep |
 | Stored | the values in KV key 0x0008, written when quiet, never in PC mode. The manual generator is not resumed after a power cut and not auto-started |
-| Sweeps in programs | not in the stored slots: Spooky2 keeps only a sweep's start frequency when it uploads a program to the GX slots, and a slot holds one dwell and at most 200 steps. So sweeps come from the manual generator (decided on 2026-09-25), or from a Spooky2 preset built into a personal build's image (section 9.17) |
+| Sweeps in programs | not in the stored slots: Spooky2 keeps only a sweep's start frequency when it uploads a program to the GX slots, and a slot holds one dwell and at most 200 steps. So sweeps come from the manual generator (decided on 2026-09-25), or from the Spooky2 preset built into the image (section 9.17) |
 | Code | `src/nx/nx_manual.c`, `src/nx/nx_scr_manual.c` |
 
 ### 9.15 Black splash
@@ -505,22 +526,22 @@ Settings > Keys & lock > "Original key behaviour", default off. When on:
 
 | Part | How it works |
 |---|---|
-| What | a Spooky2 preset whose programs sweep, built into the image of a personal build (never into the released image: "Data" below) and played standalone as Spooky2 plays it on a GX Pro (decided on 2026-10-05). The one built in: "Spooky Radionics (Boost) Manifestation - AW": 6 programs of a sweep, a fixed frequency and a sweep, 11 s each (18 steps, 198 s), repeating until stopped |
+| What | a Spooky2 preset whose programs sweep, built into every image, the released one included (since 2026-10-13; before, only into a personal build made from the user's own preset file), and played standalone as Spooky2 plays it on a GX Pro (decided on 2026-10-05). The one built in: "Spooky Radionics (Boost) Manifestation - AW": 6 programs of a sweep, a fixed frequency and a sweep, 11 s each (18 steps, 198 s), repeating until stopped |
 | How Spooky2 plays it | read from a serial capture of Spooky2 playing that preset (`tools/pc_replay.py`). With `Sine_WCM=11` Spooky2 uploads wave table 11 with 11 sine cycles at half scale (`:a11=` and 1024 samples, exactly floor(512 + 255.75·sin(2π·11·i/1024))) and table 25 = 1023 − table 11. It sets `:w20=11,` `:w21=25,` `:w32=20,` `:w33=220,` (the offsets −100 % and +100 %: 120 + percent), `:w17=0,0,` `:w14=1,` `:w28=1000,` `:w29=1000,` and sends the frequency / 11: a fixed frequency once, a sweep as a `:w24` line about every 134 ms, linear in time. The code is the frequency / 11 rounded to 8 decimals with trailing zeros moved into the exponent digit (396 Hz: `:w24=368,`; 36 Hz: `:w24=3272727270,`) |
-| Data | `tools/gen_nx_preset.py` reads the user's own preset at build time into `build/nx/nx_preset_data.c`. Makefile `PRESET_FILE` names the preset's file in your Spooky2 preset folder ("Preset Collections/Radionics/Spooky Radionics (Boost) Manifestation - AW.txt"; its `Base_Preset` shell is read from the same "Preset Collections" folder); it has no default: set it in an untracked `local.mk` (the Makefile includes it) or on the command line. Vendor data: build directory only, never committed, and never in the released image (`make release` builds with `NX_PRESETS=0` and an empty `PRESET_FILE`). `NX_PRESETS=0`, or a build without the file, has no preset row. After changing the preset: `rm build/nx/nx_preset_data.c`. The tool accepts only what the capture shows (Out1 sine with `Sine_WCM`, spike length 1; Out2 the inverse, following Out1; offsets −100 % / +100 %; 20 V; no gating, wobble, modulation or multipliers; steps "freq=seconds" and "from-to=seconds" with at most 2 decimals) and stops the build on anything else: the other Radionics presets are refused |
+| Data | the committed table `src/nx/data/nx_preset_data.c` (since 2026-10-13), generated by `tools/gen_nx_preset.py` from the preset's file in the preset collection of a Spooky2 installation ("Preset Collections/Radionics/Spooky Radionics (Boost) Manifestation - AW.txt"; its `Base_Preset` shell is read from the same "Preset Collections" folder). The table holds the preset's frequencies, times and name: it is not this project's own work (`docs/nx/THIRD_PARTY.md`). A build does not run the tool and needs no Spooky2 installation. `make nx-data` writes the table again; Makefile `PRESET_FILE` names the file (no default: on the command line, or in an untracked `local.mk`, which the Makefile includes). `make APP=nx NX_PRESETS=0` builds without the table and has no preset row; `make release` requires it. Until 2026-10-13 the table was made at build time into `build/nx/` from the user's own preset, never committed and never in a released image. The tool accepts only what the capture shows (Out1 sine with `Sine_WCM`, spike length 1; Out2 the inverse, following Out1; offsets −100 % / +100 %; 20 V; no gating, wobble, modulation or multipliers; steps "freq=seconds" and "from-to=seconds" with at most 2 decimals) and stops on anything else, writing no table: the other Radionics presets are refused |
 | Program source | `NX_SRC_PRESET` + n (0x30 + n; `src/nx/nx_src.h`). Loading fills the program with Out1's table, the amplitude, Out1's offset and the wire code of each step's start; each step has its own time, as in a Terrain set |
 | Start | START on its row loads it and plays it (repeating when the preset repeats). First the runner's idle configuration (outputs off), then the two wave tables, then `:w17=0,0,` `:w21=25,` `:w33=220,`, then the first step. The program's clock waits for all of it (about 1.5 s), so the first sweep starts at its start frequency. The tables go out again at every load; the three Out2 lines again after every pause or stop (the idle configuration sets Out2 back to Out1's table and offset) |
 | Wave tables | each is one line of 4103 bytes, sent through the generator queue's stream (`nx_txq_stream_*`): the link counts as busy from the line's begin to its `:ok` (the generators answer a table up to 0.7 s after it; nx waits 2 s), so no other line, PC-mode entry or flash write gets into it. A PC that connects meanwhile waits for the end of that line; the second table is then not begun. The samples are computed (`nx_sin1024` and one corrected phase) and are Spooky2's byte for byte |
 | No answer | a table the generator does not answer within 2 s: the preset is stopped, toast "G1 does not respond" |
 | Sweep | a `:w24` line every 125 ms (`NX_SWEEP_TICK_MS`) while the link's queue is idle, a waiting one replaced by the newer, as the manual sweep; linear from the step's start to its end over the step's time. A step's first line is exactly its start. After a pause, or when a load on the other generator sends the step again, the sweep goes on where it is |
 | Dashboard | the preset's name; the output frequency, not the wire's (396.000 Hz; in a sweep it changes 8 times a second); "Step 4 of 18", the time per step and what is left of it; "Next" with the next step's start; "10.0 V · Sine" (the peak-to-peak voltage the generator is set to: what Spooky2 sends for the preset's 20 V at a 100 % offset, section 9.7); the LOOP badge |
-| List | menu > Chains, after the plans and before the Terrain rows: the preset's name and a play icon for each generator it is loaded on. START plays it on the generator chosen with G1/G2 and shows that dashboard; LOOP does nothing there |
+| List | menu > Chains, after the Terrain rows and before the chains (until 2026-10-13: after the plans and before the Terrain rows): the preset's name and a play icon for each generator it is loaded on. START plays it on the generator chosen with G1/G2 and shows that dashboard; LOOP does nothing there |
 | Keys while it plays | as any program: START pauses and plays on, STOP stops, LOOP switches repeat. After STOP, START plays it once (STOP clears repeat, as for a slot); LOOP plays it repeating |
 | Resume, history, timers | the resume snapshot keeps it like a built-in set: after a power cut it goes on at its step and time (the tables are uploaded again). Auto-start plays it from the start. History lists it under its name; a "stop after" time stops it |
 | After it | the generator's tables 11 and 25 keep the preset's sine, as after the same preset from Spooky2 (which uploads its tables again with every preset). So nx does the same for its own "Sine": before the manual generator or a Terrain set plays table 11, it uploads Spooky2's standard sine there (one cycle at full scale, `floor(512 + 511.5·sin(2πi/1024))` with 511 at i = 512: identical in three serial captures of Spooky2; the firmware's samples are that table byte for byte), once, as long as it knows the table: not after power-on, a PC session or a preset. The program's clock waits for the table (about 0.4 s and its `:ok`). If the generator does not answer it, the sine plays all the same and the table is not sent again until the next power-on. Stored slots play their own tables (41–70) and get nothing added |
 | Test build | with `NX_TIME_X` the steps and their sweeps run faster together |
-| Checked | host tests `tests/host/nx/test_nx_preset.c` (made-up presets in `preset_fixture.c`). On the emulator, `tools/pc_replay.py standalone`: the image of a personal build with the preset, started with the keys, sends what Spooky2 sent in the capture (both tables byte for byte, every generator setting, the first line of each step byte for byte, steps of 11.00 s where Spooky2's take 11.02–11.09 s, 263 sweep lines within 8 ms of Spooky2's line). Not on the device yet (checklist §28) |
-| Code | `src/nx/nx_preset.c`, `src/nx/nx_txq.c` (the stream), `nx_preset_setup` in `src/nx/nx_runner.c`, `src/nx/nx_scr_chain.c`, `tools/gen_nx_preset.py` |
+| Checked | host tests `tests/host/nx/test_nx_preset.c` (made-up presets in `preset_fixture.c`). On the emulator, `tools/pc_replay.py standalone`: a build with the preset from before 2026-10-13 (its table then made at build time), started with the keys, sent what Spooky2 sent in the capture (both tables byte for byte, every generator setting, the first line of each step byte for byte, steps of 11.00 s where Spooky2's take 11.02–11.09 s, 263 sweep lines within 8 ms of Spooky2's line); to be rerun on this image (the tool's keys still fit the new list: six DOWN pass the six Terrain rows to the preset's row). Not on the device yet (checklist §28) |
+| Code | `src/nx/nx_preset.c`, `src/nx/nx_txq.c` (the stream), `nx_preset_setup` in `src/nx/nx_runner.c`, `src/nx/nx_scr_chain.c`, the table `src/nx/data/nx_preset_data.c`, `tools/gen_nx_preset.py` |
 
 ## 10. Screenshots
 
@@ -571,20 +592,21 @@ They use the drawn splash. To render them again:
 | | |
 |---|---|
 | ![Chains](../../tests/gallery/nx/chains.png) | ![Chain editor](../../tests/gallery/nx/chain_edit.png) |
-| menu > Chains: chains and plans | Chain editor |
+| menu > Chains: the built-in rows first (here two made-up Terrain protocols), then the chains and plans | Chain editor |
 | ![Plan editor](../../tests/gallery/nx/plan_edit.png) | |
 | Plan editor | |
 
 ### Terrain Protocol and manual generator
 
-The Terrain shots use made-up protocols and sets (`tests/host/nx/terrain_fixture.c`), not the
-presets. The Terrain rows and screens are those of a personal build (section 9.12); the released
-image has none.
+The Terrain shots use made-up protocols and sets ("Demo", "Demo cleanse", "Demo kidney":
+`src/nx/nxg_core.c`, the names of `tests/host/nx/terrain_fixture.c`), not the tables of the
+image. On a unit the six rows are "Terrain · Remote", "Terrain · Contact" and so on, with the
+set names of Spooky2's presets (section 9.12).
 
 | | |
 |---|---|
 | ![Chains with Terrain rows](../../tests/gallery/nx/chains_terrain.png) | ![Dashboard, Terrain](../../tests/gallery/nx/dash_terrain.png) |
-| menu > Chains: the Terrain rows after the plans | A Terrain set: "Day 3/11" in the status bar |
+| menu > Chains: the Terrain rows first, then the chains | A Terrain set: "Day 6/11" in the status bar (the name is the gallery's sample program) |
 | ![Terrain, Remote](../../tests/gallery/nx/terrain_remote.png) | ![Terrain, Contact](../../tests/gallery/nx/terrain_contact.png) |
 | Terrain screen, Remote: day, time run, power | Terrain screen, Contact: day and session |
 | ![Set-end card](../../tests/gallery/nx/terrain_alert.png) | |
@@ -627,9 +649,9 @@ image has none.
 | ![PC monitor, waveform and amplitude](../../tests/gallery/nx/pc_monitor_info.png) | ![Calibration](../../tests/gallery/nx/calibration.png) |
 | PC monitor: waveforms, amplitudes, gating | Calibration grid |
 | ![PC monitor, wave tables of 11 cycles](../../tests/gallery/nx/pc_monitor_wcm.png) | ![Chains with a built-in preset](../../tests/gallery/nx/chains_preset.png) |
-| PC monitor: the output frequency of wave tables with 11 and 16 cycles; Out2 the inverse | menu > Chains: a built-in preset (a personal build) after the plans, loaded on G2 |
+| PC monitor: the output frequency of wave tables with 11 and 16 cycles; Out2 the inverse | menu > Chains: the built-in preset (here a made-up one, "Demo sweep") after the Terrain rows, loaded on G2 |
 | ![Dashboard, built-in preset](../../tests/gallery/nx/dash_preset.png) | |
-| A built-in preset (a personal build) in a sweep: the output frequency, the next step's start | |
+| The built-in preset (the made-up one) in a sweep: the output frequency, the next step's start | |
 | ![Splash](../../tests/gallery/nx/splash_1100.png) | ![Goodbye](../../tests/gallery/nx/goodbye.png) |
 | Splash (the drawn one, black in every theme) | Goodbye |
 
@@ -745,19 +767,18 @@ written.
 14. The PC screen also shows the waveforms and amplitudes the PC set, for both outputs.
 15. Programs can be copied, moved and erased on the device. The slots then hold them as after a
     Spooky2 upload.
-16. The Terrain Protocol runs without the PC (menu > Chains), in personal builds made with the
-    user's own Spooky2 presets (not in the released image). A Contact session ends with a card
-    and three backlight pulses; nothing beeps.
+16. The Terrain Protocol runs without the PC: its six rows are the first of menu > Chains. A
+    Contact session ends with a card and three backlight pulses; nothing beeps.
 17. menu > Manual plays a frequency or a sweep by hand, with a waveform and an amplitude.
 18. A chain now switches the waveform and the amplitude with each program.
 19. With a Spooky2 preset that uses a Wave Cycle Multiplier, the PC screen shows the frequency
     Spooky2 shows, with the multiplier ("396.00 Hz ×11"). The original shows it divided (36 Hz).
-20. A Spooky2 preset with sweeps can run without the PC (menu > Chains, after the plans), in
-    personal builds made with the user's own preset file (not in the released image):
-    "Radionics (Boost) Manifestation".
+20. A Spooky2 preset with sweeps can run without the PC (menu > Chains, after the Terrain
+    rows): "Radionics (Boost) Manifestation".
 21. The first time after power-on (or after the PC, or after that preset) that menu > Manual or a
     Terrain set plays a sine, it starts about half a second later: nx puts Spooky2's standard sine
-    into the generator first, so "Sine" is a sine whatever a preset left there.
+    into the generator first, so "Sine" is a sine whatever a preset left there. (The Terrain sets
+    of the committed table play the square and the inverse sawtooth, none the sine.)
 
 ## 15. Restored after the size cut
 
@@ -802,14 +823,14 @@ The menu grid and the Diagnostics page with the key test were cut earlier; they 
 
 | Feature | Why |
 |---|---|
-| Sweeps in programs loaded from Spooky2 | Spooky2 keeps only a sweep's start frequency when it uploads to the GX slots; a slot holds one dwell and at most 200 steps. Sweeps come from the manual generator (section 9.14) or from a preset built into a personal build's image (section 9.17) |
+| Sweeps in programs loaded from Spooky2 | Spooky2 keeps only a sweep's start frequency when it uploads to the GX slots; a slot holds one dwell and at most 200 steps. Sweeps come from the manual generator (section 9.14) or from the built-in preset (section 9.17) |
 | An audible alert | the board has no buzzer; the set-end alert is visual (section 9.13) |
 
 ### Cancelled
 
 | Group | Features |
 |---|---|
-| Drop 3 | Spooky2 presets other than Terrain, favourites / recent, archive. Back since 2026-09-25: chains, multi-day plans, on-device slot copy / erase (section 9), the Terrain Protocol standalone (section 9.12; personal builds only). Back since 2026-10-05: one Spooky2 preset with sweeps (section 9.17; personal builds only) |
+| Drop 3 | Spooky2 presets other than Terrain, favourites / recent, archive. Back since 2026-09-25: chains, multi-day plans, on-device slot copy / erase (section 9), the Terrain Protocol standalone (section 9.12). Back since 2026-10-05: one Spooky2 preset with sweeps (section 9.17). Both in personal builds only until 2026-10-13, built in by default since |
 | Drop 4 | independent Out2, amplitude cap, waveform uploads, dual mirror, program inspector. Back: usage statistics, as the History totals; the manual generator and sweeps (section 9.14); the two wave tables of a built-in preset (section 9.17) |
 | Rest of Drop 2 | the `#` side channel and `nx_ctl.py`. Back: history, session timer, auto-start, diagnostics, a richer PC monitor (it reads the PC's waveform, amplitude and gating) |
 | Backlog | on-device biofeedback scan, RTC |
@@ -818,12 +839,12 @@ The menu grid and the Diagnostics page with the key test were cut earlier; they 
 
 | Topic | State |
 |---|---|
-| Image size | Now, OpenGX Pro 0.9.0: the released image (`make release`) is 102,860 bytes (`gxpro.bin`, the figure `tools/release_check.py` prints) of the 112,640 the vendor bootloader is proven to take: **9,780 bytes are left**. It has no vendor splash, no Terrain data and no built-in preset (nothing from the original image or from Spooky2 presets); History and the 48 px digits stay off by default. A personal build with the Terrain data and the preset (`TERRAIN_DIR` and `PRESET_FILE` in `local.mk`) is 108,448 bytes now (`gxpro.bin`), 4,192 left. The build budget is 112,640 bytes (110 KB, `NX_FLASH_LIMIT` in `ld/nx.ld`), the size the vendor bootloader is proven to take (`FLASH_PROVEN`, size test of 2026-09-25, `docs/nx/drop0-checklist.md` §1: 96, 104 and 110 KB all arrived byte for byte); `make flash` refuses a larger image. Earlier measurements, all of builds with the Terrain data and the preset: on 2026-10-06 the image was 106,538 bytes (`gxpro.bin` 106,544 bytes) with 6,102 left. Until 2026-10-05 the image was 112,586 bytes with 54 left; then three things went off by default to make room (what each feature, font, icon and text costs: `docs/nx/drop1-size-inventory.md`): the ghost splash (2,264 bytes; `NX_VENDOR=1` builds it in), History (2,120 bytes; `NX_FEAT_HIST=1`) and the 48 px frequency digits (2,008 bytes; `NX_FEAT_HERO48=1`). The rework of the PC monitor's extras took 344 bytes of that room, so any two of the three fit again, but not all three (112,930 bytes, 290 over; measured at the 106,538-byte image, not again since). Measured on 2026-10-06 (`gxpro.bin`): 105,336 without the preset's data (`NX_PRESETS=0`), 104,160 without presets and the standard sine (`NX_FEAT_PRESET=0`); 103,276 without the manual generator (`NX_FEAT_MANUAL=0`); 102,172 without the Terrain data (`NX_TERRAIN=0`); 93,196 without chains, plans, Terrain and presets (`NX_FEAT_CHAINS=0`). The MCU has 128 KB of flash: the first 16 KB are the vendor bootloader (never touched), 112 KB are the application region. The update file is the image padded to 16 bytes plus a 4-byte ID (the released one, `opengx-pro-0.9.0.bin`: 102,868 bytes; on 2026-10-06: 106,548 bytes). To make the image smaller, switch features off (`NX_FEAT_*` in `src/nx/nx_config.h`, `NX_TERRAIN=0`, `NX_PRESETS=0`). |
+| Image size | Now (2026-10-13), OpenGX Pro 0.9.0: the image is 108,456 bytes (`gxpro.bin`, the figure `tools/release_check.py` prints) of the 112,640 the vendor bootloader is proven to take: **4,184 bytes are left**. The default build (`make APP=nx`) and the released image (`make release`) are this size: both hold the Terrain table and the preset table (committed in `src/nx/data/`, made from Spooky2's presets) and no vendor splash, so nothing from the original image; History and the 48 px digits stay off by default. Without the two tables (`NX_TERRAIN=0 NX_PRESETS=0`) the image is 102,876 bytes; without the Terrain table only 104,084, without the preset table only 107,248. Before the tables were committed (earlier on 2026-10-13) `make release` built without them, 102,860 bytes with 9,780 left, and a personal build with them was 108,448 bytes with 4,192 left. The build budget is 112,640 bytes (110 KB, `NX_FLASH_LIMIT` in `ld/nx.ld`), the size the vendor bootloader is proven to take (`FLASH_PROVEN`, size test of 2026-09-25, `docs/nx/drop0-checklist.md` §1: 96, 104 and 110 KB all arrived byte for byte); `make flash` refuses a larger image. Earlier measurements, all of builds with the Terrain data and the preset: on 2026-10-06 the image was 106,538 bytes (`gxpro.bin` 106,544 bytes) with 6,102 left. Until 2026-10-05 the image was 112,586 bytes with 54 left; then three things went off by default to make room (what each feature, font, icon and text costs: `docs/nx/drop1-size-inventory.md`): the ghost splash (2,264 bytes; `NX_VENDOR=1` builds it in), History (2,120 bytes; `NX_FEAT_HIST=1`) and the 48 px frequency digits (2,008 bytes; `NX_FEAT_HERO48=1`). The rework of the PC monitor's extras took 344 bytes of that room, so any two of the three fit again, but not all three (112,930 bytes, 290 over; measured at the 106,538-byte image, not again since). Measured on 2026-10-06 (`gxpro.bin`): 105,336 without the preset's data (`NX_PRESETS=0`), 104,160 without presets and the standard sine (`NX_FEAT_PRESET=0`); 103,276 without the manual generator (`NX_FEAT_MANUAL=0`); 102,172 without the Terrain data (`NX_TERRAIN=0`); 93,196 without chains, plans, Terrain and presets (`NX_FEAT_CHAINS=0`). The MCU has 128 KB of flash: the first 16 KB are the vendor bootloader (never touched), 112 KB are the application region. The update file is the image padded to 16 bytes plus a 4-byte ID (the released one, `opengx-pro-0.9.0.bin`: 108,468 bytes in 53 blocks; on 2026-10-06: 106,548 bytes). To make the image smaller, switch features off (`NX_FEAT_*` in `src/nx/nx_config.h`, `NX_TERRAIN=0`, `NX_PRESETS=0`). |
 | Device test | the 77,372-byte image with the new UI runs on the device, and Spooky2 on both generators in PC mode passes (`docs/nx/drop1-checklist.md` §8 step 2). Resume, the features of section 9, the black splash, the Terrain Protocol and the manual generator have not been on the device yet (checklist §6, §9–§25). |
 | Waveform tables 11–19 standalone | the manual generator and the Terrain sets play them standalone. Not checked on the device yet: the original only ever plays tables 41–70 standalone (checklist §21). |
 | Generator wave tables 11–25 | Spooky2 uploads them at every preset load (13 tables in the capture of 2026-10-05), with what that preset needs: after a preset with a Wave Cycle Multiplier of 11, table 11 holds 11 sine cycles at half scale. They stay in the generator; a built-in preset (section 9.17) leaves tables 11 and 25 the same way. **The sine is covered:** before the manual generator or a Terrain set plays table 11, nx uploads Spooky2's standard sine there, once per power-on, PC session or preset (section 9.17, "After it"). Not covered: the other waveforms (tables 12–19: square, sawtooth, …) play as the last Spooky2 preset left them; a stored slot that names table 11 itself. Whether the tables survive a power-off is not known; nx assumes nothing and uploads the sine again after every power-on. |
-| Presets with sweeps | one preset, only in personal builds made with the user's own preset file, never in the released image. Not checked on the device: whether the generators take a wave table from the display (if not: the preset stops with a toast; the manual generator's and the Terrain sets' sine play as before, after one wait of 2 s per power-on), and the output on a scope (checklist §28). Spooky2 keeps `:w15=1,1,` during its sessions; standalone it is `0,0` (the display sends that when PC mode ends): if the output differs from a Spooky2 run, that is the first thing to try. The dashboard's scope shows "1 = 2" though Out2 is the inverse. LOOP on its row does nothing though the hint bar offers "LOOP edit". After STOP, START plays it once. |
-| Terrain Protocol | only in personal builds made with the user's own presets, never in the released image. Contact sets play with Out2 following Out1 inverted; the Contact shell's Out2 carrier, its amplitude ramps and its low-frequency amplitude reduction are not reproduced; the Remote time counts running time only (`DEVIATIONS.md`, "nx"). |
+| Presets with sweeps | one preset, built into every image since 2026-10-13, the released one included (`NX_PRESETS=0` builds without it). Not checked on the device: whether the generators take a wave table from the display (if not: the preset stops with a toast; the manual generator's and the Terrain sets' sine play as before, after one wait of 2 s per power-on), and the output on a scope (checklist §28). Spooky2 keeps `:w15=1,1,` during its sessions; standalone it is `0,0` (the display sends that when PC mode ends): if the output differs from a Spooky2 run, that is the first thing to try. The dashboard's scope shows "1 = 2" though Out2 is the inverse. LOOP on its row does nothing though the hint bar offers "LOOP edit". After STOP, START plays it once. |
+| Terrain Protocol | built into every image since 2026-10-13, the released one included (`NX_TERRAIN=0` builds without it). Not checked on the device (checklist §23, §24). Its sets play the tables 12 and 14 (square, inverse sawtooth), which play as the last Spooky2 preset left them (the row "Generator wave tables 11–25"). Contact sets play with Out2 following Out1 inverted; the Contact shell's Out2 carrier, its amplitude ramps and its low-frequency amplitude reduction are not reproduced; the Remote time counts running time only (`DEVIATIONS.md`, "nx"). |
 | Manual generator | not resumed after a power cut, not auto-started. Out2 follows Out1 inverted. A sweep sends a new frequency every 125 ms at most, and less often while the link is busy. |
 | Language | English only; there is no language setting. |
 | Waveform tables 41–70 | the display cannot see their shape: "wave #N ?" and a sine as a stand-in (section 7). |
@@ -887,15 +908,15 @@ Found on the way, not in the guides:
 | Host unit tests | 0 failed (`test_nx_assets` 971 checks, `test_link` 19,198, `test_nx` 22,592); Terrain, the manual generator and the presets in `test_nx_terrain.c`, `test_nx_manual.c`, `test_nx_preset.c` | `make -C tests/host` |
 | Classic build | `APP=fw` stays byte-identical | `make` |
 | Classic build against the original, on the emulator | 18/18 scenarios | `.venv/bin/python tools/diff.py --jobs 6` |
-| nx build | links under the 112,640-byte budget (110 KB); a personal build with the Terrain data and the preset is 108,448 bytes | `make APP=nx` |
-| Release image | 102,860 of 112,640 bytes, 9,780 free; built from scratch, with no vendor splash, no Terrain data and no built-in preset: the compiler flags, the map file and the build directory are checked for them, and the update file must be the image encoded with its ID | `make release` |
-| nx builds without and with features | each `NX_FEAT_*` off on its own, `NX_TERRAIN=0` and `NX_PRESETS=0` build; so do the three that are off by default, each on its own and together (`NX_FEAT_HIST=1`, `NX_FEAT_HERO48=1`, `NX_VENDOR=1`) | e.g. `make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`, `make APP=nx NX_TERRAIN=0 BUILD=build/nx-noterrain`, `make APP=nx NX_PRESETS=0 BUILD=build/nx-nopreset` |
+| nx build | links under the 112,640-byte budget (110 KB): 108,456 bytes with the two committed tables (the default), 102,876 without them | `make APP=nx`; `make APP=nx NX_TERRAIN=0 NX_PRESETS=0 BUILD=build/nx-nodata` |
+| Release image | 108,456 of 112,640 bytes, 4,184 free; built from scratch, with the Terrain table and the preset table and with no vendor splash: the compiler flags, the map file and the build directory are checked for it (the two tables must be linked, nothing made from the original image may be), and the update file (108,468 bytes) must be the image encoded with its ID | `make release` |
+| nx builds without and with features | each `NX_FEAT_*` off on its own, `NX_TERRAIN=0` and `NX_PRESETS=0` build; so do the three that are off by default, each on its own; History and the 48 px digits also together (112,584 bytes, 56 to spare) (`NX_FEAT_HIST=1`, `NX_FEAT_HERO48=1`, `NX_VENDOR=1`) | e.g. `make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`, `make APP=nx NX_TERRAIN=0 BUILD=build/nx-noterrain`, `make APP=nx NX_PRESETS=0 BUILD=build/nx-nopreset` |
 | Spooky2 capture on the emulator, PC mode | a serial capture of Spooky2 playing the Radionics preset, replayed on the image: the monitor shows 396.00 Hz ×11 in the fixed step and 3 062.53125 Hz ×11 in the sweep, as Spooky2 (before: 36.00 and 278.41193182 Hz) | `.venv/bin/python tools/pc_replay.py replay CAPTURE --out build/replay/after` (CAPTURE: your own serial capture of Spooky2) |
-| Built-in preset on the emulator, against the capture | the image of a personal build with the preset, started with the keys, sends what Spooky2 sent: both wave tables byte for byte, every generator setting, the first line of each step, 263 sweep lines within 8 ms of Spooky2's line | `.venv/bin/python tools/pc_replay.py standalone CAPTURE --seconds 47` |
+| Built-in preset on the emulator, against the capture | a build with the preset from before 2026-10-13 (its table then made at build time), started with the keys, sent what Spooky2 sent: both wave tables byte for byte, every generator setting, the first line of each step, 263 sweep lines within 8 ms of Spooky2's line. To be rerun on this image | `.venv/bin/python tools/pc_replay.py standalone CAPTURE --seconds 47` |
 | Assets | the string and icon tables match their sources | `make nx-assets-check` |
 | Emulator, serial only (nx against the original) | 10/10 scenarios on the release image of 0.9.0 (2026-10-13), `pc_dual_session` included | `.venv/bin/python tools/diff.py --jobs 6 --candidate build/release/gxpro.elf --serial-only --timing one-sided --out build/sim/diff-nx queries serial_storage serial_adversarial serial_maint cal_trim pc_mode boot_home cal_boot power_off pc_dual_session` |
 | Emulator, nx keymap | 5/5 scenarios on the release image of 0.9.0 (2026-10-13) | `.venv/bin/python tools/diff.py --jobs 5 --candidate build/release/gxpro.elf --serial-only --keymap nx --timing anchor --out build/sim/diff-nx-intents ch1_program g2_switch upload_run pc_upload_exit nx_keys` |
-| UI screens | match the 122 approved baselines (host 122/122, host-dev 86/86). New on 2026-10-05: `pc_monitor_wcm`, `chains_preset`, `dash_preset`, no other baseline changed then. New with 0.9.0 (2026-10-13): `support`; changed with it: `splash_400`, `splash_700`, `splash_1100`, `settings_about`, `confirm_reset`, `diagnostics`, `fade_050`, `fade_150`, `fade_300` | `.venv/bin/python tools/nx_gallery.py run --host && .venv/bin/python tools/nx_gallery.py compare --source host`; the same with `--host-dev` and `--source host-dev` |
+| UI screens | match the 122 approved baselines (host 122/122, host-dev 86/86). New on 2026-10-05: `pc_monitor_wcm`, `chains_preset`, `dash_preset`, no other baseline changed then. New with 0.9.0 (2026-10-13): `support`; changed with it: `splash_400`, `splash_700`, `splash_1100`, `settings_about`, `confirm_reset`, `diagnostics`, `fade_050`, `fade_150`, `fade_300`. Approved again on 2026-10-13 for the new order of menu > Chains: `chains`, `chains_preset`, `chains_terrain` | `.venv/bin/python tools/nx_gallery.py run --host && .venv/bin/python tools/nx_gallery.py compare --source host`; the same with `--host-dev` and `--source host-dev` |
 | Test build with fast time | program time (dwells, Terrain hours; not the manual sweeps) runs faster: one second of dwell is 1000 / `NX_TIME_X` ms, rounded down, so `NX_TIME_X=60` gives 16 ms, 62.5 times faster (a 24 h set in about 23 min). The splash says "TEST: fast time". For device tests only: flash the normal build afterwards | `make APP=nx NX_TIME_X=60 BUILD=build/nx-x60` |
 | Device: serial conformance (nx core image) | 39/39 replies identical to the original (recorded locally) | `make conformance PORT=/dev/cu.wchusbserial...903 COMPARE=ORIGINAL.json RECORD=NX.json` (ORIGINAL.json: the record of a run on the original) |
 | Device: reply time | about 2 ms (original 27–30 ms), recorded locally | `.venv/bin/python tools/gx_latency.py --save FILE.json` |

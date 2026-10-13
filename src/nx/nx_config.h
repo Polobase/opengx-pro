@@ -141,13 +141,13 @@
 #define NX_FEAT_PLANS NX_FEAT_CHAINS   /* menu > Chains: multi-day plans (a chain per day) */
 #endif
 #ifndef NX_FEAT_TERRAIN
-#define NX_FEAT_TERRAIN NX_FEAT_CHAINS   /* menu > Chains: the built-in Terrain Protocol (NX_TERRAIN_DATA: the user's presets) */
+#define NX_FEAT_TERRAIN NX_FEAT_CHAINS   /* menu > Chains: the built-in Terrain Protocol (NX_TERRAIN_DATA: the committed tables, src/nx/data/) */
 #endif
 #ifndef NX_FEAT_MANUAL
 #define NX_FEAT_MANUAL 1     /* menu > Manual: a frequency or a sweep by hand */
 #endif
 #ifndef NX_FEAT_PRESET
-#define NX_FEAT_PRESET NX_FEAT_CHAINS   /* menu > Chains: built-in presets with sweeps (NX_PRESET_DATA: the user's preset) */
+#define NX_FEAT_PRESET NX_FEAT_CHAINS   /* menu > Chains: built-in presets with sweeps (NX_PRESET_DATA: the committed table, src/nx/data/) */
 #endif
 #ifndef NX_FEAT_TIMERS
 #define NX_FEAT_TIMERS 1     /* menu > Timers: stop after N min per generator, power off when all finished */

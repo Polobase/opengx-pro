@@ -341,7 +341,7 @@ int nx_uc_manual_play(unsigned ch)
 #endif
 
 #if NX_FEAT_TERRAIN
-/* Made-up protocols (the real ones are the user's presets, never in the repository). */
+/* Made-up protocols (the real ones, from Spooky2's presets: src/nx/data/nx_terrain_data.c). */
 static const struct nx_tview k_tview[2] = {
     { "Demo", "Demo cleanse", NX_TP_REMOTE, 11, 15, 6, 6, 1, 12, 0, 1, 15180 },
     { "Demo", "Demo kidney", NX_TP_CONTACT, 11, 22, 5, 3, 2, 0, 0, 0, 0 },
@@ -384,7 +384,7 @@ void nx_uc_terrain_power(unsigned id)
 #endif
 
 #if NX_FEAT_PRESET
-unsigned nx_uc_preset_count(void)   /* a made-up preset (the real one is the user's, never in the repository) */
+unsigned nx_uc_preset_count(void)   /* a made-up preset (the real one: src/nx/data/nx_preset_data.c) */
 {
     return g_nxg.presets;
 }

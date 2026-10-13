@@ -14,8 +14,9 @@
 
   pc_replay.py standalone CAPTURE.dmslog8 [--elf build/nx/gxpro.elf] [--out build/replay/NAME]
       Does the firmware's built-in preset send what Spooky2 sent? The image boots standalone, the
-      keys open menu > Chains and start the preset (--keys), and what the firmware sends to the
-      generator is checked against the capture of Spooky2 playing the same preset:
+      keys open menu > Chains and start the preset (--keys; the default ones fit the default
+      build, where the preset's row follows the six Terrain rows), and what the firmware sends to
+      the generator is checked against the capture of Spooky2 playing the same preset:
         - the two wave tables (":a11=", ":a25=") byte for byte
         - the generator's settings once the outputs are on (:w11 :w12 :w14 :w17 :w20 :w21 :w28
           :w29 :w32 :w33), whatever the order the two sent them in
@@ -258,7 +259,8 @@ def replay(args) -> int:
 
 REGS = (11, 12, 14, 17, 20, 21, 28, 29, 32, 33)
 # after the boot gate (4.44 s): DOWN opens the menu (on Settings after power-on), UP and G1 go to
-# Chains, START opens it, six DOWN reach the first row after the plans, START plays it
+# Chains, START opens it (on the first Terrain row), six DOWN pass the six Terrain rows to the
+# preset's row, START plays it
 KEYS = "DOWN,UP,G1,START,DOWN,DOWN,DOWN,DOWN,DOWN,DOWN,START"
 KEY_T0_MS, KEY_STEP_MS = 6000.0, 700.0
 

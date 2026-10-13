@@ -1,5 +1,5 @@
-/* Made-up presets with sweeps for the host tests (the real one is the user's preset, generated
- * into build/nx/ by tools/gen_nx_preset.py and never committed): the same shapes with invented
+/* Made-up presets with sweeps for the host tests (the real one, generated from a Spooky2 preset
+ * by tools/gen_nx_preset.py, is src/nx/data/nx_preset_data.c): the same shapes with invented
  * names, frequencies and short times. */
 #include "nx_preset_data.h"
 

@@ -34,7 +34,7 @@ lower the read protection.
 No tool of the project sends an image above **112,640 bytes**. That is the largest size proven on
 a real unit: test images of 96, 104 and 110 KB each arrived byte for byte and ran (2026-09-25).
 The application area is slightly larger, but a bigger image has never been tried. The image of
-0.9.0 is 102,860 bytes.
+0.9.0 is 108,456 bytes.
 
 ## What the page checks before it writes
 
@@ -57,9 +57,10 @@ While it runs, OpenGX Pro uses this chip as follows:
 - **Programs, names, calibration**: same places and formats as with the original firmware. They
   change when Spooky2 uploads or erases programs or sends a calibration command, when you save in
   the calibration menu, and when you copy, move or erase a program on the unit yourself.
-- **Its own data** (settings, chains, plans, the resume position, the values of the manual
-  generator): only in the address range 0x080000 to 0x1FFFFF, which the original firmware does not
-  use. A write outside that range is refused by the code. Every write is read back and compared.
+- **Its own data** (settings, chains, plans, the positions in the Terrain protocols, the resume
+  position, the values of the manual generator): only in the address range 0x080000 to 0x1FFFFF,
+  which the original firmware does not use. A write outside that range is refused by the code.
+  Every write is read back and compared.
 - **In PC mode** it writes none of its own data.
 
 After going back to the original firmware, the data of OpenGX Pro stays in that range, unused.
@@ -93,6 +94,12 @@ OpenGX Pro is firmware for the display board of a frequency generator. It shows 
 keys and sends the generator boards the commands for frequency, waveform, amplitude and on or
 off. The project makes no statement about any use of the device and no health or treatment claim
 of any kind. A program name on the screen is the name stored with the program, nothing more.
+
+The same holds for the two built-in programmes, the Terrain Protocol and the preset with sweeps.
+Their frequencies, times and names are taken from Spooky2's preset files. The project did not
+write them and makes no statement about what they are for. The names on the screen are the names
+in those files ([`docs/nx/THIRD_PARTY.md`](../nx/THIRD_PARTY.md)). The amplitudes are those of
+the presets too: the Contact protocols play at 20 V, the Remote protocols at 5 V or less.
 
 ## What "beta" means here
 

@@ -19,14 +19,21 @@ Everything else is ordinary: small changes, the checks below, a clear commit mes
 
 **Vendor material**
 
-- No vendor material in git, in a pull request, in a release file or on the site: no fonts or
-  bitmaps of the original firmware, no Spooky2 presets or databases, no serial captures, no vendor
-  documents. Everyone uses their own copy (`original/`, never committed).
+- No vendor material in git, in a pull request, in a release file or on the site: no firmware
+  image, no fonts or bitmaps of the original firmware, no Spooky2 preset files or databases, no
+  serial captures, no vendor documents. Everyone uses their own copy (`original/`, never
+  committed).
+- The one exception, and it is stated: the two tables in `src/nx/data/` (`nx_terrain_data.c`,
+  `nx_preset_data.c`) for the built-in Terrain Protocol and the built-in preset. They hold
+  frequencies, times and names taken from Spooky2's preset files. They are not this project's own
+  work, and [`docs/nx/THIRD_PARTY.md`](docs/nx/THIRD_PARTY.md) says where they come from. They are
+  written only by `make nx-data`, never by hand. No other preset data goes into the repository.
 - The classic firmware and its test apps take the original's fonts and bitmaps from your copy of
   the vendor's update file at build time; the result stays in `build/`. That is why only the nx
   firmware is released as a file.
-- A release image holds nothing from Spooky2 presets either. `make release` refuses such a build,
-  and `tools/release_check.py` checks the finished image again.
+- A release image holds those two tables and nothing else of the vendor. `make release` requires
+  both tables and refuses the original's splash artwork (`NX_VENDOR=1`), test timing and changed
+  switches; `tools/release_check.py` checks the finished image again.
 
 **Behaviour**
 
@@ -51,17 +58,19 @@ Everything else is ordinary: small changes, the checks below, a clear commit mes
   update file at `original/GxDisplayFW.bin` (see `README.md`). The nx firmware, its tests and the
   site need none of that.
 
-Personal build settings go into `local.mk` (not in git), for example the folders of your own
-Spooky2 presets for a private build:
+Personal build settings go into `local.mk` (not in git). A normal build needs none. An example:
+where your Spooky2 installation keeps its presets, for `make nx-data`, which writes the two tables
+in `src/nx/data/` again:
 
 ```make
 TERRAIN_DIR = /path/to/Spooky2/Preset Collections/Detox/Terrain Protocol
-PRESET_FILE = /path/to/Spooky2/Preset Collections/Radionics/a preset.txt
+PRESET_FILE = /path/to/Spooky2/Preset Collections/Radionics/Spooky Radionics (Boost) Manifestation - AW.txt
 ```
 
 ## Checks
 
-Without any vendor file (this is what CI runs):
+With the repository alone, without a copy of the vendor's image or a Spooky2 installation (this is
+what CI runs):
 
 ```sh
 make -C tests/host                         # three test binaries, 0 failed
@@ -74,7 +83,8 @@ make nx-assets-check && make nx-assets-test    # the committed asset tables matc
 ```
 
 Every feature switch must still build when it is off, for example
-`make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`.
+`make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`. So must a build without
+the two preset tables: `make APP=nx NX_TERRAIN=0 NX_PRESETS=0 BUILD=build/nx-nodata`.
 
 With your own copy of the original image and an SPI-flash backup of your unit
 (`backups/spi_flash_*.bin`, made with `tools/gx_link.py dump`):

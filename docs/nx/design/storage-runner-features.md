@@ -281,7 +281,7 @@ Scenarios (`tools/scenarios/nx_*.json`):
 | Torn or weak erase | ring headers written only after the erase; read-back verify; bad-sector map |
 | Image size limit | compiler on the Mac, streaming instead of RAM copies |
 | `#` collisions | no `:` ever; differential fuzz tests |
-| Vendor data | only read from `original/` and from `TERRAIN_DIR` / `PRESET_FILE` (an untracked `local.mk`); embeds only in `build/` |
+| Vendor data | only read from `original/` and from `TERRAIN_DIR` / `PRESET_FILE` (an untracked `local.mk`); embeds only in `build/`. Since 2026-10-13 one stated exception: the two tables `make nx-data` makes from the preset files are committed in `src/nx/data/` (`docs/nx/THIRD_PARTY.md`) |
 
 ### Critical Files for Implementation
 - src/link.c

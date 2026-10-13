@@ -9,12 +9,13 @@ The UI is in English only (no language setting). DOWN on the dashboard opens the
 Chains, Manual, Timers, Diagnostics, Settings). The keys and screens are in
 `docs/nx/key-model.md`; everything nx does compared with the original: `docs/nx/features.md`.
 
-A released image (`make release`) is built without the vendor splash, without Terrain data and
-without the built-in preset: 102,860 bytes. A personal build sets `TERRAIN_DIR` / `PRESET_FILE` in
-an untracked `local.mk` (106,538 bytes on 2026-10-06, with the Terrain data and the preset with
-sweeps); §23, §24 and §28 need such a build. Off by default since 2026-10-05: the ghost splash
-(§9), History (§15) and the 48 px frequency digits; the dashboard shows the frequency in 28 px
-digits.
+Since 2026-10-13 every build, and the released image (`make release`), has the Terrain Protocol
+and the preset with sweeps from the committed tables in `src/nx/data/`: 108,456 bytes (106,538
+bytes on 2026-10-06, when the tables were made at build time from `TERRAIN_DIR` / `PRESET_FILE`
+in an untracked `local.mk`). So §23, §24 and §28 need no preset files (§23 and §24 still use the
+test build with fast time). `make release` is built without the vendor splash. Off by default
+since 2026-10-05: the ghost splash (§9), History (§15) and the 48 px frequency digits; the
+dashboard shows the frequency in 28 px digits.
 The bootloader is proven up to 112,640 bytes (`FLASH_PROVEN`, the size test of 2026-09-25), which
 is also the build budget. Order: §1, then §8 (both generators in PC mode, the reported problem),
 then the rest. The Terrain checks (§23, §24) use a test build whose time runs faster; §25 goes
@@ -29,7 +30,7 @@ preset.
 | Size test (`docs/nx/drop0-checklist.md` §1): 96, 104 and 110 KB all "CRC OK" on 2026-09-25; `FLASH_PROVEN` = 112,640 | done |
 | `make APP=nx` links; `make APP=nx nx-size` shows the image size | |
 | For the ghost splash (§9) only: `original/GxDisplayFW.bin` is there and the image was built with `NX_VENDOR=1`; `git status` shows no new file (`build/nx/nx_vendor.c` stays in `build/`) | |
-| The Terrain preset folder is there (`TERRAIN_DIR` in `local.mk`), so the build has the Terrain Protocol (§23); `build/nx/nx_terrain_data.c` stays in `build/` and `git status` shows no new file | |
+| The build has the Terrain Protocol (§23) and the built-in preset (§28) from the committed tables `src/nx/data/nx_terrain_data.c` and `src/nx/data/nx_preset_data.c` (since 2026-10-13; no preset folder is needed); `git status` shows no changed file after the build | |
 | The original's recorded replies exist: `build/conf-original.json` (2026-09-23) | done |
 | `make flash-original` works once (recovery path) | |
 
@@ -255,7 +256,7 @@ Use slots whose programs you can upload again from Spooky2.
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | menu > Chains | Chain 1–4 and Plan 1–2, "empty · LOOP to edit", then the built-in preset (§28), then the six Terrain rows (§23); the title "Run on G1 G2" | |
+| 1 | menu > Chains | the list opens on the six Terrain rows (§23); DOWN: the built-in preset (§28), then Chain 1–4 and Plan 1–2, "empty · LOOP to edit"; the title "Run on G1 G2" | |
 | 2 | LOOP on Chain 1; START; G1/G2 to a short program; START, change it; START, change it | "Chain 1 · ×1" with three programs | |
 | 3 | LOOP once; START held on the last program; STOP | "×2", the last program removed; the list shows "2 programs · ×2" | |
 | 4 | G1, START on Chain 1 | toast "Chain 1 on G1", G1's dashboard, "Chain 1/2" in the status bar | |
@@ -342,7 +343,7 @@ of real time is about an hour on the Terrain screen.
 | # | Step | Expected | Result |
 |---|---|---|---|
 | 1 | `make APP=nx NX_TIME_X=60 BUILD=build/nx-x60 flash` | the splash says "v0.9.0 TEST: fast time" | |
-| 2 | menu > Chains, scroll past the plans and the preset | six Terrain rows (Terrain, Terrain-Mercury, Terrain-Nonviolent, each "· Remote" and "· Contact") with "Day 1/11" (Terrain-Nonviolent: "Day 1/10") | |
+| 2 | menu > Chains | the list opens on the six Terrain rows (Terrain, Terrain-Mercury, Terrain-Nonviolent, each "· Remote" and "· Contact") with "Day 1/11" (Terrain-Nonviolent: "Day 1/10") | |
 | 3 | LOOP on "Terrain · Remote" | the Terrain screen: the day-1 set's name, "Day 1 of 11 · 24 h" (a half day: "Day 1.1 of 11 · 12 h"), "Ran 0:00:00 of 24:00:00", "Power 5 V · LOOP changes", the Spooky Remote hint and the water hint | |
 | 4 | LOOP five times | 2.5 V, 1 V, 0.5 V, 0.25 V, then 5 V again | |
 | 5 | G1, START | toast; G1's dashboard with the set's name, "Day 1/11" in the status bar and the LOOP badge; scope: 5 V on Out1 | |
@@ -407,15 +408,16 @@ frequency / 11; the original's PC screen shows that (36 Hz for 396 Hz).
 
 ## 28. Built-in preset with sweeps
 
-The build made with the preset file (`PRESET_FILE` in `local.mk`; `make APP=nx` lists
-"gen_nx_preset: Radionics (Boost) Manifestation: 18 steps, 198 s, 11 cycles per table, repeats").
+The normal build: the preset's table is committed (`src/nx/data/nx_preset_data.c`, since
+2026-10-13; `make nx-data` lists "gen_nx_preset: Radionics (Boost) Manifestation: 18 steps, 198 s,
+11 cycles per table, repeats" when it writes the table again).
 A scope on Out 1 and Out 2 of G1 if you have one; best after a Spooky2 run of the same preset
 (§27) for comparison. The first question is whether the generator takes a wave table from the
 display at all.
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | menu > Chains, DOWN six times | the row "Radionics (Boost) Manifestation" after Plan 2, before the Terrain rows | |
+| 1 | menu > Chains, DOWN six times | the row "Radionics (Boost) Manifestation" after the six Terrain rows, before Chain 1 | |
 | 2 | START (Run on G1) | the dashboard of G1: the name, RUNNING, LOOP. For about 1.5 s the time does not move (the two wave tables go out), then the frequency starts at 36 Hz and rises | |
 | 3 | If instead the toast "G1 does not respond" shows after about 2.5 s and it stops | the generator did not answer the wave table: note it; nothing else of this section applies | |
 | 4 | menu > Diagnostics | the G1 link row: 0 errors, the lines grow by about 8 a second in a sweep | |

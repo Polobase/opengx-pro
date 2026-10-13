@@ -90,8 +90,10 @@ empty, the last request is not done yet).
 
 ## Chains (menu > Chains)
 
-The list shows Chain 1–4, then Plan 1–2, then the built-in presets, then the Terrain protocols
-(both below). The title shows the generator it plays on ("Run on").
+The list shows the built-in programmes first: the Terrain protocols, then the built-in preset
+(both below), then Chain 1–4, then Plan 1–2. It opens on the first Terrain row. (Until
+2026-10-13: chains, plans, presets, Terrain.) The title shows the generator it plays on ("Run
+on").
 
 | Key | Chains list | Chain editor | Plan editor |
 |---|---|---|---|
@@ -102,10 +104,11 @@ The list shows Chain 1–4, then Plan 1–2, then the built-in presets, then the
 | LOOP | edit | the repeat count: ×1, ×2, ×3, ×5, ×10, until stopped | the plan back to day 1 |
 | STOP | back | save and back | save and back |
 
-## Presets with sweeps (menu > Chains, the rows after the plans)
+## Presets with sweeps (menu > Chains, the row after the Terrain protocols)
 
-Builds made with the user's own Spooky2 preset list it by its name ("Radionics (Boost)
-Manifestation"), with a play icon for each generator it is loaded on.
+The built-in preset is listed by its name ("Radionics (Boost) Manifestation"), with a play icon
+for each generator it is loaded on. It is in every build; `make APP=nx NX_PRESETS=0` builds
+without it.
 
 | Key | Preset row (Chains list) |
 |---|---|
@@ -119,11 +122,11 @@ On the dashboard it plays as any program: START pauses and plays on (a sweep goe
 was), STOP stops, LOOP switches repeat. After STOP, START plays it once; LOOP plays it repeating.
 The big frequency is the output frequency and follows a sweep.
 
-## Terrain Protocol (menu > Chains, the rows after the presets)
+## Terrain Protocol (menu > Chains, the first rows)
 
-Builds made with the user's own Spooky2 presets list six rows: Terrain, Terrain-Mercury and
-Terrain-Nonviolent, each as "· Remote" and "· Contact", with "Day 3/11" (or "complete") and a play
-icon for each generator that plays it.
+Six rows: Terrain, Terrain-Mercury and Terrain-Nonviolent, each as "· Remote" and "· Contact",
+with "Day 3/11" (or "complete") and a play icon for each generator that plays it. They are in
+every build; `make APP=nx NX_TERRAIN=0` builds without them.
 
 | Key | Terrain row (Chains list) | Terrain screen (LOOP on a Terrain row) |
 |---|---|---|

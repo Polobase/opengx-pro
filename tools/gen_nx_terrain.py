@@ -17,7 +17,8 @@ Reads the "Terrain Protocol" preset folder of a Spooky2 installation (Detox/Terr
 "Loaded_Frequencies" items are "freq=dwell" with optional tokens after a space; only "Wn" (Out1
 waveform n, in force until changed; Spooky2 wave n is generator table 10 + n) is supported, and
 a set must keep one waveform. Anything else (sweeps "a-b", other tokens, more than 2 decimals,
-more than 200 steps) stops the build: the tables would not play what the preset plays.
+more than 200 steps) stops the tool before it writes: the tables would not play what the preset
+plays.
 
 The tables (src/nx/nx_terrain_data.h) are committed as src/nx/data/nx_terrain_data.c, so every
 build of the firmware has the same protocol; `make nx-data` writes them again from a Spooky2

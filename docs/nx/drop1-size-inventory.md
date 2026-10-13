@@ -1,10 +1,14 @@
 # APP=nx: what fills the flash, and what each part costs
 
-State: 2026-10-06, after the decisions of 2026-10-05 (below). A personal build `make APP=nx`
-with the Terrain sets and the Radionics preset built in (`TERRAIN_DIR` / `PRESET_FILE` set in an
-untracked `local.mk`, so `NX_TERRAIN` and `NX_PRESETS` are on). A released image (`make release`)
-is built without the vendor splash, without Terrain data and without the built-in preset: 102,860
-bytes of the 112,640 the bootloader is proven to take.
+State: 2026-10-06, after the decisions of 2026-10-05 (below): a build `make APP=nx` with the
+Terrain sets and the Radionics preset built in (then a personal build, with `TERRAIN_DIR` /
+`PRESET_FILE` set in an untracked `local.mk`).
+
+Since 2026-10-13 that is the default build and the released image (`make release`): the two
+tables are committed in `src/nx/data/`, and `NX_TERRAIN` and `NX_PRESETS` are on by default. The
+image is 108,456 bytes now, 4,184 left of the 112,640 the bootloader is proven to take. Without
+the two tables it is 102,876 bytes; with only `NX_TERRAIN=0` 104,084, with only `NX_PRESETS=0`
+107,248. The numbers below are those of 2026-10-06 and were not measured again.
 
 **Image: 106,538 B of 112,640 B (`NX_FLASH_LIMIT` = `FLASH_PROVEN`): 6,102 B left.**
 RAM: 24,008 B + 40 B crash record + 3,072 B stack of 36,864 B, 9,744 B left. RAM is not the
@@ -342,13 +346,17 @@ The longest single texts (40 B and more):
 
 192 B: Dark, Light, High contrast and Night, 24 colours of 2 B each. One palette is 48 B.
 
-### Data built in at build time (not in git)
+### Data from the original image and from Spooky2's presets
+
+The ghost splash is made at build time and is not in git. So were the Terrain sets and the preset
+until 2026-10-13; since then their tables are committed in `src/nx/data/`
+(`docs/nx/THIRD_PARTY.md`).
 
 | Data | Bytes | Made of | Switch |
 |---|---:|---|---|
 | Ghost splash bitmaps (`build/nx/nx_vendor.c`) | 0 | ghost logo 1,120, "Welcome" 648, tagline 368, layout table 80, the "2" large 72 and small 48 | `NX_VENDOR` |
-| Terrain sets (`build/nx/nx_terrain_data.c`) | 2,632 | frequencies 930, dwell index 617, names 388, sets 372, items 193, dwell table 52, protocols 48, header 32 | `NX_TERRAIN` |
-| Preset (`build/nx/nx_preset_data.c`) | 174 | 18 steps of 8 B, header 30 | `NX_PRESETS` |
+| Terrain sets (`src/nx/data/nx_terrain_data.c`; then `build/nx/nx_terrain_data.c`) | 2,632 | frequencies 930, dwell index 617, names 388, sets 372, items 193, dwell table 52, protocols 48, header 32 | `NX_TERRAIN` |
+| Preset (`src/nx/data/nx_preset_data.c`; then `build/nx/nx_preset_data.c`) | 174 | 18 steps of 8 B, header 30 | `NX_PRESETS` |
 
 The preset's two wave tables (2 × 1,024 samples) are not stored: `nx_preset_sample` computes them
 (76 B + 46 B, using the sine table the drawing code already has).
@@ -385,7 +393,7 @@ ghost bitmaps (`nx_vendor`) are not in the image any more.
 | `nx_comp` | 3,292 | 3,292 | UI parts: list, form rows, title bar, G badge, menu cell, sheet frame, hint bar, hold ring |
 | `nx_render` | 2,643 | 2,643 | band renderer: dirty rectangles, layers, scrim, themes |
 | `nx_scr_lib` | 2,640 | 1,828 | program list, program detail, slot actions |
-| `nx_terrain_data` | 2,632 | 0 | Terrain sets (build-time data) |
+| `nx_terrain_data` | 2,632 | 0 | Terrain sets (a table from Spooky2's presets) |
 | `calib` | 2,228 | 2,228 | calibration: the 29 values, menu and jig lines, test outputs (shared) |
 | `nx_uicore` | 2,208 | 1,444 | the UI's view of the core: the snapshot per frame, doors to the features |
 | `nx_terrain` | 2,200 | 26 | Terrain Protocol: days, sessions, power, resume of a set |
@@ -440,7 +448,7 @@ ghost bitmaps (`nx_vendor`) are not in the image any more.
 | `main_nx` | 212 | 212 | `main`, the default programs |
 | `nx_anim` | 208 | 208 | easing curves |
 | `nx_src` | 178 | 46 | program sources: slot, preset, Terrain set, manual |
-| `nx_preset_data` | 174 | 0 | preset steps (build-time data) |
+| `nx_preset_data` | 174 | 0 | preset steps (a table from a Spooky2 preset) |
 | `fmt` | 166 | 166 | number formatting (shared) |
 | `nx_settings` | 140 | 140 | the settings record |
 | `(alignment)` | 109 | 83 | padding between sections |

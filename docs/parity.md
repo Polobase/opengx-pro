@@ -23,6 +23,7 @@ page was measured on the original again. "Scenario" means an emulator scenario o
 | Different on purpose | changed deliberately; the difference is listed in `DEVIATIONS.md` |
 | Fixed | an error of the original is corrected |
 | Option | changed by default; "Original key behaviour" gives the original's behaviour back |
+| New | the original does not have it; listed in `DEVIATIONS.md` |
 | Not implemented | left out in both open firmwares |
 
 **Short answer.** Everything the original does towards the PC, the generator boards and the
@@ -61,6 +62,7 @@ only a small part has been checked so far (the last section).
 | STOP: stops the shown generator | The same on release within 0.5 s; held 1 s and released, it stops both | Same, plus one | `dash_key` (`STOP_ALL_MS`); `nx_core_act` (`NXA_STOP`, `NXA_STOP_ALL`); scenario `nx_keys` |
 | POWER short: stops both generators | Screen off and on. Option: stops both, on the dashboard | Option | `global_key` in `src/nx/nx_ui.c`; `test_original_keys`; scenario `nx_keys` |
 | Goodbye screen with vendor artwork | Own goodbye with the session time | Different on purpose | `bye_draw` in `src/nx/nx_scr_sys.c`; gallery `goodbye` |
+| No list beyond the 30 program slots | menu > Chains, one list: the built-in programmes first (the six Terrain protocols, then the built-in preset), then Chain 1–4 and Plan 1–2. It opens on the first Terrain row | New | `row_kind`, `chains_row`, `chains_key` in `src/nx/nx_scr_chain.c`; gallery `chains`, `chains_terrain`, `chains_preset`; host tests `test_nx_chain`, `test_nx_terrain` |
 
 ## Program runner
 
@@ -73,7 +75,9 @@ only a small part has been checked so far (the last section).
 | G2 takes its step parameters with G1's step index | Each generator uses its own step (as classic) | Fixed | `play_step` |
 | A dwell of 0 after an upload: division by zero | Counts as 1 s (as classic) | Fixed | `current_step` |
 | A step count above 200 plays the bytes behind the table | Ends after step 200 | Fixed | `step_count` in `src/nx/nx_runner.c` |
-| Programs come only from the 30 slots of the SPI flash | The same for slots. nx adds sources of its own: chains, plans, the manual generator | Same, plus new | `program_load` in `src/storage.c` (shared) through `nx_core_act` (`NXA_LOAD`); `src/nx/nx_src.c`, `nx_chain.c`, `nx_manual.c` |
+| Programs come only from the 30 slots of the SPI flash | The same for slots. nx adds sources of its own: chains, plans, the manual generator, and the two built-in programmes of the next rows | Same, plus new | `program_load` in `src/storage.c` (shared) through `nx_core_act` (`NXA_LOAD`); `src/nx/nx_src.c`, `nx_chain.c`, `nx_manual.c`, `nx_terrain.c`, `nx_preset.c` |
+| The Terrain Protocol runs only from Spooky2 on the PC | Built in, in every build and in the released image: Terrain, Terrain-Mercury and Terrain-Nonviolent, each as a Remote and as a Contact protocol (6 protocols, 31 sets), with a day counter, a set-end card and a stored position. The tables are generated from Spooky2's presets and committed (`docs/nx/THIRD_PARTY.md`). No serial command is new. What differs from Spooky2: `DEVIATIONS.md`, "nx". Not checked on a unit | New | `src/nx/nx_terrain.c`, `src/nx/nx_scr_terrain.c`, `src/nx/data/nx_terrain_data.c`, `tools/gen_nx_terrain.py`; host test `test_nx_terrain` (made-up tables in `tests/host/nx/terrain_fixture.c`); gallery `chains_terrain`, `terrain_remote`, `terrain_contact`, `dash_terrain`, `terrain_alert` |
+| Programs with sweeps play only from Spooky2 on the PC | One Spooky2 preset with sweeps is built in, in every build and in the released image: "Radionics (Boost) Manifestation" (18 steps, 198 s, repeats until stopped). For it the display sends what Spooky2 sends: two wave tables, Out2's own table and offset, and a frequency line every 125 ms in a sweep. The table is generated from Spooky2's preset and committed. No serial command of the display is new. Not checked on a unit | New | `src/nx/nx_preset.c`, `nx_txq_stream_*` in `src/nx/nx_txq.c`, `src/nx/data/nx_preset_data.c`, `tools/gen_nx_preset.py`; host test `test_nx_preset` (made-up presets in `tests/host/nx/preset_fixture.c`); gallery `chains_preset`, `dash_preset`; `tools/pc_replay.py standalone` against a serial capture of Spooky2 (run on an earlier build with the preset; to be rerun on this image) |
 
 ## PC mode
 
@@ -135,7 +139,7 @@ tolerance; only the boot sequence must not start earlier either.
 | Classic only | `list_nav` (screens of the list), `serial_malformed` (nx differs on purpose, see `test_malformed_lines`), `pc_exit_key` (see `test_traffic`) |
 
 Result for nx on 2026-10-13, on a local release build (`make release`, update file SHA-256
-`24932724…e07e7`): 10 of 10 and 5 of 5 pass. The commands are in
+`dd36d34a…e2731b`): 10 of 10 and 5 of 5 pass. The commands are in
 [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 **Gallery** (`tools/nx_gallery.py`). Every nx screen is drawn from fixtures and compared pixel
@@ -159,6 +163,10 @@ been repeated with the release image. Before a release the maintainer goes throu
   outputs, the PC monitor against Spooky2, uploads, the calibration menu, power off, resume and
   all features beyond the original. The user-level list is in
   [Known issues](guide/known-issues.md).
+- **The built-in Terrain Protocol and preset on a unit.** Both are in the released image and
+  neither has been on a unit: whether the generator boards take a wave table from the display,
+  the preset's output on a scope, and the standard waveform tables 11–19 played without a PC
+  (`docs/nx/features.md`, section 17; `docs/nx/drop1-checklist.md` §23, §24, §28).
 - **A key at the start of PC mode.** `modes` handles entry and exit alike; the host test covers
   only the exit, and the scenario `pc_exit_key` runs against the classic build only.
 - **Key repeat of "Original key behaviour".** The times (280 ms, then 26 ms) are set in

@@ -14,25 +14,27 @@ re-implementation of the original firmware v7789 (`APP=fw`, the default of `make
 | `python3 -m venv .venv && .venv/bin/python -m pip install -r tools/requirements.txt` | the flasher, the emulator and the gallery tool |
 | Your own copy of the vendor's image at `original/GxDisplayFW.bin` | only the classic firmware and the comparison with the original |
 
-The nx firmware builds without any vendor file. Its fonts and icons are open (Inter, Material
-Symbols) and their tables are committed.
+The nx firmware builds from the repository alone: no vendor file and no Spooky2 installation is
+needed. Its fonts and icons are open (Inter, Material Symbols) and their tables are committed. So
+are the two tables of the built-in Terrain Protocol and the built-in preset (`src/nx/data/`),
+which hold data taken from Spooky2's preset files (below).
 
 ## Build
 
 | Command | Result |
 |---|---|
 | `make release` | The image as it is published, built from scratch in `build/release`: `opengx-pro-<version>.bin` (the update file), its `.sha256` and `manifest.json`. |
-| `make APP=nx` | A development build: `build/nx/GxCustomFW.bin`. With a `local.mk` (below) it contains your presets. |
+| `make APP=nx` | A development build: `build/nx/GxCustomFW.bin`. With the default switches it has the same features as the release image. |
 | `make APP=nx nx-size` | Flash and RAM per module, and the image size against the limit. |
 | `make flash-release`, `make APP=nx flash` | Flash the release build, or the development build. Put the unit into update mode first ([Install](./install.md)). |
 | `make` | The classic firmware (needs your copy of the vendor's image). |
 
-`make release` builds without vendor artwork, preset data, test timing and changed switches,
-whatever your `local.mk` says, and `tools/release_check.py` checks the finished image again:
-compiler flags, linked files, size and encoding. The image of 0.9.0 is 102,860 bytes. The linker
-refuses an nx image above 112,640 bytes (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven
-on a unit; the flash tools refuse it too. The version is `NX_FW_VERSION` in
-`src/nx/nx_config.h`.
+`make release` builds with the two built-in tables and without the original's splash artwork,
+test timing and changed switches, whatever your `local.mk` says. `tools/release_check.py` checks
+the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.0 is
+108,456 bytes, 4,184 below the limit. The linker refuses an nx image above 112,640 bytes
+(`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
+too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
 
 You can also install a file you built with the site: its "Restore original" page takes any
 display firmware file with the right ID and size.
@@ -54,27 +56,50 @@ The full list of checks, and the rules for changes, are in
 [`CONTRIBUTING.md`](../../CONTRIBUTING.md). How the firmware is compared with the original:
 [`docs/parity.md`](../parity.md).
 
-## Your own build with your own Spooky2 presets
+## The built-in Terrain Protocol and preset
 
-The nx firmware can hold two things that are not in the download, because their data comes from
-Spooky2's preset files: the Terrain Protocol and one preset with sweeps. If you have a Spooky2
-installation, you can build them in for your own unit. Put the paths into a file `local.mk` next
-to the `Makefile` (it is not in git):
+The Terrain Protocol and the preset with sweeps are built into every nx build and into the
+download. Their data comes from Spooky2's preset files: frequencies, times and names. It is
+committed as two generated tables, so a normal build needs nothing from Spooky2:
 
-| Line in `local.mk` | Adds |
+| Table | Holds |
 |---|---|
-| `TERRAIN_DIR = /path/to/Spooky2/Preset Collections/Detox/Terrain Protocol` | the Terrain rows in menu > Chains |
-| `PRESET_FILE = /path/to/Spooky2/Preset Collections/Radionics/a preset.txt` | one preset row in menu > Chains |
+| `src/nx/data/nx_terrain_data.c` | Terrain, Terrain-Mercury and Terrain-Nonviolent, each as Remote and as Contact: 6 protocols, 31 sets |
+| `src/nx/data/nx_preset_data.c` | the preset "Radionics (Boost) Manifestation": 18 steps, 198 s |
 
-Then `make APP=nx` reads the presets, writes tables into `build/` and builds them in. The tools
-stop the build when a preset needs something the firmware cannot play.
+These tables are not this project's own work, and the MIT licence does not cover them:
+[`docs/nx/THIRD_PARTY.md`](../nx/THIRD_PARTY.md), "Spooky2 preset data".
 
-- **Such an image holds data from your Spooky2 installation. It is for your own unit. Do not
-  share or publish it.** A release build never contains it.
-- Nothing from these files is ever committed; the tables stay in `build/`.
-- `make APP=nx NX_TERRAIN=0 NX_PRESETS=0` builds without them although `local.mk` is there.
-- These two features have limits of their own and have not been checked on a real unit:
-  [`docs/nx/features.md`](../nx/features.md), section 17.
+**The tables from your own Spooky2 version.** If you have a Spooky2 installation and want the
+tables made from its preset files, `make nx-data` writes both again:
+
+```sh
+make nx-data TERRAIN_DIR="/path/to/Spooky2/Preset Collections/Detox/Terrain Protocol" \
+             PRESET_FILE="/path/to/Spooky2/Preset Collections/Radionics/Spooky Radionics (Boost) Manifestation - AW.txt"
+make APP=nx
+```
+
+- The two paths can also stand in a file `local.mk` next to the `Makefile` (it is not in git).
+  Only `make nx-data` uses them; a normal build does not.
+- `make nx-data` overwrites the two files in `src/nx/data/`; `git diff` shows what changed.
+- A tool stops when a preset needs something the firmware cannot play, and leaves its table as
+  it was. The Terrain tool expects the three presets with the sets and days it knows; of the
+  Radionics presets only this one is accepted.
+- An image with tables of your own is your own build, not a release image.
+
+**Without the tables.** `make APP=nx NX_TERRAIN=0` builds without the Terrain rows,
+`make APP=nx NX_PRESETS=0` without the preset row, and both together without any data from
+Spooky2's presets. A release image always has both tables: `make release` builds with them, and
+the build and `tools/release_check.py` stop when one is missing.
+
+| Build | Image |
+|---|---|
+| default (the release image) | 108,456 bytes |
+| `NX_PRESETS=0` | 107,248 bytes |
+| `NX_TERRAIN=0` | 104,084 bytes |
+| `NX_TERRAIN=0 NX_PRESETS=0` | 102,876 bytes |
+
+Neither feature has been checked on a real unit yet: [Known issues](./known-issues.md).
 
 ## Optional features and their switches
 
@@ -94,11 +119,14 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_FEAT_SUPPORT` | on | Settings > About > Support the project |
 | `NX_FEAT_HIST` | off | History: a list of what was played, and totals |
 | `NX_FEAT_HERO48` | off | The dashboard frequency in 48-pixel digits when it fits |
-| `NX_FEAT_TERRAIN`, `NX_FEAT_PRESET` | follow chains | Only with data from `local.mk` (above) |
+| `NX_FEAT_TERRAIN`, `NX_FEAT_PRESET` | follow chains | The code of the Terrain Protocol and of the preset with sweeps |
+| `NX_TERRAIN`, `NX_PRESETS` (`make` variables) | on | Their two tables (above); `NX_TERRAIN=0` or `NX_PRESETS=0` leaves the rows out of menu > Chains |
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |
 
-History and the 48-pixel digits are off by default to save space. A build with other switches
-than the defaults is your own build, not a release image.
+History and the 48-pixel digits are off by default to save space: the image of 0.9.0 leaves
+4,184 bytes, and each of the two costs about 2 KB. The linker stops when an image is too large.
+The splash artwork of the original needs your own copy of the vendor's image and is never in a
+release. A build with other switches than the defaults is your own build, not a release image.
 
 ## The classic firmware
 

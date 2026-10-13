@@ -30,13 +30,13 @@ The generator in focus is large; the other one is the strip at the bottom.
 | STOP, short | Stop the generator in focus: back to step 1, outputs off. |
 | STOP, held 1 s, then released | Stop both generators. A ring shows from 0.5 s. |
 | LOOP, short | While running: repeat on or off. Stopped or paused: play with repeat. |
-| LOOP, held | The detail of the loaded program; for the manual generator, its screen. |
+| LOOP, held | The detail of the loaded program; for the manual generator, its screen; for a Terrain protocol, the Terrain screen. |
 | G1 / G2 | Show that generator. The one already shown, or one without a program: its program list. |
 | UP | Quick settings. |
 | DOWN | The menu. |
 
 The status bar shows the state, the repeat badge, the minutes left of a "stop after" timer, and
-"Chain 2/5" or "Day 3/11" while a chain or a plan plays.
+"Chain 2/5" or "Day 3/11" while a chain, a plan or a Terrain protocol plays.
 
 ## Menu
 
@@ -63,7 +63,9 @@ generator has the program loaded, the source is empty).
 
 ## Chains and plans
 
-Menu > Chains lists Chain 1 to 4 and Plan 1 and 2.
+Menu > Chains is one list. The built-in programmes come first: the six rows of the Terrain
+Protocol, then the built-in preset. Chain 1 to 4 and Plan 1 and 2 follow. The list opens on the
+first Terrain row; DOWN goes on to the preset, the chains and the plans.
 
 | Key | List | Chain editor | Plan editor |
 |---|---|---|---|
@@ -71,11 +73,38 @@ Menu > Chains lists Chain 1 to 4 and Plan 1 and 2.
 | G1 / G2 | The generator it plays on. | The slot of the selected program, down and up. | The chain of the selected day (1 to 4). |
 | START | Play it there. An empty chain or plan opens its editor. | Add a copy of the selected program after it. | Add a copy of the selected day after it. |
 | START, held | – | Remove the selected program. | Remove the selected day. |
-| LOOP | Edit. | The repeat count: ×1, ×2, ×3, ×5, ×10, until stopped. | The plan back to day 1. |
+| LOOP | Edit a chain or a plan. On a Terrain row: the Terrain screen. On the preset: nothing. | The repeat count: ×1, ×2, ×3, ×5, ×10, until stopped. | The plan back to day 1. |
 | STOP | Back. | Save and back. | Save and back. |
 
 A plan plays the chain of its current day. When that chain has run to its end, the plan moves on
 one day; START on the plan plays the next day. A stopped day does not count.
+
+## Terrain Protocol and the built-in preset
+
+The first rows of menu > Chains. The Terrain rows are Terrain, Terrain-Mercury and
+Terrain-Nonviolent, each as "· Remote" and as "· Contact", with the day ("Day 3/11") or
+"complete". The preset's row is "Radionics (Boost) Manifestation". A play icon marks a row for
+each generator that plays it.
+
+| Key | Terrain row | Terrain screen | Preset row |
+|---|---|---|---|
+| UP / DOWN | Choose a row. | The position one set back (UP) or on (DOWN). A generator that plays the protocol goes on at the new set. | Choose a row. |
+| G1 / G2 | The generator it plays on. | The generator it plays on. | The generator it plays on. |
+| START | Play it there from its position, then that generator's dashboard. | The same. | Load it there and play it from its start, then that generator's dashboard. |
+| LOOP | The Terrain screen. | Remote: the power level, 5, 2.5, 1, 0.5 or 0.25 V. | Nothing. |
+| STOP | Back. | Back to the list. | Back. |
+
+The Terrain screen shows the set, "Day 6.1 of 11 · 12 h" (Remote) or "Day 6 of 11 · session 1 of
+2" (Contact), the time the set has run and the power level (Remote), and what to connect. A
+Contact protocol that is through shows "All sessions done · START: day 1 again". Stopping a
+generator keeps the position; the next START goes on from there.
+
+At the end of a Contact session the card "Set finished · safe to pause" shows, the screen wakes
+and the backlight pulses three times. Any key closes the card and does nothing else; after 60
+seconds it closes by itself.
+
+On the dashboard the preset plays as any program: START pauses and plays on, STOP stops, LOOP
+switches repeat. After STOP, START plays it once and LOOP plays it with repeat.
 
 ## Manual generator, timers, diagnostics
 
@@ -155,6 +184,6 @@ Settings > Keys & lock > "Original key behaviour" is off by default. Switched on
 - Power on: splash (any key skips it), then the dashboard. A resume or auto-start card may show.
 - Dashboard: UP quick settings, DOWN menu, LOOP held program detail (there LOOP: slot actions),
   START without a program or the G key of the shown generator: program list.
-- Menu: Programs, Chains (LOOP: chain or plan editor), Manual, Timers, Diagnostics (LOOP: key
-  test), Settings (Display, Keys & lock, Motion, About).
+- Menu: Programs, Chains (LOOP: chain or plan editor, or the Terrain screen), Manual, Timers,
+  Diagnostics (LOOP: key test), Settings (Display, Keys & lock, Motion, About).
 - USB connected: PC monitor. USB unplugged: dashboard.

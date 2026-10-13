@@ -1,5 +1,5 @@
-/* Made-up Terrain tables for the host tests (the real ones are the user's presets, generated into
- * build/nx/ by tools/gen_nx_terrain.py and never committed): the same shapes with invented names,
+/* Made-up Terrain tables for the host tests (the real ones, generated from Spooky2's presets by
+ * tools/gen_nx_terrain.py, are src/nx/data/nx_terrain_data.c): the same shapes with invented names,
  * frequencies and short dwells. */
 #include "nx_terrain_data.h"
 

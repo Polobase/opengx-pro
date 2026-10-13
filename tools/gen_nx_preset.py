@@ -18,8 +18,8 @@ capture shows is accepted:
   Repeat_Sequence 0 or 1          repeats until stopped, or plays once
 
 Anything else (another waveform, gating, wobble, multipliers, other offsets or amplitudes, tokens
-after a frequency, more than 2 decimals, more than 200 steps) stops the build: the firmware would
-not play what Spooky2 plays.
+after a frequency, more than 2 decimals, more than 200 steps) stops the tool before it writes: the
+firmware would not play what Spooky2 plays.
 
 The table is committed as src/nx/data/nx_preset_data.c, so every build of the firmware has the
 same preset; `make nx-data` writes it again from a Spooky2 installation. It holds the frequencies,

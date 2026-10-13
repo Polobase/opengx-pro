@@ -13,7 +13,9 @@ Absolute safety rules (unchanged):
 - Never write option bytes/RDP or 0x08000000–0x08003FFF (0x08003C00 is only read, for the LCD
   variant).
 - No vendor handshake or anti-clone code.
-- No vendor material in git (fonts, presets, captures, tables derived from vendor CSVs).
+- No vendor material in git (fonts, preset files, captures, tables derived from vendor CSVs). One
+  stated exception since 2026-10-13: the two tables of the built-in Terrain Protocol and preset in
+  `src/nx/data/`, generated from Spooky2's presets (`docs/nx/THIRD_PARTY.md`).
 
 ## Decisions
 
@@ -192,9 +194,11 @@ See "Resume" above. Host tests: `tests/host/nx/test_nx_resume.c`. Device check:
 - **The backlog:** on-device biofeedback, the RTC and buzzer add-ons, and the rest.
 
 ## Budgets
-- **Flash (nx):** a released image (`make release`) is built without the vendor splash, without
-  Terrain data and without the built-in preset: 102,860 bytes of the 112,640 the bootloader is
-  proven to take. Personal builds set `TERRAIN_DIR` / `PRESET_FILE` in an untracked `local.mk`.
+- **Flash (nx):** the image (the default build, and the released image of `make release`) holds
+  the Terrain table and the preset table (committed in `src/nx/data/` since 2026-10-13) and no
+  vendor splash: 108,456 bytes of the 112,640 the bootloader is proven to take, 102,876 without
+  the two tables (`NX_TERRAIN=0 NX_PRESETS=0`). `make nx-data` writes the tables again from a
+  Spooky2 installation (`TERRAIN_DIR` / `PRESET_FILE`, e.g. in an untracked `local.mk`).
   The linker checks the build budget (`NX_FLASH_LIMIT`, 112,640 bytes); `make flash` refuses
   anything above `FLASH_PROVEN` (112,640 bytes, the size test of 2026-09-25). Breakdown of the
   image, every feature and asset with its cost: `docs/nx/drop1-size-inventory.md`. Earlier
@@ -224,4 +228,4 @@ See "Resume" above. Host tests: `tests/host/nx/test_nx_resume.c`. Device check:
 | MADCTL/DS16/scroll behave differently on the panel | Checked on the unit (0xA0); 8-bit + REV16 and polled fallbacks |
 | Timing-dependent PC behaviour | Trace-inclusion argument, `NX_LINE_HOLD_MS` knob, conformance on the device |
 | Flash wear / power cuts | KV commit words, cut-at-every-op tests, the resume snapshot at most once a minute |
-| Vendor data leaking into git | `.gitignore` covers vendor files; the tools read vendor data only from `original/` and from `TERRAIN_DIR` / `PRESET_FILE` (an untracked `local.mk`), and generate into `build/` |
+| Vendor data leaking into git | `.gitignore` covers vendor files; the tools read the original image only from `original/` and generate into `build/`. Preset files are read only by `make nx-data`, from `TERRAIN_DIR` / `PRESET_FILE` (e.g. an untracked `local.mk`); what it writes is committed on purpose: the two tables in `src/nx/data/`, the one stated exception (`docs/nx/THIRD_PARTY.md`) |

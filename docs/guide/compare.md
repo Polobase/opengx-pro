@@ -40,9 +40,12 @@ has been checked on a real unit so far is in [Known issues](./known-issues.md).
 | Menu, settings, themes, key lock | none | DOWN opens the menu; settings are kept | New |
 | Program detail, copy, move, erase, play on both | none | on the unit | New |
 | Chains, plans, manual generator with sweeps, timers | none | on the unit | New |
+| Terrain Protocol without a PC | only from Spooky2 on the PC | built in: Terrain, Terrain-Mercury and Terrain-Nonviolent, each as Remote and as Contact, with a day counter and a set-end notice; the data is taken from Spooky2's presets | New |
+| A preset with sweeps without a PC | only from Spooky2 on the PC | one built in: "Radionics (Boost) Manifestation"; the data is taken from Spooky2's preset | New |
+| The list of menu > Chains | none | the six Terrain rows first, then the built-in preset, then Chain 1 to 4 and Plan 1 and 2 | New |
 | Resume after a power cut | both generators start empty | the unit offers to continue | New |
 | Diagnostics and key test | none | menu > Diagnostics | New |
-| Own data in the SPI flash | none | settings, chains, plans and the resume position, in an area the original does not use | New |
+| Own data in the SPI flash | none | settings, chains, plans, the positions in the Terrain protocols and the resume position, in an area the original does not use | New |
 
 ## What you will notice
 
@@ -67,6 +70,9 @@ has been checked on a real unit so far is in [Known issues](./known-issues.md).
     where the original shows the value on the wire (36.00 Hz).
 12. **Nothing shows which firmware answers on USB.** Both answer the version query with
     `:Rev201`. The splash and Settings > About show the firmware and its version.
+13. **Menu > Chains starts with built-in programmes.** The Terrain Protocol and one preset with
+    sweeps play without a PC. Their frequencies, times and names are taken from Spooky2's preset
+    files ([What OpenGX Pro can do](./features.md)).
 
 Items 1 to 3 have a switch: Settings > Keys & lock > "Original key behaviour" gives back the
 original's POWER, START and LOOP and its fast key repeat in lists ([Keys and screens](./keys.md)).

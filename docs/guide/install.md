@@ -23,7 +23,8 @@ Your programs, their names and the calibration are not in the firmware. They sta
 1. **Choose a version** on the site. The page loads the file and checks its SHA-256 against the
    value published with the release. It goes on only if they match.
 2. **Put the unit into update mode.** Connect it by USB. Switch it off. Then hold STOP and press
-   POWER. The screen stays dark: the unit now waits for an update.
+   POWER. The screen shows "Firmware Update" (on some units it stays dark): the unit now waits for an
+   update. START leaves update mode again without changing anything.
 3. **Choose the USB port.** Click "Find the unit" and choose the port in the browser's list. The
    unit has two USB serial ports, and in update mode only one of them answers for the display:
    - Windows: two ports named "USB Dual_Serial". Take the one with the higher COM number, for
@@ -47,8 +48,8 @@ The splash of OpenGX Pro 0.9.0.
   the other entry. A port that does not answer is refused too: the unit is not in update mode.
   After you have chosen once, the page finds the unit by itself.
 - **The file.** It must carry the firmware ID of the display board, and it must not be larger than
-  112,640 bytes, the largest size proven on a unit. The release file of 0.9.0 is 102,868 bytes and
-  is sent in 51 blocks of 2 KB.
+  112,640 bytes, the largest size proven on a unit. The release file of 0.9.0 is 108,468 bytes and
+  is sent in 53 blocks of 2 KB.
 - **Every block.** The unit confirms each block. A block that is not confirmed within 2 seconds is
   sent again. After 4 resends in one update the page stops and tells you to start again.
 
@@ -59,7 +60,8 @@ is installed. Look at the splash, or at Settings > About.
 ## Update to a newer version
 
 Do the same five steps with the newer version. An update writes the firmware only. Settings,
-chains and plans are in the SPI flash of the unit and are not touched by it.
+chains, plans and the positions in the Terrain protocols are in the SPI flash of the unit and are
+not touched by it.
 
 ## Go back to the original firmware
 
@@ -74,8 +76,9 @@ your own copy.
 
 On Windows the vendor's updater itself works as well: it uses the same update mode.
 
-The data OpenGX Pro stored (settings, chains, plans) stays in the SPI flash. The original firmware
-does not use that area. If you install OpenGX Pro again later, it finds them.
+The data OpenGX Pro stored (settings, chains, plans, Terrain positions) stays in the SPI flash.
+The original firmware does not use that area. If you install OpenGX Pro again later, it finds
+them.
 
 ## From the command line
 

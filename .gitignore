@@ -4,8 +4,9 @@ original/
 tools/scenarios/reference/
 # ST datasheet: link to st.com instead of republishing
 docs/hardware/DS_*.pdf
-# Spooky2 content (presets, databases, waveform CSVs, captures): imported from the
-# user's own install at run time only, never committed
+# Spooky2 content (preset files, databases, waveform CSVs, captures): read from the
+# user's own install only, never committed. The one stated exception is derived data:
+# the two tables in src/nx/data/, made from preset files (docs/nx/THIRD_PARTY.md)
 *.s2d
 Preset Collections/
 *.dmslog8
@@ -33,5 +34,6 @@ site/public/firmware/
 # pinned by SHA-256 in assets/nx/sources.json, never committed
 assets/nx/third_party/
 
-# Personal build settings (your own preset folders): read by the Makefile, never committed
+# Personal build settings (e.g. where your Spooky2 installation keeps its presets, for
+# `make nx-data`): read by the Makefile, never committed
 local.mk

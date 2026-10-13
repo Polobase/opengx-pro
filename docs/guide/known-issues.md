@@ -42,6 +42,8 @@ in the host tests and on the emulated board; on a unit they have not been checke
 | Timers and auto-start | Stop after N minutes, power off when all finished, start the last programs at power-on |
 | Slot actions | Copy, move, erase and "play on both", and what Spooky2 then reads from the unit |
 | Chains and plans | Playing, the change of waveform and amplitude between two programs, resume inside a chain |
+| Terrain Protocol | The six rows and the Terrain screen; a Remote set at the outputs, its power levels and the change to the next set after its hours; a Contact session to its set-end notice; the position after STOP, after a power cut and with auto-start. The sets play the generator boards' standard waveform tables, which the original firmware never does without a PC |
+| Built-in preset with sweeps | Whether the generator boards take a waveform table from the display at all; the output on a scope, against the same preset played from Spooky2; pause, stop and resume after a power cut |
 | Manual generator and sweeps | Every waveform at the outputs, live changes, sweeps |
 | Calibration menu | The grid and its keys on the unit |
 | Original key behaviour | The four changes of that option |
@@ -58,22 +60,48 @@ file.
 
 **Waveforms without a PC**
 
-- The manual generator plays the generator boards' standard waveform tables (sine, square,
-  sawtooth and so on) without a PC. The original firmware never does that; it only plays the
-  tables of stored programs. Whether the boards play them this way has not been checked.
-- Before the manual generator plays a sine for the first time after power-on or after a PC
-  session, the firmware sends the standard sine table to the generator board, because a Spooky2
-  preset can leave another shape there. The start is about half a second later that once. Whether
-  the boards accept a table from the display has not been checked. If they do not, the firmware
-  waits 2 seconds once and plays what the table holds.
-- The other waveforms play as the last Spooky2 preset left their tables.
+- The manual generator and the Terrain sets play the generator boards' standard waveform tables
+  (sine, square, sawtooth and so on) without a PC. The original firmware never does that; it only
+  plays the tables of stored programs. Whether the boards play them this way has not been checked.
+- Before the manual generator plays a sine for the first time after power-on, after a PC session
+  or after the built-in preset, the firmware sends the standard sine table to the generator board,
+  because a preset can leave another shape there. The start is about half a second later that
+  once. Whether the boards accept a table from the display has not been checked. If they do not,
+  the firmware waits 2 seconds once and plays what the table holds.
+- The other waveforms play as the last Spooky2 preset left their tables. That includes the two
+  the Terrain sets use, the square and the inverse sawtooth.
 - The display cannot see the shape of a stored program's waveform table. It shows "wave #N ?"
   and draws a sine as a stand-in.
 - The waveform table of a stored program is in the generator board that received the upload from
   Spooky2. A program uploaded through one generator plays on the other with whatever table that
   one holds. This is the same with the original firmware; "Play on G1 and G2" and chains make it
   easier to meet. A copied or moved program keeps the table number of its source slot.
-- Without a PC, Out 2 always follows Out 1 inverted, as with the original firmware.
+- Without a PC, Out 2 always follows Out 1 inverted, as with the original firmware. The built-in
+  preset sets the waveform table and the offset of Out 2 itself, as Spooky2 does for that preset;
+  there too Out 2 is the inverse of Out 1.
+
+**Terrain Protocol and the built-in preset**
+
+- Their frequencies, times and names are taken from Spooky2's preset files
+  ([`docs/nx/THIRD_PARTY.md`](../nx/THIRD_PARTY.md)). Neither has been checked on a real unit.
+- Terrain, Contact: the sets play with Out 2 following Out 1 inverted. Three things Spooky2 does
+  for its Contact presets are not reproduced: the carrier on Out 2, the amplitude ramp up and
+  down, and the lower amplitude at low frequencies. A Contact set plays its 20 V at once and at
+  every frequency.
+- Terrain, Remote: only running time counts towards the hours of a set. The unit has no clock,
+  so a pause or the time it is switched off does not count.
+- The end of a Contact session shows on the screen only (a card and three pulses of the
+  backlight). The unit has no buzzer.
+- The Plasma, Scalar, Laser and Coil versions of the Terrain Protocol are not included.
+- One preset is built in, no other. To play it the display must send two waveform tables to the
+  generator board. If a board does not answer a table within 2 seconds, the preset stops with the
+  message that the generator does not respond.
+- A step of the preset lasts 11.00 s; with Spooky2 the same step takes 11.02 to 11.09 s. One
+  generator setting differs from a Spooky2 session (`:w15` is 0,0, with Spooky2 1,1). If the
+  output differs from a Spooky2 run, this is the first thing to look at.
+- For the preset the waveform view of the dashboard says "1 = 2", although Out 2 is the inverse
+  of Out 1. LOOP on the preset's row does nothing, although the hint line offers "LOOP edit".
+  After STOP, START plays the preset once; LOOP plays it with repeat.
 
 **Playing**
 
@@ -82,7 +110,8 @@ file.
 - Resume goes back at most one minute. It is not offered after a PC session or when the program
   in the slot changed. The manual generator is not resumed and not auto-started.
 - Auto-start plays the last program of each generator from step 1. It does not restart a chain
-  or a plan.
+  or a plan. A Terrain protocol goes on from its stored position; the built-in preset plays from
+  its start.
 - A sweep of the manual generator sends a new frequency every 125 ms at most.
 
 **PC mode**
@@ -108,9 +137,10 @@ file.
 
 ## Personal builds
 
-The Terrain Protocol and the built-in preset with sweeps exist only in personal builds
-([Build from source](./build.md)). Their own limits and open checks are in
-[`docs/nx/features.md`](../nx/features.md), section 17, and [`DEVIATIONS.md`](../../DEVIATIONS.md).
+History and the 48-pixel frequency digits are not in the download. They can be switched on in a
+build of your own ([Build from source](./build.md)). History has not been checked on a real unit.
+It has no clock: it lists a session number and the uptime instead of a date. The details are in
+[`docs/nx/features.md`](../nx/features.md), section 17.
 
 ## Report a problem
 

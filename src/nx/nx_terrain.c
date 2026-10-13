@@ -14,7 +14,7 @@
 #include "nx_vm.h"
 
 #if !NX_TERRAIN_DATA
-const struct nx_tdata k_nx_terrain;   /* a build without the presets: no sets, no protocols */
+const struct nx_tdata k_nx_terrain;   /* a build with NX_TERRAIN=0: no sets, no protocols */
 #endif
 
 #define T k_nx_terrain
