@@ -70,7 +70,7 @@ async function connect() {
     if (!revision.value) {
       await l.close()
       throw new Error('No answer from the display on this port. Is the unit switched on normally (not in update mode) ' +
-        'and connected by USB? Otherwise choose the entry ending in …903.')
+        'and connected by USB? Otherwise click Connect again and take a different entry.')
     }
     link.value = l
   })

@@ -27,13 +27,12 @@ Your programs, their names and the calibration are not in the firmware. They sta
 2. **Put the unit into update mode.** Connect it by USB. Switch it off. Then hold STOP and press
    POWER. The screen shows "Firmware Update" (on some units it stays dark): the unit now waits for an
    update. START leaves update mode again without changing anything.
-3. **Choose the USB port.** Click "Find the unit" and choose the port in the browser's list. The
-   unit has two USB serial ports, and in update mode only one of them answers for the display:
-   - Windows: two ports named "USB Dual_Serial". Take the one with the higher COM number, for
-     example COM4 when COM3 and COM4 are listed.
-   - Mac: each port is listed twice, by two drivers. Take the entry that ends in …903
-     (`cu.wchusbserial…903` or `cu.usbmodem…903`).
-   - Other systems: the second of the two ports.
+3. **Choose the USB port.** Click "Find the unit" and choose a port in the browser's list. The
+   unit has two USB serial ports, and in update mode only one of them answers for the display.
+   Their names differ from unit to unit and from computer to computer (Windows: "USB Dual_Serial"
+   with two COM numbers; a Mac may list each port twice), so there is no name to look for. Choose
+   one. If it is the other port, the page says so and writes nothing: click "Choose another port"
+   and take a different entry.
 4. **Install.** It takes about a minute. Keep the cable connected and the page open until it says
    "Done".
 5. **Restart.** Switch the unit off and on again. The splash shows "OpenGX Pro" and the version.
@@ -47,7 +46,7 @@ The splash of OpenGX Pro 0.9.0.
 
 - **The right port.** Before it writes anything, the page asks the port for its hardware ID. The
   display answers "X2". The other port answers "X1"; the page refuses it and asks you to choose
-  the other entry. A port that does not answer is refused too: the unit is not in update mode.
+  a different entry. A port that does not answer is refused too: the unit is not in update mode.
   After you have chosen once, the page finds the unit by itself.
 - **The file.** It must carry the firmware ID of the display board, and it must not be larger than
   112,640 bytes, the largest size proven on a unit. The release file of 0.9.0 is 108,468 bytes and
@@ -115,6 +114,6 @@ works; they are not the result of a test.
 | The page says | What to do |
 |---|---|
 | "No answer." | Put the unit into update mode again: off, hold STOP, press POWER. If it is in update mode, choose the other port. |
-| "That is the unit's other channel" | Click "Choose another port" and take the other entry. |
+| "That is the unit's other channel" | Click "Choose another port" and take a different entry. |
 | "The unit did not accept the start of the update." | Switch the unit off, put it into update mode again and retry. |
 | "Too many transfer errors." | The same. Try another USB cable or port of the computer if it happens again. |

@@ -141,10 +141,9 @@ onBeforeUnmount(release)
       <p v-else-if="status === 'ready'" class="note ok">Unit in update mode found (hardware ID {{ describeHardwareId(hw) }}).</p>
       <p v-else-if="status === 'wrong'" class="note warn">That is the unit's other channel (it answered
         “{{ describeHardwareId(hw) }}”; the display answers “{{ image ? describeHardwareId(image.hardwareId) : '' }}”).
-        Click <b>Choose another port</b> and take the other entry (on Windows the higher COM number, on a Mac the one ending
-        in …903).</p>
+        Nothing was written. Click <b>Choose another port</b> and take a different entry.</p>
       <p v-else-if="status === 'noanswer'" class="note warn">No answer. Is the unit in update mode (switch off, hold STOP,
-        press POWER)? If it is, click <b>Choose another port</b> and take the other entry.</p>
+        press POWER)? If it is, click <b>Choose another port</b> and take a different entry.</p>
     </li>
     <li :class="{ current: status === 'ready' || status === 'flashing' }">
       <h3>Install {{ what }}</h3>
