@@ -1,0 +1,18 @@
+{
+  "description": "Adversarial serial edge cases on U1 (PB1 low): a :o.. line and a bad :ok (loose-ok / :o mis-parse), then an aborted upload followed by a real upload and read-back (value-index carry-over), to expose any wire difference from the original",
+  "end_ms": 12000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 5500, "rx": "U1", "text": ":oq12=5,\r\n"},
+    {"at": 5700, "rx": "U1", "text": ":okextra\r\n"},
+    {"at": 5900, "rx": "U1", "text": ":n09=$\r\n"},
+    {"at": 6200, "rx": "U1", "text": ":g09=1,2,3,4,"},
+    {"at": 6400, "rx": "U1", "text": "5555555555555555555555555555,\r\n"},
+    {"at": 6700, "rx": "U1", "text": ":g09=7,8,\r\n"},
+    {"at": 7000, "rx": "U1", "text": ":p09=41,2000,120,1,2,100007,200007,\r\n"},
+    {"at": 7400, "rx": "U1", "text": ":n09=#\r\n"},
+    {"at": 7700, "rx": "U1", "text": ":n09=*\r\n"},
+    {"at": 8000, "rx": "U1", "text": ":n00=$\r\n"},
+    {"at": 9000, "checkpoint": "home"}
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "description": "Power-on: splash (~4 s), then HOME; both generators get the idle configuration",
+  "end_ms": 7000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 1000, "checkpoint": "splash"},
+    {"at": 6500, "checkpoint": "home"}
+  ]
+}

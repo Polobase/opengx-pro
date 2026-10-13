@@ -1,0 +1,20 @@
+name: Release published
+
+# The list of versions on the site comes from the published releases: rebuild the site when that
+# list changes.
+
+on:
+  release:
+    types: [published, unpublished, deleted, edited]
+
+permissions:
+  actions: write
+
+jobs:
+  rebuild-site:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --repo "$GITHUB_REPOSITORY" --ref main

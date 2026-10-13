@@ -1,0 +1,18 @@
+{
+  "description": "Upload in PC mode, then PC exit: PB1 high enters PC mode (:w11=0,0, to both); the PC unlock state is set; :g09/:p09/:n09 upload a 2-step program to slot 9 over U1 (:ok, SPI-flash erase/program); PB1 low: :w15=0,0, to both, then the runner sends G1 the idle configuration of step 1 of the uploaded program (the upload filled G1's program buffer and forced a resend); HOME; read-back of slot 9",
+  "note": "The original accepts uploads in PC mode only after the vendor unlock handshake (out of scope); the pc_unlock event sets the resulting ui_flags bit instead. The original drew the PC icon red at PC entry and does not redraw it, so the icon is masked.",
+  "end_ms": 12000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 5500, "checkpoint": "home"},
+    {"at": 6000, "pb1": 1},
+    {"at": 6500, "pc_unlock": true},
+    {"at": 6700, "rx": "U1", "text": ":g09=0,0,5,6,\r\n"},
+    {"at": 7000, "rx": "U1", "text": ":p09=41,2000,120,1,2,3750007,1000000007,\r\n"},
+    {"at": 7500, "rx": "U1", "text": ":n09=PC Upload\r\n"},
+    {"at": 8500, "checkpoint": "pc_uploaded", "mask": [[280, 3, 315, 20]]},
+    {"at": 9000, "pb1": 0},
+    {"at": 10500, "checkpoint": "home_again"},
+    {"at": 11000, "rx": "U1", "text": ":n09=*\r\n"}
+  ]
+}

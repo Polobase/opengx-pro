@@ -1,0 +1,37 @@
+{
+  "name": "opengx-pro-site",
+  "description": "The OpenGX Pro site: browser flasher, restore of the original firmware, documentation",
+  "private": true,
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "tsx --test test/*.test.ts",
+    "firmware": "node scripts/collect-firmware.mjs --local ../build/release",
+    "firmware:releases": "node scripts/collect-firmware.mjs --github Polobase/opengx-pro"
+  },
+  "dependencies": {
+    "@fontsource-variable/inter": "^5.2.8",
+    "@freqgen/core": "^0.1.0",
+    "@freqgen/spooky2": "^0.1.0",
+    "vue": "^3.5.42"
+  },
+  "devDependencies": {
+    "@types/markdown-it": "^14.1.2",
+    "@types/node": "^24.13.3",
+    "@types/pngjs": "^6.0.5",
+    "@types/w3c-web-serial": "^1.0.8",
+    "@vitejs/plugin-vue": "^6.0.8",
+    "@vue/tsconfig": "^0.9.1",
+    "jsqr": "^1.4.0",
+    "markdown-it": "^14.1.0",
+    "pngjs": "^7.0.0",
+    "tsx": "^4.23.15",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0",
+    "vue-tsc": "^3.3.11"
+  }
+}

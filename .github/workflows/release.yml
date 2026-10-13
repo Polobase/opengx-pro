@@ -1,0 +1,45 @@
+name: Release
+
+# A tag v<version> builds the image that is published and attaches it to a draft release. The
+# draft is published by hand, after exactly that file has run on a real unit
+# (docs/release-checklist.md); the site then offers the version.
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  image:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/arm-toolchain
+      - name: Host tests
+        run: make -C tests/host CC=clang
+      - name: The release image (refuses a tag that is not v + NX_FW_VERSION)
+        run: make release STRICT=1
+      - name: Draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          cd build/release
+          version=$(jq -r .version manifest.json)
+          file=$(jq -r .file manifest.json)
+          {
+            echo "OpenGX Pro $version, $(jq -r .channel manifest.json)."
+            echo
+            echo "- Install from the browser: https://polobase.github.io/opengx-pro/#/install"
+            echo "- Back to the original firmware: https://polobase.github.io/opengx-pro/#/restore"
+            echo "- Update file \`$file\`: $(jq -r .bytes manifest.json) bytes (image $(jq -r .image_bytes manifest.json) of the 112,640 the bootloader is proven to take)"
+            echo "- SHA-256 \`$(jq -r .sha256 manifest.json)\`"
+            echo
+            echo "What changed, and what has been checked on a real unit: to be written before this draft is published."
+          } > notes.md
+          prerelease=$([ "$(jq -r .channel manifest.json)" = beta ] && echo --prerelease || true)
+          gh release create "$TAG" --draft $prerelease --verify-tag --title "OpenGX Pro $version" --notes-file notes.md \
+            "$file" "$file.sha256" manifest.json

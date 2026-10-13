@@ -1,0 +1,119 @@
+name: CI
+
+# Everything that needs no vendor file: the host tests, the nx firmware as it is released (fixed
+# toolchain; size and content checked), every feature switch, the committed asset tables, the
+# gallery pixel for pixel, and the site. The classic firmware and the comparison with the original
+# need the vendor's update file and run on a developer's machine only (CONTRIBUTING.md).
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  firmware:
+    name: Host tests and the release image
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/arm-toolchain
+      - name: Host tests
+        run: make -C tests/host CC=clang
+      - name: The image as it is released
+        run: make release
+      - name: Every feature switch off (and the two that are off by default, on)
+        run: |
+          for f in DIAG SLOTS CHAINS MANUAL TIMERS SUPPORT; do
+            make APP=nx NX_LCD_OPTS=-DNX_FEAT_$f=0 BUILD=build/nx-off-$f
+          done
+          for f in HIST HERO48; do
+            make APP=nx NX_LCD_OPTS=-DNX_FEAT_$f=1 BUILD=build/nx-on-$f
+          done
+      - uses: actions/upload-artifact@v6
+        with:
+          name: opengx-pro-image
+          path: |
+            build/release/opengx-pro-*.bin
+            build/release/opengx-pro-*.bin.sha256
+            build/release/manifest.json
+          if-no-files-found: error
+
+  ui:
+    name: Asset tables and the gallery
+    # macOS: the committed tables were rasterised with the Pillow wheel of this platform.
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      # As on the machine the committed tables were made on: Homebrew's Python with the pinned
+      # Pillow wheel, whose text layout with OpenType features (raqm) loads Homebrew's FriBiDi at
+      # run time (the loader of Homebrew's Python looks there).
+      - run: brew install python@3.14 fribidi
+      - run: |
+          "$(brew --prefix)/bin/python3.14" -m venv .venv
+          .venv/bin/python -m pip install -r tools/requirements.txt
+          .venv/bin/python -c "from PIL import features; assert features.check('raqm'), 'Pillow has no raqm'; print('raqm', features.version('raqm'))"
+      - uses: actions/cache@v5
+        with:
+          path: assets/nx/third_party
+          key: nx-asset-sources-${{ hashFiles('assets/nx/sources.json') }}
+      - name: The committed asset tables match a fresh build
+        run: make nx-assets-check
+      - name: Asset tool tests
+        run: make nx-assets-test
+      - name: Gallery, host renderer
+        run: .venv/bin/python tools/nx_gallery.py run --host && .venv/bin/python tools/nx_gallery.py compare --source host
+      - name: Gallery, the image's engine switches
+        run: .venv/bin/python tools/nx_gallery.py run --host-dev && .venv/bin/python tools/nx_gallery.py compare --source host-dev
+      - uses: actions/upload-artifact@v6
+        if: failure()
+        with:
+          name: gallery-differences
+          path: build/gallery/diff-*
+
+  emulator:
+    name: Emulated board
+    # The gallery through the real LCD driver on the emulated board takes several minutes: not on
+    # every pull request.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: ./.github/actions/arm-toolchain
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.14'
+      - run: python -m venv .venv && .venv/bin/python -m pip install -r tools/requirements.txt
+      - name: Emulator self-tests
+        run: ../.venv/bin/python -m sim.selftest && ../.venv/bin/python diff_selftest.py
+        working-directory: tools
+      - name: Gallery on the emulated board
+        run: .venv/bin/python tools/nx_gallery.py run --emu && .venv/bin/python tools/nx_gallery.py compare --source emu
+
+  site:
+    name: Site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - run: npm test
+      - run: npm run build

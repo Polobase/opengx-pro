@@ -1,0 +1,4 @@
+pyserial==3.5
+unicorn==2.1.4
+pillow==12.3.0
+segno==1.6.6

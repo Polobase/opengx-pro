@@ -1,0 +1,29 @@
+name: Arm GNU Toolchain
+description: >
+  arm-none-eabi-gcc of one fixed release (the one the released images are built with), downloaded
+  from Arm's package registry, checked against its published SHA-256 and cached.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache@v5
+      id: cache
+      with:
+        path: ~/arm-gnu-toolchain
+        key: arm-gnu-toolchain-15.3.rel1-x86_64
+    - name: Download and check
+      if: steps.cache.outputs.cache-hit != 'true'
+      shell: bash
+      env:
+        FILE: arm-gnu-toolchain-15.3.rel1-x86_64-arm-none-eabi.tar.xz
+        SHA256: 563bebb2b97d53382b956d6ee1fe61e2cae26699901417234a37df505ef9b5fa
+      run: |
+        curl --fail --silent --show-error --location --retry 3 --output "$FILE" \
+          "https://gitlab.arm.com/api/v4/projects/tooling%2Fgnu-toolchains-for-arm/packages/generic/gnu-toolchain/15.3.rel1/$FILE"
+        echo "$SHA256  $FILE" | sha256sum --check
+        mkdir -p ~/arm-gnu-toolchain
+        tar --extract --xz --file "$FILE" --strip-components 1 --directory ~/arm-gnu-toolchain
+    - shell: bash
+      run: |
+        echo "$HOME/arm-gnu-toolchain/bin" >> "$GITHUB_PATH"
+        "$HOME/arm-gnu-toolchain/bin/arm-none-eabi-gcc" --version | head -1

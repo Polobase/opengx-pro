@@ -1,0 +1,42 @@
+{
+  "sets": [
+    {"symbol": "nx_icons20", "prefix": "NX_I20_", "size": 20, "bpp": 2, "stroke": 2.1,
+     "font": "MaterialSymbolsRounded.ttf", "codepoints": "MaterialSymbolsRounded.codepoints",
+     "axes": {"FILL": 0, "GRAD": 0, "opsz": 20, "wght": 500},
+     "icons": [
+      {"id": "play", "material": "play_arrow", "fill": 1},
+      {"id": "pause", "material": "pause", "fill": 1},
+      {"id": "stop", "material": "stop", "fill": 1},
+      {"id": "repeat", "material": "repeat"},
+      {"id": "tune", "material": "tune"},
+      {"id": "brightness", "material": "brightness_6"},
+      {"id": "lock", "material": "lock"},
+      {"id": "lock_open", "material": "lock_open"},
+      {"id": "warning", "material": "warning"},
+      {"id": "error", "material": "error"},
+      {"id": "check_circle", "material": "check_circle"},
+      {"id": "usb", "material": "usb"},
+      {"id": "add", "material": "add"},
+      {"id": "hourglass", "material": "hourglass_empty"},
+      {"id": "keyboard", "material": "keyboard"},
+      {"id": "delete", "material": "delete"},
+      {"id": "library", "material": "library_music"},
+      {"id": "settings", "material": "settings"},
+      {"id": "diag", "material": "monitor_heart"},
+      {"id": "timer", "material": "timer"},
+      {"id": "history", "material": "history"},
+      {"id": "copy", "material": "content_copy"},
+      {"id": "move", "material": "drive_file_move"},
+      {"id": "chain", "material": "link"}
+     ]},
+    {"symbol": "nx_icons32", "prefix": "NX_I32_", "size": 32, "bpp": 4, "stroke": 2.3,
+     "font": "MaterialSymbolsRounded.ttf", "codepoints": "MaterialSymbolsRounded.codepoints",
+     "axes": {"FILL": 0, "GRAD": 0, "opsz": 24, "wght": 500},
+     "icons": [
+      {"id": "check_circle", "material": "check_circle"},
+      {"id": "warning", "material": "warning"},
+      {"id": "lock", "material": "lock"},
+      {"id": "power", "material": "power_settings_new"}
+     ]}
+  ]
+}

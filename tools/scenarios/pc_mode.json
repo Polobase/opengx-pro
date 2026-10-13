@@ -1,0 +1,21 @@
+{
+  "description": "PB1 high (PC connected): PC mode entry (:w11=0,0, to both generators, PB2 pulse), PC traffic (:w11/:w14/:w24/:w25) on both links, PB1 low again: :w15=0,0, to both and back to HOME",
+  "note": "The original accepts the PC-mode display commands only after the vendor unlock handshake (excluded from scope), which the scenario does not send, and shows the PC icon red until then; the reimplementation treats the link as always unlocked (application.md section 7, deliberate deviation). The PC icon is masked, and the pc_traffic screen is informational.",
+  "end_ms": 13000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 5500, "checkpoint": "home"},
+    {"at": 6000, "pb1": 1},
+    {"at": 7000, "checkpoint": "pc_entry", "mask": [[280, 3, 315, 20]]},
+    {"at": 7200, "rx": "U1", "text": ":w11=1,1,\r\n"},
+    {"at": 7400, "rx": "U1", "text": ":w24=3750007,\r\n"},
+    {"at": 7600, "rx": "U1", "text": ":w25=1000000007,\r\n"},
+    {"at": 7800, "rx": "U2", "text": ":w11=1,0,\r\n"},
+    {"at": 8000, "rx": "U2", "text": ":w14=1,\r\n"},
+    {"at": 8200, "rx": "U2", "text": ":w24=123456007,\r\n"},
+    {"at": 8400, "rx": "U1", "text": ":w14=0,\r\n"},
+    {"at": 9500, "checkpoint": "pc_traffic", "mask": [[280, 3, 315, 20]], "informational": true},
+    {"at": 10000, "pb1": 0},
+    {"at": 11500, "checkpoint": "home_again"}
+  ]
+}

@@ -1,0 +1,153 @@
+{
+  "description": "Display maintenance commands and the factory port (PB1 low): backlight off/on (w64), calibration values via w80 and w60 (U1 args, then U2), the factory calibration screen and all factory commands (:a0, :e..:l, :b3, :c1500, :d11131, :a1), w92 (PB2 high + :w91=0, back), erase all (w96, twice: only once per boot) with read-back, and finally the restart command w95",
+  "note": "The factory port answers 'Z' after the command's screen work; for ':a0' that is a full clear plus the calibration grid, which the reimplementation draws about twice as fast (DEVIATIONS.md, Timing), so the first 'Z' comes ~60 ms earlier. Timing tolerance raised to 80 ms for this scenario only.",
+  "timing_tol_ms": 80,
+  "end_ms": 14500,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {
+      "at": 5500,
+      "rx": "U1",
+      "text": ":w64=10000001,\r\n"
+    },
+    {
+      "at": 5800,
+      "checkpoint": "backlight_off"
+    },
+    {
+      "at": 6000,
+      "rx": "U1",
+      "text": ":w64=18888881,\r\n"
+    },
+    {
+      "at": 6300,
+      "checkpoint": "backlight_on"
+    },
+    {
+      "at": 6500,
+      "rx": "U1",
+      "text": ":w80=13583792,32001,1601,301,401,1001,601,1602,302,402,1002,602,1603,303,403,1003,603,1604,304,404,1004,604,\r\n"
+    },
+    {
+      "at": 6900,
+      "rx": "U1",
+      "text": ":w60=1112111,3,1234,\r\n"
+    },
+    {
+      "at": 7100,
+      "rx": "U2",
+      "text": ":w60=1112111,3,1234,\r\n"
+    },
+    {
+      "at": 7300,
+      "rx": "U3",
+      "text": ":a0\n"
+    },
+    {
+      "at": 7800,
+      "checkpoint": "cal_screen"
+    },
+    {
+      "at": 8000,
+      "rx": "U3",
+      "text": ":e2101\n"
+    },
+    {
+      "at": 8100,
+      "rx": "U3",
+      "text": ":f2202\n"
+    },
+    {
+      "at": 8200,
+      "rx": "U3",
+      "text": ":g2303\n"
+    },
+    {
+      "at": 8300,
+      "rx": "U3",
+      "text": ":h2404\n"
+    },
+    {
+      "at": 8400,
+      "rx": "U3",
+      "text": ":i2505\n"
+    },
+    {
+      "at": 8500,
+      "rx": "U3",
+      "text": ":j2606\n"
+    },
+    {
+      "at": 8600,
+      "rx": "U3",
+      "text": ":k2707\n"
+    },
+    {
+      "at": 8700,
+      "rx": "U3",
+      "text": ":l2808\n"
+    },
+    {
+      "at": 8900,
+      "rx": "U3",
+      "text": ":b3\n"
+    },
+    {
+      "at": 9400,
+      "rx": "U3",
+      "text": ":c1500\n"
+    },
+    {
+      "at": 9700,
+      "rx": "U3",
+      "text": ":d11131\n"
+    },
+    {
+      "at": 10100,
+      "checkpoint": "cal_after"
+    },
+    {
+      "at": 10300,
+      "rx": "U3",
+      "text": ":a1\n"
+    },
+    {
+      "at": 11000,
+      "checkpoint": "home"
+    },
+    {
+      "at": 11200,
+      "rx": "U1",
+      "text": ":w92=,\r\n"
+    },
+    {
+      "at": 11600,
+      "rx": "U1",
+      "text": ":w96=12321,\r\n"
+    },
+    {
+      "at": 12300,
+      "rx": "U1",
+      "text": ":n01=?\r\n"
+    },
+    {
+      "at": 12500,
+      "rx": "U1",
+      "text": ":n04=*\r\n"
+    },
+    {
+      "at": 12700,
+      "rx": "U2",
+      "text": ":w96=12321,\r\n"
+    },
+    {
+      "at": 13200,
+      "checkpoint": "home_after_erase"
+    },
+    {
+      "at": 13500,
+      "rx": "U1",
+      "text": ":w95=12021,\r\n"
+    }
+  ]
+}

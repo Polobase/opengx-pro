@@ -1,0 +1,6 @@
+{
+  "codes": [
+    {"id": "support", "symbol": "nx_qr_support", "text": "https://buymeacoffee.com/mahapo",
+     "version": 3, "error": "Q", "mask": 0, "shown_as": "support.url"}
+  ]
+}

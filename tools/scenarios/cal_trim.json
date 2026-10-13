@@ -1,0 +1,13 @@
+{
+  "description": "Calibration trim from the host on HOME (PB1 low): :w63=111999, (cal[0] +1, saved to SPI 0x74000) on U1, twice :w63=111000, (-1) on U2, a :w63 with a wrong value (ignored), then :w62=3336333, (restore the backup copy from 0x75000) on U1",
+  "end_ms": 9500,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "rx": "U1", "text": ":w63=111999,\r\n"},
+    {"at": 6600, "rx": "U2", "text": ":w63=111000,\r\n"},
+    {"at": 7200, "rx": "U2", "text": ":w63=111000,\r\n"},
+    {"at": 7800, "rx": "U1", "text": ":w63=110999,\r\n"},
+    {"at": 8300, "rx": "U1", "text": ":w62=3336333,\r\n"},
+    {"at": 9200, "checkpoint": "home"}
+  ]
+}

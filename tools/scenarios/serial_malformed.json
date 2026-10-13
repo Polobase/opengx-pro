@@ -1,0 +1,27 @@
+{
+  "description": "Malformed lines on both links (PB1 low): an aborted :p leaves the value index at 1 and an :n frame does not reset it, so the next upload is stored one place further (U1, then U2); a name of 59 characters, CR and three more characters is accepted; an index carried from an aborted :g into :w and :p frames keeps counting, and past the :p array nothing is stored",
+  "end_ms": 15500,
+  "two_sided_before_ms": 5000,
+  "note": "The original writes values whose index lies past the frame's array into the RAM behind it (here: into G2's program in RAM, which this scenario never plays); the classic build leaves them out (DEVIATIONS.md). APP=nx starts every frame after a handled one at index 0 on purpose (DEVIATIONS.md, nx) and is not run on this scenario; tests/host/nx/test_nx_core.c covers its rules.",
+  "timeline": [
+    {"at": 5500, "rx": "U1", "text": ":p02=7,555555555555555555555555555,\r\n"},
+    {"at": 5800, "rx": "U1", "text": ":n02=?\r\n"},
+    {"at": 6100, "rx": "U1", "text": ":p02=0,100,120,1,2,3750007,5000007,\r\n"},
+    {"at": 6600, "rx": "U1", "text": ":n02=*\r\n"},
+    {"at": 7000, "rx": "U2", "text": ":p06=7,555555555555555555555555555,\r\n"},
+    {"at": 7300, "rx": "U2", "text": ":n00=$\r\n"},
+    {"at": 7600, "rx": "U2", "text": ":p06=0,100,120,1,2,3750007,5000007,\r\n"},
+    {"at": 8100, "rx": "U2", "text": ":n06=*\r\n"},
+    {"at": 8500, "rx": "U1", "text": ":n07=AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA\rBCD\r\n"},
+    {"at": 9100, "rx": "U1", "text": ":n07=?\r\n"},
+    {"at": 9400, "rx": "U1", "text": ":p02=0,100,120,1,60,1000007,1001007,1002007,1003007,1004007,1005007,1006007,1007007,1008007,1009007,1010007,1011007,1012007,1013007,1014007,1015007,1016007,1017007,1018007,1019007,1020007,1021007,1022007,1023007,1024007,1025007,1026007,1027007,1028007,1029007,1030007,1031007,1032007,1033007,1034007,1035007,1036007,1037007,1038007,1039007,1040007,1041007,1042007,1043007,1044007,1045007,1046007,1047007,1048007,1049007,1050007,1051007,1052007,1053007,1054007,1055007,1056007,1057007,1058007,1059007,\r\n"},
+    {"at": 10200, "rx": "U1", "text": ":g02=3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,555555555555555555555555555,\r\n"},
+    {"at": 10600, "rx": "U1", "text": ":w24=5,6,555555555555555555555555555,\r\n"},
+    {"at": 10900, "rx": "U1", "text": ":p02=111,222,333,\r\n"},
+    {"at": 11500, "rx": "U1", "text": ":n02=*\r\n"},
+    {"at": 12300, "rx": "U1", "text": ":g02=3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,3,555555555555555555555555555,\r\n"},
+    {"at": 13200, "rx": "U1", "text": ":p02=444,555,666,\r\n"},
+    {"at": 13800, "rx": "U1", "text": ":n02=*\r\n"},
+    {"at": 14800, "checkpoint": "home"}
+  ]
+}

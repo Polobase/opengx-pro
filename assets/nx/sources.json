@@ -1,0 +1,36 @@
+{
+  "dir": "assets/nx/third_party",
+  "downloads": [
+    {
+      "url": "https://github.com/rsms/inter/releases/download/v4.1/Inter-4.1.zip",
+      "sha256": "9883fdd4a49d4fb66bd8177ba6625ef9a64aa45899767dde3d36aa425756b11e",
+      "extract": [
+        {"member": "extras/ttf/Inter-Regular.ttf", "save_as": "Inter-Regular.ttf",
+         "sha256": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82"},
+        {"member": "extras/ttf/Inter-Medium.ttf", "save_as": "Inter-Medium.ttf",
+         "sha256": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872"},
+        {"member": "extras/ttf/InterDisplay-Medium.ttf", "save_as": "InterDisplay-Medium.ttf",
+         "sha256": "99665c256585aeaab2d06950c2d7715cca8fd7883c2d0e7a421b8b287e1f17de"},
+        {"member": "extras/ttf/InterDisplay-SemiBold.ttf", "save_as": "InterDisplay-SemiBold.ttf",
+         "sha256": "0310d7a325896129730c6c8cf9a6e0f81ee258bedf77b1ff059b2a7b75f74e02"},
+        {"member": "LICENSE.txt", "save_as": "Inter-LICENSE.txt",
+         "sha256": "262481e844521b326f5ecd053e59b98c8b2da78c8ee1bdbb6e8174305e54935a"}
+      ]
+    },
+    {
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/variablefont/MaterialSymbolsRounded%5BFILL,GRAD,opsz,wght%5D.ttf",
+      "sha256": "7f3a16d9aa1b6f367eadc1614ad27308ae2c0e91e617e2069f122afd9f0c3c58",
+      "save_as": "MaterialSymbolsRounded.ttf"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/variablefont/MaterialSymbolsRounded%5BFILL,GRAD,opsz,wght%5D.codepoints",
+      "sha256": "c18564f64d7d92dd3a6895a2c59ea69adfb56d6f553bcbbc88811c328159d715",
+      "save_as": "MaterialSymbolsRounded.codepoints"
+    },
+    {
+      "url": "https://raw.githubusercontent.com/google/material-design-icons/27e9ef1dbeedc13d682fece4a58e1eda4cb0961a/LICENSE",
+      "sha256": "58d1e17ffe5109a7ae296caafcadfdbe6a7d176f0bc4ab01e12a689b0499d8bd",
+      "save_as": "MaterialSymbols-LICENSE.txt"
+    }
+  ]
+}

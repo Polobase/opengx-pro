@@ -1,0 +1,30 @@
+# address	name	flags(fn|noreturn|data)	comment
+0x0800BF88	uart1_send_txbuf	fn	send first n bytes of uart1_txbuf on USART1 (board A)
+0x0800C2A8	uart2_send_txbuf	fn	send first n bytes of uart2_txbuf on USART2 (board B)
+0x0800C268	uart1_send_line	fn	send literal + CRLF on USART1
+0x0800C4AC	uart2_send_line	fn	send literal + CRLF on USART2
+0x0800C084	uart1_send_w_u64	fn	(id, -, u64 v): ":wNN=<decimal>,\r\n" on USART1
+0x0800C2C8	uart2_send_w_u64	fn	(id, -, u64 v): ":wNN=<decimal>,\r\n" on USART2
+0x0800C140	uart1_send_w_pair5	fn	(id, a, b): ":wNN=aaaaa,bbbbb,\r\n" on USART1 (w50/w51)
+0x0800C384	uart2_send_w_pair5	fn	(id, a, b): ":wNN=aaaaa,bbbbb,\r\n" on USART2
+0x0800BFA8	uart1_send_cal_value	fn	(idx, v): ":w60=1112111,II,VVVVV,\r\n" on USART1
+0x08012524	gen_wait_ok	fn	poll gen_ok_state==2 up to 200000 iters, then delay 0x855; timeout ignored
+0x0800E200	u64_pow10_floor	fn	largest power of 10 <= v (at most 1e16); decimal formatting helper
+0x0800F22C	uart1_frame_handler	fn	main-loop handler of a completed USART1 frame (g/p/n and deferred w)
+0x0800F9C4	uart2_frame_handler	fn	main-loop handler of a completed USART2 frame
+0x2000000B	gen_ok_state	data	u8: 1 after ':o', 2 after 'k'; shared by USART1/USART2 RX
+0x20000064	uart1_arg_idx	data	u16: next value index into g/p/w arrays (USART1)
+0x20000066	uart2_arg_idx	data	u16: next value index (USART2)
+0x20000068	uart1_rx_state	data	u8: USART1 RX parser state
+0x20000069	uart2_rx_state	data	u8: USART2 RX parser state
+0x2000006A	uart1_frame_id	data	u16: letter<<8 | 2-digit number of current USART1 frame
+0x2000006C	uart2_frame_id	data	u16: letter<<8 | number (USART2)
+0x20000070	uart3_cmd	data	u8: USART3 command letter a..l
+0x20000072	uart3_num	data	u16: USART3 decimal argument (wraps)
+0x200000BE	uart3_rx_state	data	u8: USART3 RX parser state
+0x200000F0	uart1_txbuf	data	u8[64]: USART1 TX staging buffer
+0x20000130	uart2_txbuf	data	u8[64]: USART2 TX staging buffer
+0x20000170	uart1_rxbuf	data	u8[68]: USART1 frame buffer (b[1]=letter, b[2..3]=number digits, b[5..]=payload)
+0x200001B4	uart2_rxbuf	data	u8[68]: USART2 frame buffer
+0x20002458	uart1_wargs	data	u64[32]: parsed :w arguments (USART1)
+0x20002558	uart2_wargs	data	u64[32]: parsed :w arguments (USART2)

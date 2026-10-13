@@ -1,0 +1,39 @@
+{
+  "description": "Key model of the original firmware and APP=fw (docs/spec/application.md, keys and screens). Expanding a scenario with this keymap must give exactly the key presses it had before it used intents.",
+  "notes": {
+    "open_list": "HOME, or the channel's own screen: G1/G2 opens the program list for that generator",
+    "focus": "another channel's screen: G1/G2 shows that channel (its list when it has no program)",
+    "nav_up": "UP: previous list entry / calibration index",
+    "nav_down": "DOWN: next list entry / calibration index",
+    "confirm": "START in the list: load the selected program into the list's generator",
+    "back": "STOP in the list: back to the channel screen",
+    "play_pause": "START on a channel screen: run / pause",
+    "stop": "STOP on a channel screen: stop",
+    "loop": "LOOP on a channel screen: run in a loop",
+    "stop_all": "POWER, short press: stop both generators",
+    "power_hold": "POWER held 1.5 s: goodbye screen, then power off",
+    "screen_toggle": "nx only (screen off / on): no key",
+    "wake": "nx only (wake a dark screen): no key",
+    "lock": "nx only (key lock): no key",
+    "locked_try": "nx only (a key while locked): no key",
+    "unlock": "nx only (key unlock): no key"
+  },
+  "intents": {
+    "open_list": [{"key": "G{ch}"}],
+    "focus": [{"key": "G{ch}"}],
+    "nav_up": [{"key": "UP"}],
+    "nav_down": [{"key": "DOWN"}],
+    "confirm": [{"key": "START"}],
+    "back": [{"key": "STOP"}],
+    "play_pause": [{"key": "START"}],
+    "stop": [{"key": "STOP"}],
+    "loop": [{"key": "LOOP"}],
+    "stop_all": [{"key": "POWER"}],
+    "power_hold": [{"key": "POWER", "ms": 1500}],
+    "screen_toggle": [],
+    "wake": [],
+    "lock": [],
+    "locked_try": [],
+    "unlock": []
+  }
+}

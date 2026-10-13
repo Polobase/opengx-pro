@@ -1,0 +1,7 @@
+node_modules
+dist
+*.local
+*.log
+.DS_Store
+# release files collected for the page (scripts/collect-firmware.mjs)
+public/firmware

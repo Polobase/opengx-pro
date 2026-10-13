@@ -1,0 +1,15 @@
+{
+  "fonts": [
+    {"id": "F_CAP13", "symbol": "nx_font_cap13", "file": "Inter-Medium.ttf", "size": 13, "bpp": 4,
+     "chars": "text", "extras": "·…–×▸°", "features": ["tnum", "ss04"], "line": "metrics",
+     "substitutes": {"▸": {"from": "▶", "scale": 0.6}}},
+    {"id": "F_BODY16", "symbol": "nx_font_body16", "file": "Inter-Regular.ttf", "size": 16, "bpp": 4,
+     "chars": "text", "extras": "·…‹›×", "features": ["tnum", "ss04"], "line": "metrics"},
+    {"id": "F_NUM28", "symbol": "nx_font_num28", "file": "InterDisplay-Medium.ttf", "size": 28, "bpp": 4,
+     "chars": "0123456789.,:-+% ", "dense": "0123456789", "features": ["tnum"], "line": "tight"},
+    {"id": "F_NUM48", "symbol": "nx_font_num48", "file": "InterDisplay-SemiBold.ttf", "size": 48, "bpp": 4,
+     "chars": "0123456789.,- ", "dense": "0123456789", "features": ["tnum"], "line": "tight"},
+    {"id": "F_BRAND", "symbol": "nx_font_brand", "file": "InterDisplay-SemiBold.ttf", "size": 40, "bpp": 4,
+     "chars": "penGXPro ", "dense": "nop", "sample": "penGX Pro", "line": "tight"}
+  ]
+}

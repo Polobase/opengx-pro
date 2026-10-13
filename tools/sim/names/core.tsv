@@ -1,0 +1,3 @@
+# address	name	flags(fn|noreturn|data)	comment
+0x0800E55E	main_loop	noreturn	Last call of main(); never returns
+0x080091AC	lcd_fill_rect	fn	(x0, y0, x1, y1, color); main clears 0,0..239,319

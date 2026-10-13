@@ -1,0 +1,67 @@
+# address	name	flags(fn|noreturn|data)	comment   -- display / LCD / graphics (see docs/spec/display.md)
+0x0800D980	lcd_write_cmd	fn	(u8 cmd): CS(PA8)=0, DC(PC6)=0, SPI2 8-bit write, wait !BSY, CS=1
+0x0800D938	lcd_write_data8	fn	(u8 data): CS=0, DC(PC6)=1, SPI2 8-bit write, wait !BSY, CS=1; only used by lcd_init
+0x0800D8D8	lcd_write_data16	fn	(u16 v): CS=0, DC=1, send v>>8 then v&0xFF, CS=1; used as 'push one RGB565 pixel'
+0x0800C4EC	lcd_set_window	fn	(xs, xe, ys, ye): CASET 0x2A xs..xe, RASET 0x2B ys..ye, RAMWR 0x2C (note arg order x-range then y-range)
+0x0800A188	lcd_init	fn	ST7789 reset (PC7) + init sequence; variant selected by u16 at 0x08003C00
+0x0800B0A8	MX_SPI2_Init	fn	LCD SPI: PB13 SCK/PB15 MOSI AF0, LL SPI master mode 3, 8-bit, MSB first, fPCLK/2, soft NSS, TX only
+0x0800AA78	LL_SPI_Init	fn	STM32G0 LL_SPI_Init(SPIx, LL_SPI_InitTypeDef*) (shared with SPI1)
+0x0800AA64	LL_SPI_DisableNSSPulseMgt	fn	CR2 &= ~NSSP
+0x0800AA6E	LL_SPI_Enable	fn	CR1 |= SPE
+0x0800AAF0	LL_SPI_IsActiveFlag_BSY	fn	returns SR.BSY (bit 7)
+0x0800AAFC	LL_SPI_SetStandard	fn	CR2.FRF = arg (0 = Motorola)
+0x0800AB08	LL_SPI_TransmitData8	fn	*(u8*)&SPIx->DR = b
+0x08012518	delay_loop	fn	busy loop: do { n--; } while (n); ~4 cycles/iteration
+0x08008688	lcd_draw_pixel	fn	(x, y, color): window x..x,y..y + one pixel
+0x08008F8E	lcd_draw_vline	fn	(x, y0, y1, color): physical column x, rows y0..y1 inclusive
+0x08008FBC	lcd_draw_hline	fn	(x, y, len, color): physical row y, len pixels from x (window x..x+len)
+0x08009240	lcd_fill_circle	fn	(cx, cy, r, color): filled circle from hline spans, spans are [cx-r, cx+r-1]
+0x08007A00	lcd_fill_half_round_rect	fn	(x, y, w, h, color, side): filled rect x..x+w-1, y..y+h, r=8 corners on side 0=low-x / 1=high-x, corner px painted 0x0000
+0x080086A4	lcd_draw_round_rect	fn	(x, y, w, h, bg, border, fill): r=8 rounded rect, 2 px border, corners painted bg
+0x0800616C	lcd_draw_char_ui24	fn	(ch, x, y, bg, fg) -> width; font_ui24, window x..x+23, y-w+1..y; 0 if glyph missing
+0x08006358	lcd_draw_string_ui24	fn	(str, x, y, bg, fg): y -= width per char (text runs toward lower physical y = logical right)
+0x08006384	lcd_draw_uint5_ui24	fn	(val, x, y, bg, fg) -> y: 5 digits with leading zeros (alias: draw_number5)
+0x08005DA4	lcd_draw_char_freq24	fn	(ch, x, y, bg, fg) -> width; font_freq24
+0x08005BDC	lcd_draw_frequency	fn	(u64 val, x, y, bg, fg): val = mantissa*10+exp, shows (val/10*10^(val%10))/1e8 as 8.8 digits + ' Hz', centred (alias: draw_frequency)
+0x08005AE4	lcd_draw_gnum_label	fn	(code '1'|'2', x, y, bg, fg): 'G1'/'G2' 16x22 bitmap, window x..x+15, y..319
+0x08005E44	lcd_draw_out_label	fn	(code '1'|'2', x, y, bg, fg): 'Out1'/'Out2' 24x44 bitmap (looks code up in the G1/G2 table)
+0x08006070	lcd_draw_status_icon	fn	(code 'c'|'r'|'p'|'s', x, y, bg, fg): 48x51 Ready/Running/Paused/Stopped badge
+0x08006104	lcd_draw_usb_icon	fn	(x, y, c0, c1): 16x33 USB symbol; symbol pixels are 0-bits (drawn in c0)
+0x08005B74	lcd_draw_sync_icon	fn	(x, y, c0, c1): 16x16 circular-arrows symbol; symbol pixels are 0-bits (drawn in c0)
+0x0800DC90	marquee_render_name	fn	(idx): renders program name idx (RAM 0x200001F8+60*idx) with font_ui24 into marquee_bitmap, sets marquee_width_px (alias: name_render_bitmap)
+0x08006450	marquee_draw	fn	(x, y, bg, fg): 24x230 px text field from marquee_bitmap; static or scrolling by marquee_scroll_pos (alias: name_draw_window)
+0x080054F4	ui_draw_boot_splash	fn	ghost logo, 'Spooky 2', 'Welcome to Spooky2', tagline (called once from main) (alias: splash_draw)
+0x08005ED0	ui_draw_shutdown_screen	fn	logo, QR code (http://spooky2.com), 'Looking forward to seeing you again!', URL (alias: poweroff_screen_draw)
+0x080056B8	ui_draw_panels_idle	fn	both generator panels normal (blue header, grey body, G1/G2 badge) - screen state 1 (alias: home_frame_draw)
+0x08005A28	ui_draw_panels_g1_active	fn	G1 panel white with blue border, G2 normal - screen state 3 (alias: frame_draw_g1_active)
+0x0800596C	ui_draw_panels_g2_active	fn	G1 normal, G2 panel white with blue border - screen state 4 (alias: frame_draw_g2_active)
+0x0800B498	ui_draw_panels_both_active	fn	both panels white with blue border - screen state 0x10 (alias: frame_draw_pc_mode)
+0x08005760	ui_draw_list_highlight	fn	(new_row 1..7, old_row): paint new row bar 0x2B12, old row 0xFFFF (switch8) (alias: list_highlight_draw)
+0x0800620C	ui_draw_program_list	fn	7 rows: 2-digit number, '.', name marquee; selected row inverted (alias: program_list_draw)
+0x0800DED4	ui_draw_param_table	fn	service screen: 29 x lcd_draw_uint5_ui24 of u16 table at 0x2000007E (alias: cal_draw_values)
+0x08003C00	lcd_panel_variant	data	u16 in bootloader page: 0xFF00/0xF000 -> panel init A (+INVON), else (incl. erased 0xFFFF) -> init B (alias: flashcfg_lcd_variant)
+0x0801264F	font_gnum_16x22	data	2 x {u8 code; u8 bits[44]}: 'G1','G2' labels, 16 px phys rows x 22
+0x080126A9	bmp_red2_small	data	{u8 code='2'; u8 bits[42]}: 24x14 red '2' of the Spooky2 logo
+0x080126D4	bmp_boot_welcome	data	{u8 code='W'; u8 bits[644]}: 24x212 used: 'Welcome to Spooky'
+0x08012959	bmp_red2_large	data	{u8 code='2'; u8 bits[85]}: 24x22 used: red '2' after 'Welcome to Spooky'
+0x080129AF	bmp_boot_ghost_logo	data	{u8 code='G'; u8 bits[1120]}: 112x80 'Spooky' + ghost
+0x08012E10	bmp_boot_tagline	data	{u8 code='p'; u8 bits[364]}: 16x182 'Professional * Friendly * Effective'
+0x08012F7D	icons_status_48x51	data	4 x {u8 code; u8 bits[306]}: c=Ready r=Running p=Paused s=Stopped
+0x08013449	bmp_usb_icon	data	{u8 code='#'; u8 bits[306]}: first 66 bytes used = 16x33 USB symbol
+0x0801357C	bmp_sync_icon	data	{u8 code='#'; u8 bits[40]}: first 32 bytes used = 16x16 sync arrows
+0x080135A5	font_ui24	data	86 x {u8 code; u8 width; u8 bits[48]}: proportional UI font, 24 px high
+0x08014671	font_freq24	data	18 x {u8 code; u8 width; u8 bits[48]}: '0'-'9' ( ) - space . , H z
+0x080149F5	font_out_24x44	data	2 x {u8 code; u8 bits[132]}: 'Out1','Out2' labels
+0x08014B00	bmp_bye_qrcode	data	u16[0x415] (low byte = 8 px): 88x95 QR code 'http://spooky2.com', 1 = dark
+0x0801532A	bmp_bye_logo	data	u16[0xF0]: 32x60 'Spooky' logo, 1 = dark
+0x0801550A	bmp_bye_text	data	u16[0x306]: 24x258 'Looking forward to seeing you again!', 1 = dark
+0x08015B16	bmp_bye_url	data	u16[0x124]: 16x146 'www.spooky2.com', 1 = dark
+0x08015D5E	bmp_unused_waveforms	data	u8[960]: 24x320 waveform strip, not referenced by any code
+0x080069EC	str_choose_program	data	"Choose Your Treatment Program"
+0x08006A10	str_program_g1	data	"Program  G1"
+0x08006A1C	str_program_g2	data	"Program  G2"
+0x2000001B	backlight_duty	data	u8 0..16: PB12 soft-PWM duty in TIM3 ISR (16 ticks of 100 us); 0 = off, 8 = normal (alias: g_backlight_duty)
+0x20000002	marquee_last_pos	data	u16: marquee_scroll_pos at last UI render (redraw marquee when changed) (alias: marquee_prev_offset)
+0x20000018	marquee_scroll_pos	data	u16: <100 = static; 100..width+130 scroll; advanced in TIM3 ISR every 256 ticks (alias: marquee_offset)
+0x20001C88	marquee_width_px	data	u16: rendered text width (sum of glyph widths) (alias: name_bmp_width)
+0x20001C8A	marquee_bitmap	data	u8[1998] up to 0x20002458: 24-px rows, 3 bytes/row, text stored last char first (alias: name_bmp)

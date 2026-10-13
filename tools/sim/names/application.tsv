@@ -1,0 +1,51 @@
+# address	name	flags(fn|noreturn|data)	comment
+# --- application functions (see docs/spec/application.md) ---
+0x0800DE2C	app_state_init	fn	Boot: list_sel/list_top=1, load names + calibration from SPI flash, default program records for G1/G2, pb7 duty 1
+0x080124D8	name_set	fn	(slot, str): copy up to 60 chars into name_table slot, zero-fill
+0x08010DB0	program_dump_g1	fn	Reply on USART1: header + count frequencies of stored program as decimal 'v,' list
+0x0801101C	program_dump_g2	fn	Same on USART2
+0x08010BE8	steptable_dump_g1	fn	Reply on USART1: first 200 u16 step params of stored program (only 200 of 400)
+0x08010CCC	steptable_dump_g2	fn	Same on USART2
+0x08011468	cal_apply_test	fn	Send generator test signal set for cal_index (uses pow() for freq 2^n*200000+8 and amplitude 10^(n/3))
+0x08011C2C	cal_apply_test_jig	fn	Variant of cal_apply_test with waveform cmds (w20/w21/w36/w37), used by USART3 ':b'
+0x0800B564	program_runner_tick	fn	Per-loop treatment program engine for G1 and G2: step = elapsed/(dwell*100)+1, send step commands, end/loop handling
+0x080065D8	ui_render	fn	Screen renderer: full redraw by ui_state when ui_flags&2, else only incremental tail (bl 0x0800773E used as tail-jump)
+0x0800773E	ui_render_incremental	fn	Tail of ui_render: marquee redraw, PC-mode dirty fields, ui_prev_state/marquee_prev_offset update, clear redraw flag
+0x0800773A	ui_render_nostate	fn	ui_render path for states without a screen (falls into ui_render_incremental)
+# --- compiler runtime used by the application (Keil fplib / mathlib) ---
+# --- internal-flash words in the bootloader page ---
+# --- RAM state ---
+0x20000000	ui_prev_state	data	u8: ui_state rendered last (RW_Data start)
+0x20000009	key_hold_count	data	u8: +1 per 25.6 ms while key_event >= 0x11
+0x2000000E	ui_flags	data	u16: 2 redraw,4 marquee,8 list->G2,0x10 list up,0x20 PC name toggle,0x40/0x80 run G1/G2,0x100/0x200 loop,0x400/0x800 line pending,0x1000/0x2000 sync,0x4000 PC unlock,0x8000 erase-all done
+0x20000010	pc_flags	data	u16: 1/2/4/8 PC freq fields clean,0x10/0x20 names clean,0x40..0x200 w15 values,0x400 licence failure
+0x20000012	misc_flags	data	u16: bit0 cal edit inverted, bits1..4 PC-mode output enabled (G1o1,G1o2,G2o1,G2o2)
+0x20000014	factory_cmd_flags	data	u16: bit0 USART3 factory command pending
+0x2000001A	key_event	data	u8: key code, |0x10 held, |0x20 short release, |0x40 long release
+0x2000001C	ui_state	data	u8: 0 boot,1 HOME,2 LIST,3 CH1,4 CH2,0x10 PC mode,0xFF calibration
+0x2000001D	g1_prog_slot	data	u8: program slot loaded in G1 (0 = none)
+0x2000001E	g2_prog_slot	data	u8: program slot loaded in G2 (0 = none)
+0x2000001F	list_top	data	u8: first visible list entry
+0x20000020	list_sel	data	u8: selected list entry 1..30
+0x20000024	g1_elapsed	data	u32: G1 run time in 10.1 ms units (0 fresh, 1 stopped)
+0x20000028	g2_elapsed	data	u32: G2 run time in 10.1 ms units
+0x20000030	pc_g1_out1_freq	data	u64: PC-mode G1 out1 frequency (w24 sniffed on USART1)
+0x20000038	pc_g1_out2_freq	data	u64: PC-mode G1 out2 frequency (w25)
+0x20000040	pc_g2_out1_freq	data	u64: PC-mode G2 out1 frequency (w24 on USART2)
+0x20000048	pc_g2_out2_freq	data	u64: PC-mode G2 out2 frequency (w25 on USART2)
+0x20000050	g1_step_freq	data	u64: frequency of current G1 step (encoded m*10+exp)
+0x20000058	g2_step_freq	data	u64: frequency of current G2 step
+0x20000060	g1_step	data	u8: current G1 step (1-based)
+0x20000061	g1_step_sent	data	u8: G1 step last sent to generator, 0xFF forces resend
+0x20000062	g2_step	data	u8: current G2 step
+0x20000063	g2_step_sent	data	u8: G2 step last sent, 0xFF forces resend
+0x2000006E	cal_freq_exp	data	u8: calibration test frequency selector (0, 1..9)
+0x2000006F	cal_ampl_exp	data	u8: calibration test amplitude selector (0, 4..10)
+0x20000074	tmp_counter	data	u16: boot splash wait counter; scratch index in serial command handlers
+0x2000007C	cal_index	data	u8: selected calibration entry 0..28
+0x2000007E	cal_table	data	s16[32]: calibration values, [31]==31 marks valid
+0x200001F8	name_table	data	char[32][60]: program names, slot 0 = PC G1 name, slot 31 = PC G2 name
+0x20000978	g1_program	data	G1 program record 0x668 B: u64 hdr0 wave,hdr1 ampl,hdr2 (120),dwell,count, u64 freq[200]
+0x20000FE0	g2_program	data	G2 program record 0x668 B
+0x20001648	g1_step_params	data	u16[400]: G1 per-step (a,b) pairs for w50/w51/w12
+0x20001968	g2_step_params	data	u16[400]: G2 per-step (a,b) pairs

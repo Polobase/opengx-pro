@@ -1,0 +1,83 @@
+{
+  "environment": {
+    "freetype2": "2.14.3",
+    "fribidi": "1.0.17",
+    "harfbuzz": "14.2.1",
+    "layout": "raqm",
+    "pillow": "12.3.0",
+    "python": "3.14.7",
+    "raqm": "0.10.5",
+    "segno": "1.6.6"
+  },
+  "max_bytes": 36864,
+  "outputs": {
+    "src/nx/nx_assets.c": "59f7e25091dd5f513db2d2e0eb3ebc507f4bb2654c032fc5b09b8fc5d19931e0",
+    "src/nx/nx_assets.h": "d3afea54913b85ccf39503f87c10e5e315be737a7c377f91dcbe3c8f58488679",
+    "src/nx/nx_str_ids.h": "978864b4c4ac24d143d70b44075a481a0099f6382fc3460a20c371cc96660296",
+    "tests/host/nx/nx_asset_vectors.h": "d25fccb4cb801771baa130723566bbe82b11dff583fdb4a6d8a5398b5d6ba0a3"
+  },
+  "sources": {
+    "assets/nx/fonts.json": "e90b927c225618d4af714c31893dd4b9e81fa306a4bafe99defb53bf50005681",
+    "assets/nx/icons.json": "870a891595503c17a6bdd162d60a159d63a65dd3df77230a1b8eaf5e13e52da8",
+    "assets/nx/palettes.json": "520654765f85905f738e8280dbca75cfac78211cd83f9661a55c90eb13f85709",
+    "assets/nx/qr.json": "1352bcb1887882ad7012dd9eae7737a4c03ccd6f6c462efc550ca2fc7280dcc2",
+    "assets/nx/sources.json": "1643ce2243ccdd54234c3cd90f9d7c28f32a4afeef429497078b7fdd1bbceca1",
+    "assets/nx/strings/en.json": "6375c54c54ca3dc60bda5dd7a81cd647af6ab49992831be62c64842a733c78a6",
+    "assets/nx/third_party/Inter-Medium.ttf": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872",
+    "assets/nx/third_party/Inter-Regular.ttf": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
+    "assets/nx/third_party/InterDisplay-Medium.ttf": "99665c256585aeaab2d06950c2d7715cca8fd7883c2d0e7a421b8b287e1f17de",
+    "assets/nx/third_party/InterDisplay-SemiBold.ttf": "0310d7a325896129730c6c8cf9a6e0f81ee258bedf77b1ff059b2a7b75f74e02",
+    "assets/nx/third_party/MaterialSymbolsRounded.codepoints": "c18564f64d7d92dd3a6895a2c59ea69adfb56d6f553bcbbc88811c328159d715",
+    "assets/nx/third_party/MaterialSymbolsRounded.ttf": "7f3a16d9aa1b6f367eadc1614ad27308ae2c0e91e617e2069f122afd9f0c3c58"
+  },
+  "tables": {
+    "nx_font_body16": {
+      "bytes": 4569,
+      "sha256": "0589d09654ccf241a77a6503fbee5aecd9b0005105ed9b6dc50dc25926afac93"
+    },
+    "nx_font_brand": {
+      "bytes": 1023,
+      "sha256": "4b3fcbf04ffec6c7342f83e3ce57bb4ffa76aeef2f8ef39e6a88709e72f5af19"
+    },
+    "nx_font_cap13": {
+      "bytes": 3953,
+      "sha256": "d94a36df67ab2af896fb2e733feedadb6f1ba0239dc14f43ac44cd7227a78e2f"
+    },
+    "nx_font_num28": {
+      "bytes": 1350,
+      "sha256": "77b3832536a6cd26df6403bf70b47b72362336e6d6472b6e71894af232d02334"
+    },
+    "nx_font_num48": {
+      "bytes": 1844,
+      "sha256": "2c33aced119838668a126369b8909a91d9996579e62b5058c5c98eb19e908b68"
+    },
+    "nx_icons20": {
+      "bytes": 1413,
+      "sha256": "7d07b13db00bdc09e2a9da50959c5ad710aa70504091783dcf6d3c224a0b5f20"
+    },
+    "nx_icons32": {
+      "bytes": 692,
+      "sha256": "1258339177ffdbfc7b2e987a38d67cb4d4d9f78f03c83944a6308fae1c5dd681"
+    },
+    "nx_palettes": {
+      "bytes": 192,
+      "sha256": "0ce024f4ed32abe3cdb5b70b31c15b5457af9b1c764b642b7bdce4ce55da7d0d"
+    },
+    "nx_qr_support": {
+      "bytes": 116,
+      "sha256": "60e871ced8122deab75b13294574bef8f76faa789288f05500a55a641a1a207d"
+    },
+    "nx_str_off": {
+      "bytes": 620,
+      "sha256": "b9f717a86132fb514453abfabcc8fd0e65f3690d3740290268d7bfa9b6d0d445"
+    },
+    "nx_str_pool": {
+      "bytes": 4686,
+      "sha256": "e83a63e43f40a600fc3b770cfa0d80ef37518f3f3596268bf3a70920f1c02234"
+    }
+  },
+  "tool": {
+    "sha256": "19ffcb41587e87b15177b196c4dd6c2df5eca7de6b924c7c014b64b4af325a2e"
+  },
+  "total_bytes": 20458
+}

@@ -1,0 +1,58 @@
+name: Pages
+
+# The site at https://polobase.github.io/opengx-pro/: the flasher with every published release, the
+# way back to the original firmware, and the user guide (docs/guide). Built on every push to main
+# and whenever a release is published or withdrawn (release-published.yml starts it then, on main:
+# the Pages environment takes deployments from the default branch only).
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# A deployment that runs is finished; of those that wait, only the newest is made.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: site
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+      - run: npm ci
+      - name: The published releases, each file checked against its manifest
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node scripts/collect-firmware.mjs --github "$GITHUB_REPOSITORY"
+      - run: npm test
+      - run: npm run build
+      - uses: actions/configure-pages@v6
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v5

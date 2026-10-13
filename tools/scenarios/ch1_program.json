@@ -1,0 +1,24 @@
+{
+  "description": "Load program 4 (Plant Growth) into G1 from the list, then START (run), START (pause), STOP, LOOP (run + loop), short POWER (stop both)",
+  "end_ms": 18000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "intent": "open_list", "ch": 1},
+    {"at": 7000, "intent": "nav_down"},
+    {"at": 7500, "intent": "nav_down"},
+    {"at": 8000, "intent": "nav_down"},
+    {"at": 8700, "checkpoint": "list_sel4"},
+    {"at": 9000, "intent": "confirm"},
+    {"at": 10000, "checkpoint": "ch1_loaded"},
+    {"at": 10500, "intent": "play_pause", "ch": 1},
+    {"at": 11500, "checkpoint": "ch1_running"},
+    {"at": 12000, "intent": "play_pause", "ch": 1},
+    {"at": 13000, "checkpoint": "ch1_paused"},
+    {"at": 13500, "intent": "stop", "ch": 1},
+    {"at": 14500, "checkpoint": "ch1_stopped"},
+    {"at": 15000, "intent": "loop", "ch": 1},
+    {"at": 16000, "checkpoint": "ch1_loop"},
+    {"at": 16500, "intent": "stop_all"},
+    {"at": 17500, "checkpoint": "power_short"}
+  ]
+}

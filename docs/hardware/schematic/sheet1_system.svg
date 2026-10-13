@@ -1,0 +1,180 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1188" viewBox="0 0 1680 1188" font-family="Menlo, 'DejaVu Sans Mono', Consolas, monospace">
+<title>GX Pro schematic – sheet 1: Sheet 1/3 — System overview and board interconnect</title>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f6f1f"/></marker></defs>
+<rect width="1680" height="1188" fill="#ffffff"/>
+<rect x="40" y="100" width="420" height="600" rx="10" fill="#f4f7fc" stroke="#3a5a8a" stroke-width="2.4"/>
+<text x="52" y="124" font-size="15" text-anchor="start" font-weight="bold" fill="#3a5a8a">DISPLAY BOARD</text>
+<text x="52" y="141" font-size="11" text-anchor="start" font-weight="normal" fill="#3a5a8a">front panel, mounted in the lid → sheet 2</text>
+<rect x="64" y="160" width="190" height="96" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="72" y="178" font-size="13" text-anchor="start" font-weight="bold" fill="#111">MCU  [FW]</text>
+<text x="72" y="196.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">STM32G070RBT6</text>
+<text x="72" y="211.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">LQFP-64, 8 MHz xtal</text>
+<text x="72" y="227.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">64 MHz PLL</text>
+<rect x="276" y="160" width="164" height="96" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="284" y="178" font-size="13" text-anchor="start" font-weight="bold" fill="#111">LCD  [FW]</text>
+<text x="284" y="196.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">240×320 TFT</text>
+<text x="284" y="211.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">ST7789-type</text>
+<text x="284" y="227.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">18-pin FPC</text>
+<rect x="276" y="276" width="164" height="70" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="284" y="294" font-size="13" text-anchor="start" font-weight="bold" fill="#111">SPI NOR  [FW]</text>
+<text x="284" y="312.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">SOIC-8, 25-series</text>
+<text x="284" y="327.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">≥512 KB</text>
+<rect x="64" y="276" width="190" height="70" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="72" y="294" font-size="13" text-anchor="start" font-weight="bold" fill="#111">8 KEYS  [PCB]</text>
+<text x="72" y="312.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">6×6 mm THT tact</text>
+<text x="72" y="327.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">active low</text>
+<rect x="64" y="366" width="190" height="56" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="72" y="384" font-size="13" text-anchor="start" font-weight="bold" fill="#111">3.3 V LDO  [PCB]</text>
+<text x="72" y="402.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">J1, SOT-223</text>
+<rect x="276" y="366" width="164" height="56" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="284" y="384" font-size="13" text-anchor="start" font-weight="bold" fill="#111">BACKLIGHT</text>
+<text x="284" y="402.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">T2 SOT-23, PWM</text>
+<polyline points="254,208 276,208" fill="none" stroke="#1f6f1f" stroke-width="1.6"/>
+<polyline points="254,240 266,240 266,311 276,311" fill="none" stroke="#1f6f1f" stroke-width="1.6"/>
+<polyline points="159,256 159,276" fill="none" stroke="#1f6f1f" stroke-width="1.6"/>
+<rect x="64" y="452" width="190" height="88" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="72" y="470" font-size="13" text-anchor="start" font-weight="bold" fill="#111">J  5-pin JST  [PCB]</text>
+<text x="72" y="488.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">silk: GND 5V Rx Tx FSEL</text>
+<text x="72" y="503.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">no cable fitted</text>
+<text x="72" y="519.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">USART3 factory port? [I]</text>
+<rect x="64" y="556" width="190" height="70" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="72" y="574" font-size="13" text-anchor="start" font-weight="bold" fill="#111">J  3-pin  [PCB]</text>
+<text x="72" y="592.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">silk: U4Tx U4Rx GND</text>
+<text x="72" y="607.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">unpopulated</text>
+<rect x="276" y="452" width="164" height="174" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="284" y="470" font-size="13" text-anchor="start" font-weight="bold" fill="#111">CABLE CONNECTORS</text>
+<text x="284" y="488.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">J 2-pin  ?</text>
+<text x="284" y="503.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">J 4-pin</text>
+<text x="284" y="519.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">J 6-pin</text>
+<text x="284" y="534.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111"></text>
+<text x="284" y="550.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">10 signal wires [I]:</text>
+<text x="284" y="565.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">5V, GND,</text>
+<text x="284" y="581.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">USART1 → gen A</text>
+<text x="284" y="596.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">USART2 → gen B</text>
+<text x="284" y="612.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">PB1 in, PB2 out</text>
+<rect x="600" y="100" width="620" height="820" rx="10" fill="#f4f7fc" stroke="#3a5a8a" stroke-width="2.4"/>
+<text x="612" y="124" font-size="15" text-anchor="start" font-weight="bold" fill="#3a5a8a">MAIN BOARD</text>
+<text x="612" y="141" font-size="11" text-anchor="start" font-weight="normal" fill="#3a5a8a">P/N label 2622232388, silk 6746202 → sheet 3</text>
+<rect x="624" y="160" width="260" height="120" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="632" y="178" font-size="13" text-anchor="start" font-weight="bold" fill="#111">POWER  [PCB]</text>
+<text x="632" y="196.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">DC jack, 270 µF/16 V input</text>
+<text x="632" y="211.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">4 × SMPS (SO-8 + 10 µH)</text>
+<text x="632" y="227.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">LDO 3.3 V (DPAK)</text>
+<text x="632" y="242.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">LDO ?.5 V (SOT-223)</text>
+<text x="632" y="258.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">rails ±5 V, ±12 V, 3.3 V</text>
+<text x="632" y="273.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">+ one LED per rail</text>
+<rect x="904" y="160" width="290" height="120" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="912" y="178" font-size="13" text-anchor="start" font-weight="bold" fill="#111">USB  [PCB]</text>
+<text x="912" y="196.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">USB-B receptacle</text>
+<text x="912" y="211.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">D602 ESD (SOT-23-6)</text>
+<text x="912" y="227.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">USB-UART bridge (QFN-24)</text>
+<text x="912" y="242.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">2 × SO-8 (function ?)</text>
+<rect x="624" y="310" width="260" height="104" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="632" y="328" font-size="13" text-anchor="start" font-weight="bold" fill="#111">MCU  [PCB]</text>
+<text x="632" y="346.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">LQFP-48, part ?</text>
+<text x="632" y="361.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">own 3225 crystal</text>
+<text x="632" y="377.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">1×5 header (SWD?) DNP</text>
+<rect x="624" y="444" width="260" height="124" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="632" y="462" font-size="13" text-anchor="start" font-weight="bold" fill="#111">FPGA? U201  [PCB]</text>
+<text x="632" y="480.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">BGA ≈17×17 mm</text>
+<text x="632" y="495.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">SO-8 config flash</text>
+<text x="632" y="511.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">3225 oscillator</text>
+<text x="632" y="526.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">'Done' LED + 2 buttons</text>
+<rect x="904" y="310" width="290" height="104" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="912" y="328" font-size="13" text-anchor="start" font-weight="bold" fill="#111">GENERATOR A (3xx)</text>
+<text x="912" y="346.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">resistor-ladder DAC bank A [I]</text>
+<text x="912" y="361.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">≈7 op-amp stages (SO-8)</text>
+<text x="912" y="377.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">→ OUT A1, A2</text>
+<rect x="904" y="444" width="290" height="104" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="912" y="462" font-size="13" text-anchor="start" font-weight="bold" fill="#111">GENERATOR B (4xx)</text>
+<text x="912" y="480.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">resistor-ladder DAC bank B [I]</text>
+<text x="912" y="495.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">≈9 op-amp stages (SO-8)</text>
+<text x="912" y="511.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">→ OUT B1, B2</text>
+<rect x="624" y="600" width="570" height="70" rx="0" fill="#f3f3f3" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="632" y="618" font-size="13" text-anchor="start" font-weight="bold" fill="#111">DNP  [PCB]</text>
+<text x="632" y="636.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">4 × SO-8 PowerPAD amp footprints (R343–R350, R443–R450): on-board</text>
+<text x="632" y="651.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">alternative to the amp board [I]</text>
+<rect x="624" y="690" width="570" height="104" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="632" y="708" font-size="13" text-anchor="start" font-weight="bold" fill="#111">OUTPUT JACKS  [PCB]</text>
+<text x="632" y="726.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">4 × threaded jacks on the rear bracket</text>
+<text x="632" y="741.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">fed from the amp board through the 2×5 sockets [I]</text>
+<text x="632" y="757.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">A1, A2: clamps D301, D302 (SOT-23)</text>
+<text x="632" y="772.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">B1, B2: clamps D401, D402 (SOT-23)</text>
+<polyline points="440,480 600,480" fill="none" stroke="#777" stroke-width="2.4"/>
+<polyline points="600,480 612,480" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="470" y="474" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">2-wire  ?</text>
+<polyline points="440,520 600,520" fill="none" stroke="#777" stroke-width="2.4"/>
+<polyline points="600,520 612,520" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="470" y="514" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">4-wire</text>
+<polyline points="440,560 600,560" fill="none" stroke="#777" stroke-width="2.4"/>
+<polyline points="600,560 612,560" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="470" y="554" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">6-wire</text>
+<polyline points="612,560 612,360 624,360" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="470" y="600" font-size="11" text-anchor="start" font-weight="normal" fill="#555">white ribbon cables</text>
+<polyline points="884,506 904,506" fill="none" stroke="#1f6f1f" stroke-width="1.6"/>
+<polyline points="894,506 894,362 904,362" fill="none" stroke="#1f6f1f" stroke-width="1.6"/>
+<circle cx="894" cy="506" r="3" fill="#1f6f1f"/>
+<polyline points="1049,280 1049,294 754,294 754,310" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<polyline points="754,414 754,444" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="762" y="434" font-size="11" text-anchor="start" font-weight="normal" fill="#555">bus ?</text>
+<text x="624" y="950" font-size="12" text-anchor="start" font-weight="bold" fill="#111">DC IN (voltage ?, input cap 16 V)</text>
+<polyline points="700,936 700,920" fill="none" stroke="#1f6f1f" stroke-width="1.6" marker-end="url(#arrow)"/>
+<text x="904" y="950" font-size="12" text-anchor="start" font-weight="bold" fill="#111">USB to PC (host serial)</text>
+<polyline points="1000,936 1000,920" fill="none" stroke="#1f6f1f" stroke-width="1.6" marker-end="url(#arrow)"/>
+<rect x="1290" y="100" width="360" height="330" rx="10" fill="#f4f7fc" stroke="#3a5a8a" stroke-width="2.4"/>
+<text x="1302" y="124" font-size="15" text-anchor="start" font-weight="bold" fill="#3a5a8a">AMP BOARD</text>
+<text x="1302" y="141" font-size="11" text-anchor="start" font-weight="normal" fill="#3a5a8a">plugs onto 2 × 2×5 sockets</text>
+<rect x="1310" y="160" width="320" height="150" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="1318" y="178" font-size="13" text-anchor="start" font-weight="bold" fill="#111">4 × POWER OP-AMP  [PCB]</text>
+<text x="1318" y="196.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">under glued heatsinks, part ?</text>
+<text x="1318" y="211.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">one per output: A1, A2, B1, B2</text>
+<text x="1318" y="227.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">2 × 2×5 male header (one per gen.)</text>
+<text x="1318" y="242.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">4 screws with insulating washers</text>
+<text x="1318" y="258.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">±12 V via 'JF' 1206 parts on main</text>
+<rect x="1310" y="322" width="320" height="90" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="1318" y="340" font-size="13" text-anchor="start" font-weight="bold" fill="#111">PER SOCKET  [I]</text>
+<text x="1318" y="358.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">in:  2 × signal from generator</text>
+<text x="1318" y="373.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">out: 2 × amplified output</text>
+<text x="1318" y="389.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">supply: +12 V, −12 V, GND</text>
+<polyline points="1194,362 1290,362" fill="none" stroke="#777" stroke-width="2.4"/>
+<text x="1206" y="356" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">2×5 (A)</text>
+<polyline points="1194,496 1250,496 1250,400 1290,400" fill="none" stroke="#777" stroke-width="2.4"/>
+<text x="1200" y="514" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">2×5 (B)</text>
+<rect x="1290" y="460" width="360" height="250" rx="10" fill="#f4f7fc" stroke="#3a5a8a" stroke-width="2.4"/>
+<text x="1302" y="484" font-size="15" text-anchor="start" font-weight="bold" fill="#3a5a8a">GxExt BOARD</text>
+<text x="1302" y="501" font-size="11" text-anchor="start" font-weight="normal" fill="#3a5a8a">silk GxExt26090599, 2 × 2×8 headers</text>
+<rect x="1310" y="516" width="320" height="176" rx="0" fill="#fffbe6" stroke="#8b1a1a" stroke-width="1.6"/>
+<text x="1318" y="534" font-size="13" text-anchor="start" font-weight="bold" fill="#111">ANALOG EXTENSION  [PCB]</text>
+<text x="1318" y="552.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">two mirrored sections, each:</text>
+<text x="1318" y="567.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">  2 × SO-8, 1 × MSOP-8, ~6 SOT-23</text>
+<text x="1318" y="583.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">shared: SO-8, TSSOP-20, 4 × SOT-23-5</text>
+<text x="1318" y="598.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">1×5 holes (unpopulated)</text>
+<text x="1318" y="614.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">function ? — signal conditioning [I]</text>
+<text x="1318" y="629.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">signals on the 2×8 headers ?</text>
+<polyline points="1220,640 1290,640" fill="none" stroke="#777" stroke-width="2.4"/>
+<text x="1228" y="634" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">2 × 2×8</text>
+<rect x="1290" y="760" width="360" height="109.0" rx="0" fill="#fafafa" stroke="#999" stroke-width="1"/>
+<text x="1298" y="778" font-size="12.5" text-anchor="start" font-weight="bold" fill="#111">Firmware ↔ hardware</text>
+<text x="1298" y="793.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#555">Display board talks to 'board A' on USART1</text>
+<text x="1298" y="809.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#555">and 'board B' on USART2 (4 outputs A1, A2,</text>
+<text x="1298" y="824.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#555">B1, B2 in the firmware). On this unit both</text>
+<text x="1298" y="840.0" font-size="11.5" text-anchor="start" font-weight="normal" fill="#555">are served by one main board: 3xx parts =</text>
+<text x="1298" y="855.5" font-size="11.5" text-anchor="start" font-weight="normal" fill="#555">generator A, 4xx parts = generator B [I].</text>
+<rect x="12" y="12" width="1656" height="1164" rx="0" fill="none" stroke="#333" stroke-width="1.2"/>
+<text x="30" y="44" font-size="20" text-anchor="start" font-weight="bold" fill="#111">Sheet 1/3 — System overview and board interconnect</text>
+<text x="30" y="66" font-size="12" text-anchor="start" font-weight="normal" fill="#555">Four boards in one case. Photos: main_board_assembled.jpg, display_board_rear.jpg, gxext_board_*.jpg, amp_board_*.jpg.</text>
+<rect x="30" y="1096" width="560" height="70" rx="0" fill="#fff" stroke="#999" stroke-width="1"/>
+<polyline points="42,1116 82,1116" fill="none" stroke="#1f6f1f" stroke-width="1.6"/>
+<text x="90" y="1120" font-size="11" text-anchor="start" font-weight="normal" fill="#111">seen on the board / verified in firmware</text>
+<polyline points="42,1138 82,1138" fill="none" stroke="#1f6f1f" stroke-width="1.6" stroke-dasharray="6 4"/>
+<text x="90" y="1142" font-size="11" text-anchor="start" font-weight="normal" fill="#111">inferred (not traced)</text>
+<text x="360" y="1120" font-size="11" text-anchor="start" font-weight="normal" fill="#111">[FW]  display-firmware RE</text>
+<text x="360" y="1136" font-size="11" text-anchor="start" font-weight="normal" fill="#111">[PCB] silkscreen / footprint</text>
+<text x="360" y="1152" font-size="11" text-anchor="start" font-weight="normal" fill="#111">[I] inferred   ? unknown</text>
+<text x="42" y="1158" font-size="11" text-anchor="start" font-weight="normal" fill="#555">All IC markings are removed.</text>
+<rect x="1198" y="1096" width="452" height="70" rx="0" fill="#fff" stroke="#333" stroke-width="1.2"/>
+<text x="1208" y="1118" font-size="13" text-anchor="start" font-weight="bold" fill="#111">Spooky2 GeneratorX Pro: drawn from the board</text>
+<text x="1208" y="1136" font-size="11.5" text-anchor="start" font-weight="normal" fill="#111">Low-fidelity schematic, rev 0.1</text>
+<text x="1208" y="1154" font-size="11.5" text-anchor="start" font-weight="normal" fill="#555">2026-09-23</text>
+<text x="1640" y="1154" font-size="13" text-anchor="end" font-weight="bold" fill="#111">Sheet 1/3</text>
+</svg>

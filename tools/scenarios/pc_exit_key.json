@@ -1,0 +1,14 @@
+{
+  "description": "Leaving PC mode with a key: G1 goes down in the moment PB1 falls, so it is first seen in the main-loop pass that leaves PC mode. The original does not dispatch keys in that pass and stays on HOME (START then does nothing); a second G1 press opens the list",
+  "end_ms": 12500,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "pb1": 1},
+    {"at": 8000, "pb1": 0},
+    {"at": 8000, "key": "G1"},
+    {"at": 8700, "key": "START"},
+    {"at": 9500, "checkpoint": "home"},
+    {"at": 10000, "key": "G1"},
+    {"at": 11500, "checkpoint": "list"}
+  ]
+}

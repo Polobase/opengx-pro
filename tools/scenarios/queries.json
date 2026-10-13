@@ -1,0 +1,15 @@
+{
+  "description": "Host queries on HOME (PB1 low): :n00=$ (version) on U1, :nNN=? (name) on U1 and U2, :n04=* (program dump) on U1, :n04=# (step table dump) on U2, :n40=? (slot out of range -> :err)",
+  "end_ms": 9000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "rx": "U1", "text": ":n00=$\r\n"},
+    {"at": 6200, "rx": "U1", "text": ":n01=?\r\n"},
+    {"at": 6400, "rx": "U2", "text": ":n05=?\r\n"},
+    {"at": 6600, "rx": "U2", "text": ":n07=?\r\n"},
+    {"at": 6800, "rx": "U1", "text": ":n04=*\r\n"},
+    {"at": 7000, "rx": "U2", "text": ":n04=#\r\n"},
+    {"at": 7200, "rx": "U1", "text": ":n40=?\r\n"},
+    {"at": 8500, "checkpoint": "home"}
+  ]
+}

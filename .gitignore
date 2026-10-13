@@ -1,0 +1,37 @@
+# Vendor material: every user supplies their own copy; never commit it.
+original/
+# screenshots/framebuffers of the original firmware (vendor graphics)
+tools/scenarios/reference/
+# ST datasheet: link to st.com instead of republishing
+docs/hardware/DS_*.pdf
+# Spooky2 content (presets, databases, waveform CSVs, captures): imported from the
+# user's own install at run time only, never committed
+*.s2d
+Preset Collections/
+*.dmslog8
+*.dmslog
+
+# Local only (by choice)
+docs/hardware/photos/
+
+# Device data (SPI-flash dumps, serial captures)
+backups/
+capture/
+
+# Build output and local environments
+build/
+.env
+.venv/
+__pycache__/
+.DS_Store
+node_modules/
+site/dist/
+# release files the site build collects (from GitHub Releases, or from build/release)
+site/public/firmware/
+
+# nx UI asset sources (fonts, icon font, licences): downloaded by `make nx-assets-fetch`,
+# pinned by SHA-256 in assets/nx/sources.json, never committed
+assets/nx/third_party/
+
+# Personal build settings (your own preset folders): read by the Makefile, never committed
+local.mk

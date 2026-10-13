@@ -1,0 +1,125 @@
+{
+  "description": "Spooky2 opens both generators close together in PC mode (as in a two-port serial capture of Spooky2, but with G2's session 5 ms after G1's and made-up handshake numbers: the display passes them on unread): :r90/:w92 session handshake on both links, the generators answer the display's :w91=0, with :w91=1, (PB2 low again), then titles and w24 frequency streams every 134 ms on both links. The display's replies, PB2 edges and generator lines must match the original.",
+  "note": "The vendor session handshake itself is not reimplemented: the display only does its part of :w92 (PB2 high, :w91=0, to its generator) and :w91 (PB2 low). nx holds a :w91 NX_W91_HOLD_MS after the last :w92 sequence, as the original's 13.3 ms key-scan delay does (src/nx/nx_loop.c). The original's PC-mode gate opens with the vendor unlock (not sent): the scenario sets the unlock bit (pc_unlock), as pc_mode does.",
+  "pb1": 1,
+  "end_ms": 9000,
+  "two_sided_before_ms": 5000,
+  "generators": {
+    "U1": 1.0,
+    "U2": 1.0
+  },
+  "generator_replies": {
+    ":w91=0,": ":w91=1,\r\n"
+  },
+  "timeline": [
+    {
+      "at": 5000,
+      "rx": "U1",
+      "text": ":r90=123456789,\r\n"
+    },
+    {
+      "at": 5110,
+      "rx": "U1",
+      "text": ":w92=111111111.\r\n"
+    },
+    {
+      "at": 5115,
+      "rx": "U2",
+      "text": ":r90=123456789,\r\n"
+    },
+    {
+      "at": 5116,
+      "rx": "U2",
+      "text": ":w92=222222222.\r\n"
+    },
+    {
+      "at": 5200,
+      "pc_unlock": true
+    },
+    {
+      "at": 5260,
+      "rx": "U1",
+      "text": ":n00=$\r\n"
+    },
+    {
+      "at": 5270,
+      "rx": "U2",
+      "text": ":n00=$\r\n"
+    },
+    {
+      "at": 6000,
+      "rx": "U1",
+      "text": ":n00=Port 3 - Spooky Radionics (Boo\r\n"
+    },
+    {
+      "at": 6010,
+      "rx": "U2",
+      "text": ":n00=Port 4 - Spooky Radionics (Boo\r\n"
+    },
+    {
+      "at": 6200,
+      "rx": "U1",
+      "text": ":w11=1,1,\r\n"
+    },
+    {
+      "at": 6210,
+      "rx": "U2",
+      "text": ":w11=1,1,\r\n"
+    },
+    {
+      "at": 6300,
+      "rx": "U1",
+      "text": ":w24=5856275830,\r\n"
+    },
+    {
+      "at": 6360,
+      "rx": "U2",
+      "text": ":w24=602363121,\r\n"
+    },
+    {
+      "at": 6434,
+      "rx": "U1",
+      "text": ":w24=5856400830,\r\n"
+    },
+    {
+      "at": 6494,
+      "rx": "U2",
+      "text": ":w24=602400121,\r\n"
+    },
+    {
+      "at": 6568,
+      "rx": "U1",
+      "text": ":w24=5856525830,\r\n"
+    },
+    {
+      "at": 6628,
+      "rx": "U2",
+      "text": ":w24=602437121,\r\n"
+    },
+    {
+      "at": 6702,
+      "rx": "U1",
+      "text": ":w24=5856650830,\r\n"
+    },
+    {
+      "at": 6762,
+      "rx": "U2",
+      "text": ":w24=602474121,\r\n"
+    },
+    {
+      "at": 7500,
+      "rx": "U1",
+      "text": ":n00=?\r\n"
+    },
+    {
+      "at": 7510,
+      "rx": "U2",
+      "text": ":n00=?\r\n"
+    },
+    {
+      "at": 8500,
+      "checkpoint": "pc_dual",
+      "informational": true
+    }
+  ]
+}

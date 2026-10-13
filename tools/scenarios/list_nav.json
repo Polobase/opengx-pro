@@ -1,0 +1,27 @@
+{
+  "description": "HOME -> G1 opens the program list (names from the SPI backup); scroll down past the window and back up; G2 retargets the list",
+  "end_ms": 16000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "checkpoint": "home"},
+    {"at": 6000, "key": "G1"},
+    {"at": 7000, "checkpoint": "list_g1"},
+    {"at": 7000, "key": "DOWN"},
+    {"at": 7500, "key": "DOWN"},
+    {"at": 8000, "key": "DOWN"},
+    {"at": 8800, "checkpoint": "list_sel4"},
+    {"at": 9000, "key": "DOWN"},
+    {"at": 9400, "key": "DOWN"},
+    {"at": 9800, "key": "DOWN"},
+    {"at": 10200, "key": "DOWN"},
+    {"at": 10600, "key": "DOWN"},
+    {"at": 11400, "checkpoint": "list_sel9"},
+    {"at": 11500, "key": "UP"},
+    {"at": 12000, "key": "UP"},
+    {"at": 12800, "checkpoint": "list_sel7"},
+    {"at": 13000, "key": "G2"},
+    {"at": 14000, "checkpoint": "list_g2"},
+    {"at": 14200, "key": "STOP"},
+    {"at": 15500, "checkpoint": "after_stop"}
+  ]
+}

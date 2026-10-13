@@ -1,0 +1,25 @@
+{
+  "description": "nx-only gestures between the original's keys: load program 4 into G1 and run it; POWER tapped switches nx's screen off (the original: no key), a key wakes it (no key); START pauses; G1+G2 held locks (no key), START while locked does nothing (no key), START+STOP held unlocks (no key); START resumes; STOP held stops both (the original: POWER tapped). The lines on the wire must be the same.",
+  "note": "The screen_off checkpoint is informational: nx's screen is dark by design there (backlight off), the original's lit.",
+  "end_ms": 26000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "intent": "open_list", "ch": 1},
+    {"at": 7000, "intent": "nav_down"},
+    {"at": 7500, "intent": "nav_down"},
+    {"at": 8000, "intent": "nav_down"},
+    {"at": 9000, "intent": "confirm"},
+    {"at": 10500, "intent": "play_pause", "ch": 1},
+    {"at": 11500, "intent": "screen_toggle"},
+    {"at": 12800, "checkpoint": "screen_off", "informational": true},
+    {"at": 13000, "intent": "wake"},
+    {"at": 14000, "intent": "play_pause", "ch": 1},
+    {"at": 15000, "intent": "lock"},
+    {"at": 17500, "intent": "locked_try"},
+    {"at": 18500, "intent": "unlock"},
+    {"at": 21000, "intent": "play_pause", "ch": 1},
+    {"at": 22000, "checkpoint": "running_again"},
+    {"at": 23000, "intent": "stop_all"},
+    {"at": 25000, "checkpoint": "both_stopped"}
+  ]
+}

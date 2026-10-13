@@ -1,0 +1,26 @@
+{
+  "description": "Run program 4 on G1, then G2 (no program yet) opens the G2 list; load program 1 into G2 and run it; G1 returns to the CH1 screen, G2 back to CH2",
+  "end_ms": 19000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 6000, "intent": "open_list", "ch": 1},
+    {"at": 7000, "intent": "nav_down"},
+    {"at": 7500, "intent": "nav_down"},
+    {"at": 8000, "intent": "nav_down"},
+    {"at": 8500, "intent": "confirm"},
+    {"at": 9500, "intent": "play_pause", "ch": 1},
+    {"at": 10500, "checkpoint": "ch1_running"},
+    {"at": 11000, "intent": "open_list", "ch": 2},
+    {"at": 12000, "checkpoint": "list_g2"},
+    {"at": 12200, "intent": "confirm"},
+    {"at": 13200, "checkpoint": "ch2_loaded"},
+    {"at": 13500, "intent": "play_pause", "ch": 2},
+    {"at": 14500, "checkpoint": "ch2_running"},
+    {"at": 15000, "intent": "focus", "ch": 1},
+    {"at": 16000, "checkpoint": "ch1_again"},
+    {"at": 16500, "intent": "focus", "ch": 2},
+    {"at": 17500, "checkpoint": "ch2_again"},
+    {"at": 18000, "intent": "stop", "ch": 2},
+    {"at": 18800, "checkpoint": "ch2_stopped"}
+  ]
+}

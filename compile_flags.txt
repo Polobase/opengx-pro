@@ -1,0 +1,8 @@
+--target=thumbv6m-none-eabi
+-mcpu=cortex-m0plus
+-std=c11
+-DSTM32G070xx
+-Isrc
+-Ibuild/fw
+-Ivendor/cmsis_core
+-Ivendor/cmsis_device_g0

@@ -1,0 +1,15 @@
+{
+  "description": "Power-on with G1+G2 held: calibration menu (:r80=0, to G1, 29 values, index-0 test signal with PB2 high); DOWN selects index 1 (new test signal), G1 raises its value (:w60 to G1)",
+  "end_ms": 8000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 0, "key": "G1+G2", "ms": 1500},
+    {"at": 3000, "checkpoint": "cal_menu"},
+    {"at": 3500, "key": "DOWN"},
+    {"at": 4500, "checkpoint": "cal_index1"},
+    {"at": 5000, "key": "G1"},
+    {"at": 6000, "checkpoint": "cal_value_up"},
+    {"at": 6500, "key": "START"},
+    {"at": 7500, "checkpoint": "cal_saved"}
+  ]
+}

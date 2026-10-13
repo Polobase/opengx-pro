@@ -1,0 +1,12 @@
+{
+  "description": "POWER held 1.5 s on HOME: goodbye screen, about 4 s later the PB2 power-off square wave (run stops there)",
+  "note": "APP=nx fades its goodbye out and puts the panel to sleep (DISPOFF, SLPIN) before the power-off signal (docs/nx/design/ui.md W22); the original keeps the goodbye lit. The final checkpoint is therefore informational.",
+  "end_ms": 13000,
+  "two_sided_before_ms": 5000,
+  "timeline": [
+    {"at": 5500, "checkpoint": "home"},
+    {"at": 6000, "key": "POWER", "ms": 1500},
+    {"at": 8000, "checkpoint": "goodbye"},
+    {"at": 12500, "checkpoint": "final", "informational": true}
+  ]
+}

@@ -1,0 +1,177 @@
+# address	name	flags(fn|noreturn|data)	comment
+# --- Keil ARMCC runtime / fplib / mathlib ---
+0x08004134	__rt_lib_init	fn	Keil runtime: library init (empty)
+0x08004138	__rt_lib_shutdown	fn	Keil runtime: library shutdown (empty)
+0x0800414E	__rt_exit	noreturn	Keil runtime: __rt_lib_shutdown then _sys_exit
+0x08004170	__user_initial_stackheap	fn	returns heap 0x200026D0, stack top 0x20002CD0, limits 0x200028D0
+0x08004194	__aeabi_lmul	fn	64x64->64 multiply
+0x080041C4	__aeabi_uldivmod	fn	64-bit unsigned divide/modulo
+0x080042C6	_memset_w	fn	word fill loop (r0=dst, r1=len, r2=word)
+0x080042E0	_memset	fn	byte-aligning fill, tail-jumps to _memset_w
+0x080042FE	__aeabi_memclr	fn	movs r2,#0; b _memset
+0x08004302	__aeabi_memclr4	fn	movs r2,#0; b _memset_w
+0x08004306	__aeabi_uidivmod	fn	unsigned 32-bit divide (quotient r0, remainder r1)
+0x0800431A	__aeabi_idivmod	fn	signed 32-bit divide (quotient r0, remainder r1)
+0x08004468	_dadd_core	fn	double add of same-sign magnitudes (internal) (alias: _dadd_mag)
+0x0800458A	_dsub_core	fn	double subtract of magnitudes (internal) (alias: _dsub_mag)
+0x08004760	__aeabi_dadd	fn	double add (sign dispatch)
+0x0800477A	__aeabi_dsub	fn	double subtract
+0x08004790	__aeabi_drsub	fn	double reverse subtract
+0x080047C0	__aeabi_ddiv	fn	double divide
+0x08004BF0	__aeabi_drdiv	fn	double reverse divide (swaps operands, calls ddiv)
+0x08004C08	__aeabi_d2ulz	fn	double -> uint64 (0 for negative)
+0x08004C74	_dflt_normalize	fn	shared normalize tail of i2d/ui2d
+0x08004CB6	__aeabi_i2d	fn	int32 -> double
+0x08004CC6	__aeabi_ui2d	fn	uint32 -> double
+0x08004CCC	__aeabi_dmul	fn	double multiply
+0x08004F1E	__set_errno	fn	*__aeabi_errno_addr() = r0
+0x08004F2C	__ARM_scalbn	fn	scalbn(double, int)
+0x08004F8C	__aeabi_errno_addr	fn	returns &errno (0x20002670, Keil libspace) (alias: __rt_errno_addr)
+0x08004F94	__fpl_dcmp_InfNaN	fn	fplib: NaN handling for double compare
+0x08005024	_dsqrt	fn	double square root core
+0x08005124	__user_libspace	fn	returns libspace 0x20002670
+0x0800512C	__user_setup_stackheap	fn	Keil: clears libspace, calls __user_initial_stackheap
+0x0800516A	exit	noreturn	C exit -> __rt_exit (never reached: main does not return)
+0x0800517A	__fpl_cmpreturn	fn	fplib internal: compare result / flags
+0x080051A8	__fpl_return_NaN	fn	fplib internal: return default NaN
+0x080051BC	__fpl_exception_result	fn	fplib internal: exception result selection
+0x0800521C	_sys_exit	noreturn	semihosting SYS_EXIT (r0=0x18, BKPT 0xAB)
+0x0800D9C8	__ARM_common_switch8	fn	byte jump table helper: count byte at LR-1, offsets at LR; target=LR+2*off
+0x0800D9E4	__ARM_fpclassify	fn	0 zero, 3 inf, 4 subnormal, 5 normal, 7 NaN
+0x0800DB90	__kernel_poly	fn	Horner polynomial evaluation (pow)
+0x0800DC3C	__mathlib_dbl_divzero	fn	returns 1.0/0.0
+0x0800DC50	__mathlib_dbl_infnan2	fn	returns x+y (inf/NaN propagation)
+0x0800DC58	__mathlib_dbl_invalid	fn	returns 0.0/0.0
+0x0800DC68	__mathlib_dbl_overflow	fn	scalbn-based overflow result
+0x0800DC7C	__mathlib_dbl_underflow	fn	scalbn-based underflow result
+0x0801018C	pow	fn	double pow(x,y) (fdlibm); used by 0x08011468/0x08011C2C
+0x08012490	sqrt	fn	double sqrt, errno=EDOM(1) for x<0
+0x08012580	__aeabi_cdrcmple	fn	flag-returning reversed double compare (pow only)
+# --- STM32Cube HAL (system parts) ---
+0x08008FEA	Error_Handler	fn	empty; SystemClock_Config errors ignored
+0x08008FEC	FLASH_OB_GetRDP	fn	OPTR&0xFF (0xAA/0xCC, else 0xBB)
+0x08009008	FLASH_OB_GetUser	fn	OPTR & 0x074F6000
+0x08009020	FLASH_OB_GetWRP	fn	read WRP1AR/WRP1BR
+0x08009060	FLASH_OB_OptrConfig	fn	OPTR = OPTR&~(usertype|0xFF) | userconfig | rdp
+0x08009080	FLASH_OB_WRPConfig	fn	write WRP1AR/WRP1BR
+0x080090A0	FLASH_Program_DoubleWord	fn	CR.PG=1; *a=lo; ISB; *(a+4)=hi
+0x080090C8	FLASH_Program_Fast	fn	linked but never used
+0x0800911C	FLASH_WaitForLastOperation	fn	wait BSY/CFGBSY with HAL_GetTick timeout; error in 0x2000265C
+0x08009304	HAL_FLASHEx_OBGetConfig	fn	fills FLASH_OBProgramInitTypeDef
+0x08009330	HAL_FLASHEx_OBProgram	fn	option byte program (OPTSTRT)
+0x080093F8	HAL_FLASH_Lock	fn	FLASH_CR.LOCK
+0x0800941C	HAL_FLASH_OB_Launch	fn	FLASH_CR.OBL_LAUNCH -> MCU reset
+0x08009434	HAL_FLASH_OB_Lock	fn	FLASH_CR.OPTLOCK
+0x08009458	HAL_FLASH_OB_Unlock	fn	OPTKEYR 0x08192A3B, 0x4C5D6E7F
+0x0800948C	HAL_FLASH_Program	fn	(type 1=doubleword, addr, u64 data); callers 0x0800DD4C, 0x0800DDF0, 0x08012558
+0x08009504	HAL_FLASH_Unlock	fn	KEYR 0x45670123, 0xCDEF89AB
+0x08009538	HAL_GetTick	fn	returns uwTick
+0x08009544	HAL_GetUIDw0	fn	*(u32*)0x1FFF7590
+0x08009550	HAL_GetUIDw1	fn	*(u32*)0x1FFF7594
+0x0800955C	HAL_GetUIDw2	fn	*(u32*)0x1FFF7598
+0x08009568	HAL_IncTick	fn	uwTick += uwTickFreq (SysTick 1 kHz)
+0x08009580	HAL_Init	fn	FLASH_ACR.PRFTEN=1, HAL_InitTick(0), HAL_MspInit
+0x080095AC	HAL_InitTick	fn	SysTick = SystemCoreClock/1000, priority arg
+0x0800960C	HAL_MspInit	fn	SYSCFG+PWR clocks; UCPD1/2 dead-battery strobes (SYSCFG_CFGR1 |= 0x600)
+0x08009658	HAL_NVIC_SetPriority	fn	wrapper to NVIC_SetPriority_cortex
+0x0800966C	HAL_PWREx_ControlVoltageScaling	fn	VOS range select (0x200 = range 1)
+0x080096C4	HAL_RCCEx_PeriphCLKConfig	fn	CCIPR: USART1SEL/USART2SEL = PCLK
+0x080098C8	HAL_RCC_ClockConfig	fn	latency 2, SYSCLK=PLL, AHB/1, APB/1
+0x08009A9C	HAL_RCC_GetSysClockFreq	fn	HSI 16 MHz, HSE_VALUE 8 MHz
+0x08009B80	HAL_RCC_OscConfig	fn	HSE on, PLL HSE/1*16/2 = 64 MHz
+0x0800A134	HAL_SYSCFG_StrobeDBattpinsConfig	fn	SYSCFG_CFGR1 bits 9/10
+0x0800A14C	HAL_SYSTICK_Config	fn	RVR=n-1, CSR=7
+0x0800A186	Unused_Trap_0800a186	noreturn	unreferenced infinite loop (dead code)
+# --- STM32Cube LL ---
+0x0800A7BC	LL_APB1_GRP1_EnableClock	fn	RCC_APBENR1 |= mask
+0x0800A7D8	LL_GPIO_Init	fn	(GPIOx, {Pin,Mode,Speed,OType,Pull,Alternate})
+0x0800A8D2	LL_GPIO_ResetOutputPin	fn	GPIOx->BRR = pins
+0x0800A8D6	LL_GPIO_SetOutputPin	fn	GPIOx->BSRR = pins
+0x0800A8DC	LL_IOP_GRP1_EnableClock_gpio	fn	RCC_IOPENR |= mask (gpio.c copy)
+0x0800A8F8	LL_IOP_GRP1_EnableClock_spi	fn	RCC_IOPENR |= mask (spi.c copy)
+0x0800A914	LL_IOP_GRP1_EnableClock_usart	fn	RCC_IOPENR |= mask (usart.c copy)
+0x0800A930	LL_RCC_GetSystemClocksFreq	fn	SYSCLK/HCLK/PCLK1
+0x0800A94C	LL_RCC_GetUSARTClockFreq	fn	USART1/USART2 kernel clock
+0x0800AA08	LL_RCC_GetUSARTClockSource	fn	CCIPR & mask | mask<<16
+0x0800AA1C	LL_RCC_HSI_IsReady	fn	RCC_CR.HSIRDY
+0x0800AA30	LL_RCC_LSE_IsReady	fn	RCC_BDCR.LSERDY
+0x0800AA40	LL_RCC_PLL_GetDivider	fn	PLLSYSCFGR.PLLM
+0x0800AA50	LL_RCC_PLL_GetN	fn	PLLSYSCFGR.PLLN
+0x0800AB0C	LL_TIM_Init	fn	PSC/ARR/CR1, EGR.UG
+0x0800ABB4	LL_USART_ConfigAsyncMode	fn	clear LINEN/CLKEN/SCEN/IREN/HDSEL
+0x0800ABC8	LL_USART_DisableFIFO	fn	CR1.FIFOEN=0
+0x0800ABD4	LL_USART_Enable	fn	CR1.UE=1
+0x0800ABDE	LL_USART_EnableIT_PE	fn	CR1.PEIE=1
+0x0800ABEA	LL_USART_EnableIT_RXNE_RXFNE	fn	CR1.RXNEIE=1
+0x0800ABF4	LL_USART_Init	fn	only if UE=0
+0x0800ACC8	LL_USART_IsActiveFlag_REACK	fn	ISR bit22
+0x0800ACD6	LL_USART_IsActiveFlag_RXNE_RXFNE	fn	ISR bit5
+0x0800ACE2	LL_USART_IsActiveFlag_TEACK	fn	ISR bit21
+0x0800ACF0	LL_USART_IsEnabled	fn	CR1.UE
+0x0800AD00	LL_USART_SetBaudRate	fn	BRR=(clk/presc + baud/2)/baud (OVER16)
+0x0800AD78	LL_USART_SetRXFIFOThreshold	fn	CR3.RXFTCFG
+0x0800AD88	LL_USART_SetTXFIFOThreshold	fn	CR3.TXFTCFG
+0x0800AD96	LL_USART_TransmitData8	fn	TDR = byte
+0x0800BB78	RCC_GetHCLKClockFreq	fn	LL internal
+0x0800BBA4	RCC_GetPCLK1ClockFreq	fn	LL internal
+0x0800BBCC	RCC_GetSystemClockFreq	fn	LL internal
+0x0800BC24	RCC_PLL_GetFreqDomain_SYS	fn	LL internal
+# --- CMSIS core ---
+0x0800C524	NVIC_SystemReset	noreturn	AIRCR=0x05FA0004 (from USART cmd reg 95 = 12021)
+0x0800DA10	NVIC_EnableIRQ	fn	NVIC_ISER
+0x0800DA28	NVIC_SetPriority_tim	fn	static inline copy (TIM3 init)
+0x0800DAA0	NVIC_SetPriority_usart	fn	static inline copy (USART inits)
+0x0800DB18	NVIC_SetPriority_cortex	fn	static inline copy (HAL cortex / SysTick)
+# --- CubeMX init ---
+0x0800C564	SystemClock_Config	fn	HSE 8 MHz -> PLL 64 MHz, 2 WS, AHB/APB /1, USART1/2 on PCLK
+0x0800AD9C	MX_GPIO_Init	fn	all plain GPIO (LCD ctrl, SPI flash CS, keys, PB0/PB1/PB2/PB7/PB12)
+0x0800AFD0	MX_SPI1_Init	fn	PA5/6/7 AF0, master mode 3, /2 = 32 MHz, 8 bit (SPI flash)
+0x0800B168	MX_TIM3_Init	fn	PSC 63, ARR 99 -> 10 kHz update IRQ, NVIC prio 0
+0x0800B218	MX_USART1_UART_Init	fn	PA9/PA10 AF1, 115200 8N1, IRQ27 prio 0
+0x0800B304	MX_USART2_UART_Init	fn	PA2/PA3 AF1, 115200 8N1, IRQ28 prio 0
+0x0800B3D4	MX_USART3_UART_Init	fn	PB8/PB9 AF4, 115200 8N1, IRQ29 prio 0
+# --- board drivers ---
+0x0800E0F8	keys_scan	fn	always debounces delay_loop(0x34155); returns key code 0..10 (PD0-3, PB3-5, PB11) (alias: key_scan)
+0x0800BEE0	spi1_xfer	fn	SPI1 full-duplex byte transfer with 101-poll TXE/RXNE timeouts
+0x0800BCC0	spiflash_read	fn	(buf, addr, len) CS=PA1; cmd 0x03 + 24-bit addr
+0x0800BD14	spiflash_write	fn	(buf, addr, len) splits into 256-byte page programs; no erase
+0x0800BE38	spiflash_page_program	fn	WREN; 0x02 + addr + <=256 bytes; wait ready
+0x0800BE9A	spiflash_sector_erase	fn	WREN; wait; 0x20 + addr (4 KB); wait ready
+0x0800BF3C	spiflash_wait_ready	fn	0x05, poll status bit0 (WIP) until 0, no timeout
+0x0800BF6A	spiflash_write_enable	fn	0x06
+0x08010B88	uart1_putc	fn	USART1 TDR=byte, wait TC
+0x08010BA8	uart2_putc	fn	USART2 TDR=byte, wait TC
+0x08010BC8	uart3_putc	fn	USART3 TDR=byte, wait TC (called only from usart3_cmd_dispatch)
+0x0800522C	usart3_cmd_dispatch	fn	USART3 ':<a..l><num>\n' handler; switch8 table at 0x0800523A; replies 'Z'. The decompiler truncates it (real end 0x080054AA) (alias: factory_cmd_execute)
+# --- internal flash / option bytes ---
+0x0800BC84	flash_ensure_rdp_level1	fn	if RDP level 0 -> program RDP level 1 (0xBB) and OB launch (reset) (alias: flash_ensure_rdp1)
+0x0800DD4C	vendor_licence_check	fn	0x08003E00 = UID hash (write once); mismatch sets 0x20000010 bit10 (alias: flash_uid_binding_check, license_check_uid)
+0x0800DDF0	flash_settings_reset_if_flagged	fn	if u64@0x08003D00 != 0: erase SPI 0x74000+0x75000, program 0 (alias: factory_first_boot_wipe)
+0x08012558	flash_write_word_3f00	fn	program {value,0} at 0x08003F00 if erased (USART reg 00) (alias: device_id_store_once)
+# --- external SPI flash storage ---
+0x0800E264	store_settings_load	fn	SPI 0x74000 (32 x u16) -> 0x2000007E if word31==0x1F (alias: cal_load)
+0x0800E29C	store_names_load	fn	SPI 0x5000 (0x780 B, 0xFF->0) -> 0x200001F8 (alias: names_load)
+0x0800E2E4	store_program_load	fn	(slot, ch) SPI 0x10000+slot*0x1000: 0x668 B + 800 B into ch1/ch2 RAM records (alias: program_load)
+0x08011288	store_settings_restore_backup	fn	SPI 0x75000 -> RAM and rewrite 0x74000 if different (alias: cal_restore_backup)
+0x08011310	store_settings_save	fn	(also_backup) write 0x2000007E block to 0x74000 (and 0x75000) if changed (alias: cal_save)
+0x08011380	store_names_save	fn	erase 0x5000, write 0x780 B (entries 0 and 31 zeroed) (alias: names_save)
+0x080113EC	store_program_save	fn	(slot, ch) erase and write 0x10000+slot*0x1000 (alias: program_save)
+# --- data ---
+0x200000C0	uwTick	data	HAL tick counter (ms)
+0x200000C4	uwTickPrio	data	HAL tick priority (RW init 4)
+0x200000C8	uwTickFreq	data	HAL tick frequency (RW init 1 = 1 kHz)
+0x200000CC	SystemCoreClock	data	RW init 16000000, 64000000 after clock config
+0x20002658	pFlash	data	FLASH_ProcessTypeDef: Lock u8 @+0, ErrorCode u32 @+4
+0x20002670	__libspace_start	data	Keil libspace (errno at +0), 0x60 bytes
+0x200026D0	__heap_base	data	heap 512 B (unused)
+0x200028D0	__heap_limit	data	heap end / stack limit (stack 1 KB up to 0x20002CD0)
+0x08016120	USART_PRESCALER_TAB	data	u32[12] = 1,2,4,6,8,10,12,16,32,64,128,256
+0x08016150	AHBPrescTable	data	u32[16] shift table
+0x08016190	APBPrescTable	data	u32[8] shift table
+0x1FFF7590	UID_BASE	data	96-bit unique ID
+0x08003D00	flashcfg_settings_reset	data	bootloader page: u64 != 0 -> erase SPI settings at boot, then programmed 0 (alias: first_boot_flag)
+0x08003E00	vendor_reserved_3e00	data	bootloader page: u64 UID-derived binding words (write once) (alias: flashcfg_uid_hash, license_key)
+0x08003F00	flashcfg_word_3f00	data	bootloader page: u64 {value,0} from USART reg 00; not read by app (alias: device_id)
+0x20000008	g_tim3_tick	data	u8, +1 per TIM3 IRQ (100 us), low 4 bits = soft-PWM phase (alias: tick8)
+0x2000000A	g_tim3_sub101	data	u8 0..100 cycle (10.1 ms); at 50 advances counters 0x20000024/28 (alias: elapsed_prescaler)
+0x2000000C	g_pb7_pwm_duty	data	u8 0..16, PB7 soft-PWM duty (init 1; USART3 'b') (alias: pb7_pwm_duty)
