@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, ref } from 'vue'
-import { BytePort } from '../lib/byteport'
+import { BytePort, webSerialSupported } from '../lib/byteport'
 import { flashImage, readHardwareId } from '../lib/flasher'
 import { describeHardwareId, type FirmwareImage } from '../lib/image'
 import { FEEDBACK_URL } from '../lib/links'
 import PortHint from './PortHint.vue'
 import UpdateModeFigure from './UpdateModeFigure.vue'
 
-const props = defineProps<{ image: FirmwareImage | null; what: string; after: string }>()
+/** `missing`: why there is no image yet, said where the greyed-out button is. */
+const props = defineProps<{ image: FirmwareImage | null; what: string; after: string; missing: string }>()
+const supported = webSerialSupported()
 
 type Status = 'idle' | 'connecting' | 'ready' | 'wrong' | 'noanswer' | 'flashing' | 'done' | 'error'
 const status = ref<Status>('idle')
@@ -128,12 +130,15 @@ onBeforeUnmount(release)
       <h3>Choose the USB port</h3>
       <PortHint purpose="update" />
       <div class="row">
-        <button class="primary" :disabled="!image || status === 'connecting' || status === 'flashing'" @click="connect()">
+        <button class="primary" :disabled="!supported || !image || status === 'connecting' || status === 'flashing'" @click="connect()">
           {{ status === 'connecting' ? 'Looking for the unit…' : 'Find the unit' }}
         </button>
         <button v-if="status === 'wrong' || status === 'noanswer' || status === 'ready'" @click="connect(true)">Choose another port</button>
       </div>
-      <p v-if="status === 'ready'" class="note ok">Unit in update mode found (hardware ID {{ describeHardwareId(hw) }}).</p>
+      <p v-if="!supported" class="note warn">This browser cannot connect to the unit: see the note at the top of this
+        page.</p>
+      <p v-else-if="!image" class="note warn">{{ missing }}</p>
+      <p v-else-if="status === 'ready'" class="note ok">Unit in update mode found (hardware ID {{ describeHardwareId(hw) }}).</p>
       <p v-else-if="status === 'wrong'" class="note warn">That is the unit's other channel (it answered
         “{{ describeHardwareId(hw) }}”; the display answers “{{ image ? describeHardwareId(image.hardwareId) : '' }}”).
         Click <b>Choose another port</b> and take the other entry (on Windows the higher COM number, on a Mac the one ending

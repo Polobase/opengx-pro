@@ -56,6 +56,8 @@ async function pick(e: Event) {
           built yourself (<a href="#/docs/build">Build from source</a>).</p>
       </div>
     </div>
-    <FlashFlow :image="image" what="this firmware" after="The unit starts with the firmware you chose." />
+    <FlashFlow :image="image" what="this firmware"
+               :missing="error ? 'That file cannot be installed: see above.' : 'Choose the file above first.'"
+               after="The unit starts with the firmware you chose." />
   </section>
 </template>

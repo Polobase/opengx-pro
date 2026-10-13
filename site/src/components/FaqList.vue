@@ -48,7 +48,7 @@ import { VENDOR_DOWNLOADS_URL } from '../lib/links'
     </details>
     <details>
       <summary>What do I need to install it?</summary>
-      <p>A desktop or laptop computer with Chrome, Edge or Opera, and the unit's USB cable. No extra program: this page
+      <p>A desktop or laptop computer with Chrome, Edge, Opera or Brave, and the unit's USB cable. No extra program: this page
         does it from the browser. Phones and tablets cannot do it.</p>
     </details>
     <details>

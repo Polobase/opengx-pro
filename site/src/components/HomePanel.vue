@@ -203,7 +203,7 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <li v-reveal="80">
           <span class="n">2</span>
           <h3>Choose a version and click Install</h3>
-          <p>On a computer with Chrome, Edge or Opera, connected by the USB cable. It takes about a minute.</p>
+          <p>On a computer with Chrome, Edge, Opera or Brave, connected by the USB cable. It takes about a minute.</p>
         </li>
         <li v-reveal="160">
           <span class="n">3</span>

@@ -7,8 +7,10 @@ puts the vendor's original firmware back. Read [Safety and recovery](./safety.md
 
 ## What you need
 
-- A desktop computer with Chrome, Edge or Opera. The page talks to the unit with Web Serial, which
-  these browsers have.
+- A desktop computer with Chrome, Edge, Opera or Brave. The page talks to the unit with Web Serial,
+  which these browsers have. Firefox and Safari do not have it. An older Brave has it switched
+  off: update Brave, or open `brave://flags`, search for "serial", set "Web Serial API" to
+  Enabled and relaunch.
 - The USB cable of the unit. Close Spooky2 first, so that it does not use the USB port at the same
   time.
 - For the way back: the vendor's own updater file `GX_Pro_Firmware_v7789.exe`, from Spooky2's

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import type { FirmwareImage } from '../lib/image'
 import { loadFirmware, loadReleases, preferred, type Release } from '../lib/releases'
 import { REPO_URL, VENDOR_DOWNLOADS_URL } from '../lib/links'
@@ -31,6 +31,14 @@ watch(chosen, async (release) => {
     if (chosen.value === release) error.value = e instanceof Error ? e.message : String(e)
   }
 })
+
+/** Why "Find the unit" is greyed out while there is no checked file. */
+const missing = computed(() => {
+  if (error.value) return 'The version could not be loaded: see “Choose a version” above.'
+  if (!releases.value) return 'Loading the list of versions…'
+  if (!releases.value.length) return 'There is nothing to install yet: the first version is not published (see “Choose a version” above).'
+  return 'The file of this version is being checked…'
+})
 </script>
 
 <template>
@@ -39,7 +47,7 @@ watch(chosen, async (release) => {
       <div>
         <h2>Before you start</h2>
         <ul class="before">
-          <li><span><b>A desktop or laptop computer</b> with Chrome, Edge or Opera. Phones and tablets cannot do this.</span></li>
+          <li><span><b>A desktop or laptop computer</b> with Chrome, Edge, Opera or Brave. Phones and tablets cannot do this.</span></li>
           <li><span><b>The unit's USB cable,</b> plugged into the computer.</span></li>
           <li><span><b>Spooky2 closed</b> while you install, so that it does not use the cable at the same time.</span></li>
           <li><span><b>For the way back:</b> get <a :href="VENDOR_DOWNLOADS_URL" target="_blank" rel="noopener">Spooky2's updater
@@ -78,7 +86,7 @@ watch(chosen, async (release) => {
           on GitHub</a>. Installing an older version works the same way.</p>
       </div>
     </div>
-    <FlashFlow :image="image" what="this version"
+    <FlashFlow :image="image" what="this version" :missing="missing"
                after="The start screen shows “OpenGX Pro” and the version; at the first start the key guide follows." />
   </section>
 </template>

@@ -4,6 +4,7 @@ import { webSerialSupported } from './lib/byteport'
 import { COFFEE_URL, REPO_URL } from './lib/links'
 import { cycleTheme, theme } from './lib/theme'
 import BrandMark from './components/BrandMark.vue'
+import BrowserHelp from './components/BrowserHelp.vue'
 import ComparePanel from './components/ComparePanel.vue'
 import DemoPanel from './components/DemoPanel.vue'
 import DocsPanel from './components/DocsPanel.vue'
@@ -83,8 +84,7 @@ const supported = webSerialSupported()
         </div>
       </header>
       <div class="wrap page">
-        <p v-if="needsSerial && !supported" class="note err" role="alert">This browser cannot talk to USB devices. Please open
-          this page in <b>Chrome</b>, <b>Edge</b> or <b>Opera</b> on a desktop or laptop computer.</p>
+        <BrowserHelp v-if="needsSerial && !supported" />
         <KeepAlive>
           <ComparePanel v-if="route.section === 'compare'" />
           <ScreensPanel v-else-if="route.section === 'screens'" />

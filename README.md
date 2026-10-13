@@ -42,8 +42,8 @@ The guide: [what it can do](docs/guide/features.md) ·
 
 ## Install, and the way back
 
-The easy way is the [site](https://polobase.github.io/opengx-pro/) (Chrome, Edge or Opera on a
-desktop computer). By hand:
+The easy way is the [site](https://polobase.github.io/opengx-pro/) (Chrome, Edge, Opera or Brave on
+a desktop computer). By hand:
 
 1. Power the unit off. Hold **STOP**, then press **POWER**: the screen shows "Firmware Update" (on some
    units it stays dark), the unit waits
