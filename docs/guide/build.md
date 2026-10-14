@@ -119,12 +119,14 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_FEAT_SUPPORT` | on | Settings > About > Support the project |
 | `NX_FEAT_HIST` | off | History: a list of what was played, and totals |
 | `NX_FEAT_HERO48` | off | The dashboard frequency in 48-pixel digits when it fits |
+| `NX_FEAT_BFB` | off | Biofeedback scan on the unit (menu > Bio scan). About 4.5 KB: it needs another feature off, e.g. `make APP=nx NX_LCD_OPTS="-DNX_FEAT_BFB=1 -DNX_FEAT_DIAG=0" BUILD=build/nx-bfb` |
 | `NX_FEAT_TERRAIN`, `NX_FEAT_PRESET` | follow chains | The code of the Terrain Protocol and of the preset with sweeps |
 | `NX_TERRAIN`, `NX_PRESETS` (`make` variables) | on | Their two tables (above); `NX_TERRAIN=0` or `NX_PRESETS=0` leaves the rows out of menu > Chains |
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |
 
-History and the 48-pixel digits are off by default to save space: the image of 0.9.0 leaves
-4,184 bytes, and each of the two costs about 2 KB. The linker stops when an image is too large.
+History, the 48-pixel digits and the biofeedback scan are off by default to save space: the image
+of 0.9.0 leaves 4,184 bytes (a build of this source about 3.8 KB), the first two cost about 2 KB
+each and the scan about 4.5 KB. The linker stops when an image is too large.
 The splash artwork of the original needs your own copy of the vendor's image and is never in a
 release. A build with other switches than the defaults is your own build, not a release image.
 

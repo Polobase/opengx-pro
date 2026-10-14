@@ -114,6 +114,13 @@ UP and DOWN choose a row. G1 and G2 change the value, and repeat while held. LOO
 row moves the underlined digit that G1 and G2 change. START plays on the chosen generator, or
 stops it if it plays there. STOP goes back. Changes apply at once, also while it plays.
 
+**Biofeedback scan** (menu > Bio scan; only in a build with `NX_FEAT_BFB`). Rows: Run on,
+Amplitude, Per hit, Save as program. UP and DOWN choose a row, G1 and G2 change the value. START
+starts the scan on the chosen generator; the line under the rows shows its stage, then the step,
+the frequency and the reading. STOP ends a running scan and stops the generator, otherwise goes
+back. LOOP shows the hits of the last scan, and the rows again. When the scan ends, its hits play
+as the chosen program.
+
 **Timers** (menu > Timers). Rows: G1 stops after, G2 stops after, Power off when all finished,
 Start last programs at boot. UP and DOWN choose, G1 and G2 change, START steps a value or flips a
 switch, STOP goes back.

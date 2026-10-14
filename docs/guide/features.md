@@ -59,6 +59,9 @@ Settings > About, and the page "Support the project" with its QR code.
 - **Manual generator**: a fixed frequency from 0.01 Hz to 40 MHz, or a sweep (linear or
   logarithmic; once, again, or back and forth), with one of nine waveforms and an amplitude from
   0 to 20 V in steps of 0.1 V, on G1 or G2. Out 2 follows Out 1 inverted.
+- **Biofeedback scan** (not in the release image: a build switch, see
+  [Build from source](build.md)): Spooky2's scan on the unit alone, 41 kHz to 1.8 MHz in about
+  18 minutes, the 10 strongest responses saved as a program and played.
 - **Timers**: stop a generator after 5 to 240 minutes of running, power off when all programs
   have finished, start the last programs at power-on.
 - **Resume after a power cut**: the unit offers to continue what was playing, at most one minute

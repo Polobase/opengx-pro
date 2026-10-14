@@ -13,6 +13,7 @@
 #include "nx_crc.h"
 #include "nx_diag.h"
 #include "nx_chain.h"
+#include "nx_bfb.h"
 #include "nx_manual.h"
 #include "nx_terrain.h"
 #include "nx_fault.h"
@@ -73,6 +74,7 @@ int main(void)
     nx_chain_boot();
     nx_terrain_boot();
     nx_manual_boot();
+    nx_bfb_boot();
     nx_resume_boot();      /* a snapshot left by a power cut becomes the offer (and a history record) */
     nx_ui_init();
     nx_core_boot();        /* G1+G2 held: calibration menu */

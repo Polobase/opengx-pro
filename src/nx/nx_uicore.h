@@ -6,6 +6,7 @@
 
 #include <stdint.h>
 
+#include "nx_bfb.h"
 #include "nx_chain.h"
 #include "nx_core.h"
 #include "nx_hist.h"
@@ -95,6 +96,12 @@ struct nx_tview {
 struct nx_manual *nx_uc_manual(void);
 void nx_uc_manual_changed(void);
 int nx_uc_manual_play(unsigned ch);
+/* The biofeedback scan (NX_FEAT_BFB, nx_bfb.h): its settings (changed in place), the start on
+ * their generator (NX_OK or the refusal), the stop, and what it is doing. */
+struct nx_bfb_cfg *nx_uc_bfb_cfg(void);
+int nx_uc_bfb_start(void);
+void nx_uc_bfb_stop(void);
+const struct nx_bfb_view *nx_uc_bfb(void);
 unsigned nx_uc_terrain_count(void);
 int nx_uc_terrain_view(unsigned id, struct nx_tview *v);
 int nx_uc_terrain_play(unsigned ch, unsigned id);

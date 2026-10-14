@@ -270,6 +270,20 @@ enum nx_str_id {
     NX_S_MANUAL_WAVE,   /* "Waveform" */
     NX_S_MANUAL_AMPL,   /* "Amplitude" */
     NX_S_HINT_MANUAL,   /* "G1/G2 value \210 LOOP digit \210 START play \210 STOP" */
+    NX_S_MENU_BFB,   /* "Bio scan" */
+    NX_S_BFB_TITLE,   /* "Biofeedback scan" */
+    NX_S_BFB_DWELL,   /* "Per hit" */
+    NX_S_BFB_SLOT,   /* "Save as program" */
+    NX_S_BFB_IDLE,   /* "START scans 41 kHz to 1.8 MHz, about 18 min" */
+    NX_S_BFB_AUTH,   /* "Opening the session" */
+    NX_S_BFB_RAMP,   /* "Raising the amplitude" */
+    NX_S_BFB_BASE,   /* "Reading the baseline" */
+    NX_S_BFB_SCAN,   /* "Step \001 of \002, \003 hits" */
+    NX_S_BFB_SAVED,   /* "\001 hits play as program \002" */
+    NX_S_BFB_NONE,   /* "No hits found" */
+    NX_S_BFB_FAILED,   /* "No readings: no session or no cable" */
+    NX_S_BFB_MISSED,   /* "\001 missed" */
+    NX_S_HINT_BFB,   /* "G1/G2 value \210 LOOP hits \210 START scan \210 STOP" */
     NX_S_CHAIN_TITLE,   /* "Chains" */
     NX_S_CHAIN_NAME,   /* "Chain \001" */
     NX_S_CHAIN_PROGRAMS,   /* "\001 programs" */

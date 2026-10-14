@@ -3,6 +3,7 @@
 
 #include <string.h>
 
+#include "nx_bfb.h"
 #include "nx_config.h"
 #include "nx_manual.h"
 #include "nx_preset.h"
@@ -25,6 +26,10 @@ int nx_src_fill(unsigned id, uint16_t ampl_cv, struct channel *c)
 #if NX_FEAT_PRESET
     if (nx_src_is_preset(id))
         rc = nx_preset_fill(id - NX_SRC_PRESET, &c->prog);
+#endif
+#if NX_FEAT_BFB
+    if (id == NX_SRC_BFB)
+        rc = nx_bfb_fill(&c->prog);
 #endif
     (void)id;
     if (rc == NX_OK)
@@ -50,6 +55,10 @@ uint32_t nx_src_dwell_s(unsigned id, unsigned i)
 unsigned nx_src_name(unsigned id, char *out)
 {
     const char *s = id == NX_SRC_MANUAL ? "Manual" : "";
+#if NX_FEAT_BFB
+    if (id == NX_SRC_BFB)
+        s = NX_BFB_NAME;
+#endif
 #if NX_FEAT_TERRAIN
     if (nx_src_is_set(id))
         s = nx_tset_name(id - NX_SRC_SET);

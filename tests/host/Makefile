@@ -49,7 +49,7 @@ NX_CFLAGS := -std=c11 -g -O1 -Wall -Wextra -Wshadow -Werror -Wno-deprecated-decl
 # The unit tests keep the features on that the image leaves out by default (src/nx/nx_config.h), so
 # their code stays tested; the gallery binaries below render what the image shows. NX_OPTS adds
 # switches to all of them, e.g. make NX_OPTS=-DNX_FEAT_HERO48=1 (the 48 px digits' layout tests).
-NX_TEST_ON := -DNX_FEAT_HIST=1
+NX_TEST_ON := -DNX_FEAT_HIST=1 -DNX_FEAT_BFB=1
 NX_SRCS   := $(filter-out nx/test_assets.c,$(wildcard nx/*.c)) mocks.c w25q16.c simclock.c \
              $(SRC)/link.c $(SRC)/factory.c $(SRC)/calib.c $(SRC)/storage.c $(SRC)/spiflash.c \
              $(SRC)/state.c $(SRC)/fmt.c $(CLASSIC)/runner.c $(SRC)/runner_seq.c $(SRC)/core_pcmode.c \

@@ -1042,7 +1042,7 @@ static const uint8_t k_icons20_data[1201] = {
     0xF0, 0x2F, 0xFC, 0x03, 0xAE, 0x00, 0x00, 0x02, 0xD3, 0xFF, 0x81, 0xFF, 0xE0, 0x2F, 0xF0, 0xBF,
     0xE0
 };
-static const nx_glyph_t k_icons20_glyphs[24] = {
+static const nx_glyph_t k_icons20_glyphs[25] = {
     { 0x0000u, 9, 10, 6, 5, 20, 0 },   /* NX_I20_PLAY */
     { 0x0017u, 12, 12, 4, 4, 20, 0 },   /* NX_I20_PAUSE */
     { 0x803Bu, 10, 10, 5, 5, 20, 0 },   /* NX_I20_STOP */
@@ -1067,8 +1067,9 @@ static const nx_glyph_t k_icons20_glyphs[24] = {
     { 0x8423u, 15, 16, 3, 2, 20, 0 },   /* NX_I20_COPY */
     { 0x845Eu, 17, 12, 2, 4, 20, 0 },   /* NX_I20_MOVE */
     { 0x048Fu, 17, 8, 2, 6, 20, 0 },   /* NX_I20_CHAIN */
+    { 0x037Bu, 17, 12, 2, 4, 20, 0 },   /* NX_I20_BFB */
 };
-const nx_font_t nx_icons20 = { 20, 20, 2, 0x00, 0x17, 0, { 0, 0 }, NULL, k_icons20_glyphs, k_icons20_data };
+const nx_font_t nx_icons20 = { 20, 20, 2, 0x00, 0x18, 0, { 0, 0 }, NULL, k_icons20_glyphs, k_icons20_data };
 
 /* ---- nx_icons32: 32 px icons, 4 bpp ---- */
 static const uint8_t k_icons32_data[640] = {
@@ -1135,6 +1136,8 @@ const char nx_str_pool[] =
     "G1/G2 slot \210 START add \210 hold: remove \210 LOOP \213\0"   /* en hint.chain_edit */
     "LOOP level \210 STOP frequency \210 hold POWER: off\0"   /* en cal.hint2 */
     "G1/G2 value \210 LOOP digit \210 START play \210 STOP\0"   /* en hint.manual */
+    "G1/G2 value \210 LOOP hits \210 START scan \210 STOP\0"   /* en hint.bfb */
+    "START scans 41 kHz to 1.8 MHz, about 18 min\0"   /* en bfb.idle */
     "Spooky Remote on the Boost BN port or Out 1\0"   /* en terrain.hw_remote */
     "Drink plenty of water during the protocol.\0"   /* en terrain.water */
     "START play \210 LOOP edit \210 G1/G2 \210 STOP back\0"   /* en hint.chains */
@@ -1160,6 +1163,7 @@ const char nx_str_pool[] =
     "A generator has that program loaded\0"   /* en slot.in_use */
     "Its steps and its name are deleted.\0"   /* en slot.erase_body */
     "Next session in 6 to 12 h \210 any key\0"   /* en terrain.done_keys */
+    "No readings: no session or no cable\0"   /* en bfb.failed */
     "Free software without any warranty\0"   /* en about.no_warranty */
     "STOP: stop, back \210 hold: stop both\0"   /* en guide.stop */
     "Wait: the last one is not done yet\0"   /* en slot.pending */
@@ -1191,6 +1195,7 @@ const char nx_str_pool[] =
     "Any key closes this guide\0"   /* en guide.any_key */
     "Hold START+STOP to unlock\0"   /* en lock.unlock_hint */
     "SIL Open Font License 1.1\0"   /* en about.font_lic */
+    "\001 hits play as program \002\0"   /* en bfb.saved */
     "Generators are starting\211\0"   /* en ui.starting */
     "Memory error \210 data kept\0"   /* en err.flash */
     "No program \210 \001 to choose\0"   /* en strip.none */
@@ -1212,15 +1217,19 @@ const char nx_str_pool[] =
     "All programs finished\0"   /* en done.title */
     "G1+G2 hold: lock keys\0"   /* en guide.lock */
     "Program \001 loaded on \002\0"   /* en toast.loaded */
+    "Raising the amplitude\0"   /* en bfb.ramp */
     "\001 KB free \210 \002 errors\0"   /* en diag.flash_line */
     "Copy to another slot\0"   /* en slot.copy */
     "Copyright Google LLC\0"   /* en about.icons_copy */
     "Factory: value \001 = \002\0"   /* en cal.factory_value */
     "Move to another slot\0"   /* en slot.move */
+    "Reading the baseline\0"   /* en bfb.base */
     "empty \210 LOOP to edit\0"   /* en chain.empty */
     "\001 is not responding\0"   /* en dash.no_response */
     "Erase this program\?\0"   /* en slot.erase_q */
+    "Opening the session\0"   /* en bfb.auth */
     "Reset all settings\?\0"   /* en confirm.reset */
+    "Step \001 of \002, \003 hits\0"   /* en bfb.scan */
     "Support the project\0"   /* en about.support */
     "\001 does not respond\0"   /* en err.no_response */
     "Apache License 2.0\0"   /* en about.icons_lic */
@@ -1230,6 +1239,7 @@ const char nx_str_pool[] =
     "No program loaded\0"   /* en dash.no_program */
     "Play on G1 and G2\0"   /* en slot.play_both */
     "Scroll long names\0"   /* en set.marquee */
+    "Biofeedback scan\0"   /* en bfb.title */
     "Day \001 of \002 \210 \003 h\0"   /* en terrain.pos_remote */
     "Inverse sawtooth\0"   /* en wave.inv_saw */
     "Manual generator\0"   /* en manual.title */
@@ -1240,6 +1250,7 @@ const char nx_str_pool[] =
     "Buy me a coffee\0"   /* en support.coffee */
     "Hold: stop both\0"   /* en hold.stop_both */
     "PC disconnected\0"   /* en pc.disconnected */
+    "Save as program\0"   /* en bfb.slot */
     "\001 days \210 day \002\0"   /* en plan.days */
     "\001 finished \210 \002\0"   /* en toast.finished */
     "\001 per step \210 \002\0"   /* en dash.dwell_line */
@@ -1255,6 +1266,7 @@ const char nx_str_pool[] =
     "H-Bomb square\0"   /* en wave.hbomb_square */
     "High contrast\0"   /* en theme.hc */
     "Keys unlocked\0"   /* en lock.unlocked */
+    "No hits found\0"   /* en bfb.none */
     "Plan \001: day \002\0"   /* en plan.started */
     "Reduce motion\0"   /* en set.reduce_motion */
     "Splash screen\0"   /* en set.splash */
@@ -1322,7 +1334,9 @@ const char nx_str_pool[] =
     "safe mode\0"   /* en diag.safe_mode */
     "wave #\001 \?\0"   /* en dash.wave_unknown */
     "\001 faults\0"   /* en diag.faults_n */
+    "\001 missed\0"   /* en bfb.missed */
     "Auto-dim\0"   /* en quick.auto_dim */
+    "Bio scan\0"   /* en menu.bfb */
     "FINISHED\0"   /* en state.finished */
     "Firmware\0"   /* en about.firmware */
     "Inverted\0"   /* en out.inverse */
@@ -1347,6 +1361,7 @@ const char nx_str_pool[] =
     "History\0"   /* en menu.history */
     "PC MODE\0"   /* en state.pc_mode */
     "PC mode\0"   /* en diag.l_pc */
+    "Per hit\0"   /* en bfb.dwell */
     "Program\0"   /* en lib.title */
     "Project\0"   /* en about.project */
     "RUNNING\0"   /* en state.running */
@@ -1415,32 +1430,33 @@ const char nx_str_pool[] =
     "V\0";   /* en unit.v */
 const uint16_t nx_str_off[NX_LANG_COUNT][NX_STR_COUNT] = {
     {   /* en */
-        4670, 4516, 4674, 2916, 4232, 4522, 4540, 4310, 4398, 4088, 3761, 3603,
-        4278, 4619, 3639, 4060, 2883, 2709, 1567, 3005, 3624, 4683, 1336, 3717,
-        3816, 3970, 4599, 4510, 3296, 4294, 4426, 4214, 4639, 4433, 4160, 2954,
-        4187, 3519, 3268, 4106, 4169, 4254, 3567, 4384, 4474, 3717, 4576, 3950,
-        3022, 4468, 4658, 2237, 2427, 2309, 1537, 1739, 1415, 3338, 2919, 4097,
-        4534, 3940, 4262, 1851, 3579, 2037, 3310, 2114, 2789, 1625, 1319, 3639,
-        4214, 3651, 3134, 4349, 4222, 3615, 4461, 3627, 2865, 3459, 1795, 2139,
-        2714, 3072, 3772, 4079, 4419, 3352, 4558, 4609, 3728, 4644, 4391, 4604,
-        4609, 4318, 4230, 3890, 3408, 2646, 3555, 3282, 2261, 3366, 3239, 4614,
-        1383, 2450, 1215, 924, 848, 1507, 2539, 2285, 2011, 3224, 2846, 1035,
-        3209, 4030, 3783, 2749, 731, 4124, 3543, 530, 2063, 2213, 2625, 2808,
-        1180, 571, 3380, 444, 487, 315, 692, 3483, 3827, 3838, 401, 94,
-        4151, 4326, 2381, 2089, 3870, 2189, 4010, 3805, 2561, 3119, 3088, 4624,
-        4142, 4169, 1285, 3531, 3531, 358, 4097, 4447, 3739, 4356, 4286, 1497,
-        3980, 4666, 4454, 4334, 4133, 4020, 4178, 4196, 4498, 4070, 4050, 1985,
-        1959, 2583, 1899, 4040, 3039, 1683, 4115, 998, 3860, 2473, 4342, 3447,
-        3673, 3684, 4619, 4546, 180, 4677, 4594, 4674, 2916, 4528, 4440, 4440,
-        3164, 3179, 1767, 2517, 1446, 2495, 1823, 2164, 1351, 4270, 4270, 3695,
-        4654, 3880, 1786, 2205, 4588, 2440, 4286, 2827, 1905, 3434, 4000, 2901,
-        2604, 2667, 4492, 3930, 3990, 2729, 1108, 3507, 3750, 2988, 1072, 770,
-        1477, 809, 1878, 4582, 4363, 4377, 2971, 4629, 4504, 4570, 3960, 4564,
-        4662, 4649, 4552, 4370, 3591, 4412, 4634, 4480, 3149, 4205, 3910, 140,
-        4363, 4238, 3662, 4680, 3394, 2688, 3495, 3254, 3920, 3421, 272, 47,
-        4405, 3104, 1932, 3194, 4486, 3900, 4246, 3324, 1596, 0, 3706, 3471,
-        3013, 2937, 1711, 3794, 2404, 653, 185, 612, 229, 3329, 1654, 1144,
-        886, 961, 1250, 4302, 2769, 3056, 2333, 2357, 3849, 305,
+        4975, 4821, 4979, 3148, 4529, 4827, 4845, 4615, 4703, 4385, 4040, 3882,
+        4575, 4924, 3918, 4339, 3115, 2901, 1691, 3254, 3903, 4988, 1460, 3996,
+        4095, 4249, 4904, 4815, 3561, 4599, 4731, 4511, 4944, 4738, 4457, 3203,
+        4484, 3798, 3533, 4403, 4466, 4551, 3846, 4689, 4779, 3996, 4881, 4229,
+        3271, 4773, 4963, 2386, 2576, 2458, 1661, 1863, 1539, 3617, 3151, 4394,
+        4839, 4219, 4559, 1975, 3858, 2161, 3575, 2263, 3021, 1749, 1443, 3918,
+        4511, 3930, 3399, 4654, 4519, 3894, 4766, 3906, 3097, 3738, 1919, 2288,
+        2906, 3321, 4051, 4367, 4724, 3631, 4863, 4914, 4007, 4949, 4696, 4909,
+        4914, 4623, 4527, 4169, 3687, 2817, 3834, 3547, 2410, 3645, 3504, 4919,
+        1507, 2599, 1339, 1012, 936, 1631, 2688, 2434, 2135, 3489, 3078, 1123,
+        3474, 4309, 4062, 2961, 819, 4421, 3822, 618, 2187, 2362, 2796, 3040,
+        1304, 659, 3659, 532, 575, 403, 780, 3762, 4106, 4117, 489, 94,
+        4448, 4631, 2530, 2238, 4149, 2338, 4289, 4084, 2710, 3384, 3337, 4929,
+        4439, 4466, 1409, 3810, 3810, 446, 4394, 4752, 4018, 4661, 4583, 1621,
+        4259, 4971, 4759, 4639, 4430, 4299, 4475, 4493, 4803, 4349, 4329, 2109,
+        2083, 2754, 2023, 4319, 3288, 1807, 4412, 1086, 4139, 2622, 4647, 3726,
+        3952, 3963, 4924, 4851, 180, 4982, 4899, 4979, 3148, 4833, 4745, 4745,
+        3429, 3444, 1891, 2666, 1570, 2644, 1947, 2313, 1475, 4567, 4567, 3974,
+        4959, 4159, 1910, 2354, 4893, 2589, 4583, 3059, 2029, 3713, 4279, 3133,
+        2775, 2838, 4797, 4209, 4269, 2921, 1196, 3786, 4029, 3237, 1160, 858,
+        1601, 897, 2002, 4887, 4668, 4682, 3220, 4934, 4809, 4875, 4239, 4869,
+        4967, 4954, 4857, 4675, 3870, 4717, 4939, 4785, 3414, 4502, 4189, 140,
+        4376, 3169, 4591, 3353, 229, 2941, 2732, 2859, 2981, 2213, 3589, 1268,
+        4358, 185, 4668, 4535, 3941, 4985, 3673, 2880, 3774, 3519, 4199, 3700,
+        360, 47, 4710, 3369, 2056, 3459, 4791, 4179, 4543, 3603, 1720, 0,
+        3985, 3750, 3262, 3186, 1835, 4073, 2553, 741, 273, 700, 317, 3608,
+        1778, 1232, 974, 1049, 1374, 4607, 3001, 3305, 2482, 2506, 4128, 393,
     },
 };
 

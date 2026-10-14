@@ -158,6 +158,9 @@
 #ifndef NX_FEAT_SUPPORT
 #define NX_FEAT_SUPPORT 1    /* Settings > About > Support the project: the QR code of the donation page */
 #endif
+#ifndef NX_FEAT_BFB
+#define NX_FEAT_BFB 0        /* menu > Biofeedback: Spooky2's biofeedback scan without a PC (nx_bfb.h); off: no room in the release */
+#endif
 
 /* 1: the image that is published (`make release`): no artwork from the original image, and the
  * Terrain Protocol and the preset from the committed tables (src/nx/data/). */

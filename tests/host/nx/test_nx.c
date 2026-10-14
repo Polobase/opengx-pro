@@ -217,6 +217,7 @@ int main(void)
     test_nx_terrain();
     test_nx_manual();
     test_nx_preset();
+    test_nx_bfb();
     test_nx_ui_engine();
     printf("test_nx: %d checks, %d failed\n", g_checks, g_fails);
     return g_fails ? 1 : 0;

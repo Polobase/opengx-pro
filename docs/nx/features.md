@@ -162,7 +162,7 @@ A key acts when pressed. If it also has a "hold" meaning, a short press acts on 
 | Calibration: 29 numbers, selected value inverted, repainted when the factory port or the PC sets a value | the same grid positions, small index labels, selected cell highlighted; a factory-jig value marks its cell; repainted when the factory port (`:c`) or the PC (`w60`/`w62`/`w63`/`w80`) changes a value | Same |
 | Goodbye: QR code, logos, "Looking forward to seeing you again!", web address, 4 s | power icon, a closing ring, "Goodbye", 1.5 s, backlight fade, panel sleep | Changed |
 | – | quick settings sheet (UP) | New |
-| – | menu sheet (DOWN): Programs, Chains, Manual, Timers, Diagnostics, Settings (and History when it is built in) | New |
+| – | menu sheet (DOWN): Programs, Chains, Manual, Timers, Diagnostics, Settings (and History and Bio scan when they are built in) | New |
 | – | Settings: Display, Keys & lock, Motion, About, Reset all settings | New |
 | – | Support the project (Settings > About): a QR code and the address in words (section 9.16) | New |
 | – | Timers page (menu > Timers) | New |
@@ -171,6 +171,7 @@ A key acts when pressed. If it also has a "hold" meaning, a short press acts on 
 | – | Chains list (the Terrain protocols and the built-in preset first, then the chains and the plans), chain editor, plan editor (menu > Chains) | New |
 | – | Terrain screen (menu > Chains > a Terrain row, LOOP; section 9.12) | New |
 | – | manual generator (menu > Manual, or LOOP held on its dashboard) | New |
+| – | biofeedback scan (menu > Bio scan; section 9.18), off by default | New |
 | – | set-end card "Set finished · safe to pause" (a Terrain Contact session; section 9.13) | New |
 | – | slot actions sheet (program detail > LOOP), target list "Copy NN to" / "Move NN to", "Erase this program?" | New |
 | – | "Resume after power cut?" card with a 15 s ring | New |
@@ -290,6 +291,7 @@ own copy of the original image and is never in a release).
 | Multi-day plans | menu > Chains | `NX_FEAT_PLANS` (follows `NX_FEAT_CHAINS`) | KV key 0x0006 |
 | Terrain Protocol | menu > Chains, the first rows | `NX_FEAT_TERRAIN` (follows `NX_FEAT_CHAINS`); its data: Makefile `NX_TERRAIN` (on by default: the committed table `src/nx/data/nx_terrain_data.c`; `NX_TERRAIN=0` builds without it; on in the released image) | KV key 0x0007 |
 | Manual generator and sweeps | menu > Manual | `NX_FEAT_MANUAL` | KV key 0x0008 |
+| Biofeedback scan (off by default) | menu > Bio scan | `NX_FEAT_BFB` | – (the hits go into a program slot) |
 | Presets with sweeps | menu > Chains, after the Terrain protocols | `NX_FEAT_PRESET` (follows `NX_FEAT_CHAINS`); its data: Makefile `NX_PRESETS` (on by default: the committed table `src/nx/data/nx_preset_data.c`; `NX_PRESETS=0` builds without it; on in the released image) | – (the resume snapshot, as any program) |
 | The original's ghost splash (off by default; a personal build only) | splash | Makefile `NX_VENDOR=1` (needs `original/GxDisplayFW.bin`) | – |
 | Support the project | Settings > About | `NX_FEAT_SUPPORT` | – |
@@ -314,7 +316,7 @@ display is new: Spooky2 sees nothing of this.
 | Part | How it works |
 |---|---|
 | Opens | DOWN on the dashboard: a sheet with a grid of 4 columns and 2 rows (3 columns when a build has 6 items or fewer) |
-| Cells | Programs, Chains, Manual in the first row; Timers, Diagnostics, Settings in the second (3 columns for 6 cells or fewer). With History built in: 4 columns, History before Diagnostics. A cell whose feature is switched off is left out |
+| Cells | Programs, Chains, Manual in the first row; Timers, Diagnostics, Settings in the second (3 columns for 6 cells or fewer). With History built in: 4 columns, History before Diagnostics; with the biofeedback scan built in, Bio scan after Manual. A cell whose feature is switched off is left out |
 | Keys | G1/G2 move along a row, UP/DOWN change the row (both wrap; on the shorter row the same column, or its last cell); START opens; STOP closes |
 | Programs | the program list of the focused generator |
 | Selection | at power-on on Settings, then on the item used last (START or STOP) |
@@ -542,6 +544,22 @@ Settings > Keys & lock > "Original key behaviour", default off. When on:
 | Test build | with `NX_TIME_X` the steps and their sweeps run faster together |
 | Checked | host tests `tests/host/nx/test_nx_preset.c` (made-up presets in `preset_fixture.c`). On the emulator, `tools/pc_replay.py standalone`: a build with the preset from before 2026-10-13 (its table then made at build time), started with the keys, sent what Spooky2 sent in the capture (both tables byte for byte, every generator setting, the first line of each step byte for byte, steps of 11.00 s where Spooky2's take 11.02–11.09 s, 263 sweep lines within 8 ms of Spooky2's line); to be rerun on this image (the tool's keys still fit the new list: six DOWN pass the six Terrain rows to the preset's row). Not on the device yet (checklist §28) |
 | Code | `src/nx/nx_preset.c`, `src/nx/nx_txq.c` (the stream), `nx_preset_setup` in `src/nx/nx_runner.c`, `src/nx/nx_scr_chain.c`, the table `src/nx/data/nx_preset_data.c`, `tools/gen_nx_preset.py` |
+
+### 9.18 Biofeedback scan (`NX_FEAT_BFB`, off by default)
+
+| Part | How it works |
+|---|---|
+| What | Spooky2's GX biofeedback scan (the first pass of its "Hunt and Kill"), run by the display on one generator without a PC; its hits stored as a program and played. Off by default: it needs about 4.5 KB and a build with the default switches leaves 3.8 KB (the "Flash" row) |
+| Where | menu > Bio scan. Rows: Run on (G1 / G2), Amplitude (1 to 20 V in 0.5 V steps; Spooky2's preset: 20 V), Per hit (30 s to 60 min; 3 min), Save as program (slot 1 to 30; 30). START starts the scan; the status under the rows follows it; STOP ends a running scan (the generator stops), otherwise goes back; LOOP shows the hits of the last scan, and the rows again |
+| Sequence | Spooky2's, from its serial captures (the Hunt & Kill port of the C# `Spooky2Net`, which reproduces Spooky2's hits on its `FullHuntAndKill` capture bit for bit): 1. the vendor session, below; 2. the program source `NX_SRC_BFB` (0x2F, `src/nx/nx_src.h`): one step at 41 kHz with the sine (table 11 gets Spooky2's standard sine first, section 9.17) and the first ramp value as its amplitude: the idle configuration, the sine table, the step with the outputs on; 3. the amplitude in 330 steps to the target (`:w28` and `:w29`, one pair per idle moment of the link, about 2.7 s), then 200 ms; 4. 203 reads of both inputs (`:r11=,` `:r12=,`); 5. the sweep: a `:w24` line, 25 ms after its `:ok` the two reads, the next line 70 ms after the one before (Spooky2's "Delay for GX Inputs"); each frequency 0.025 % above the one before, from 41 000 Hz to past 1.8 MHz: 15,130 steps, the first 41 010.25 Hz, the last 1 800 103.30 Hz, about 17.7 min. A frequency's code is what Spooky2 sends: up to 8 decimals, trailing zeros in the exponent digit (`:w24=41010256,`) |
+| Session | Spooky2 opens the generator's session before anything else: `:r90=<challenge>,` (nine digits, a permutation of 1..9; the one sent is from a capture), answered `:r90=<echo>,<response>.`; then `:w92=<token>.`, answered `:ok`. The token rule (per digit, two products of the response's digits modulo 9, plus 1; `nx_bfb_auth_token`) is the Hunt & Kill port's decoding of Spooky.exe, checked here against a recorded handshake. Until this feature the project reimplemented no vendor handshake (`docs/serial-commands.md` §4); it is sent only by this scan, only for its own reads. A generator that does not answer the challenge within the queue's 40 ms gets no token and the scan goes on: the display's own `:w` lines need no session in standalone mode (PB2 high); whether its `:r11` reads do is the first thing to check on a unit, and if they do not, the handshake can go |
+| Replies | the generator answers a read with `:r11=<value>.` (no `:ok`). The receive tap (`nx_bfb_rx`, before the link parser, which ignores these lines) reads the value and answers the queued line as an `:ok` would, so the queue's timing and timeouts apply. A read without a reply within 40 ms is a missed step ("N missed" on the screen; the PC calls it a dropout). Five baseline reads in a row without a reply end the scan: "No readings" and the generator stops |
+| Detection | Spooky.exe's, as decoded in the port: the `:r11` reading (Spooky2's "angle") against the average of the 20 readings before it (`BFB_RA_Window_1`); a local maximum (a rise, a run of equal readings, a fall; the run counts once) with a deviation above 0 is a hit, reported at the frequency of the step after the run's first reading (what Spooky2 shows); the 10 largest deviations are kept, the earlier one first on a tie. The last 20 baseline readings seed the window. Scoring starts once the window has settled (its spread, and the reading, within 1 % of its mean), at most 100 readings in, else at the 20th. The PC scores the recorded sweep afterwards; this scores as the readings come, so a maximum in the first steps, before the settle is known, is not scored. The arithmetic is exact: readings times 20 against the window's sum |
+| Hits | a program of the hits (the sine, the target amplitude, "Per hit" per step), written into the chosen slot as a PC upload writes it (`program_save`; the name "Biofeedback G1" / "G2"), then loaded and played on that generator: Spooky2's "kill" (its first pass; Spooky2 then refines around each hit, which this does not). The slot write waits for a moment when no step of the other generator is due within 1 s (it blocks up to 400 ms). A slot the other generator has loaded is refused at the start ("A generator has that program loaded"). No hits: the generator stops, "No hits found". The screen keeps the hits (LOOP) until the next scan |
+| Ending | STOP on the screen or on the dashboard, PC mode, another program on that generator, a power cut: the scan ends and the generator gets its idle configuration (outputs off). Nothing is resumed after a power cut and nothing is written to the history. The dashboard shows "Biofeedback" running, the frequency of the sweep and the amplitude of the ramp; its time fields stay empty |
+| Flash | about 4.5 KB (2.8 KB scan, 1.6 KB screen; `nx_bfb.o`, `nx_scr_bfb.o`), plus 0.4 KB of strings and the icon that stay in every image. Built in with `make APP=nx NX_LCD_OPTS="-DNX_FEAT_BFB=1 -DNX_FEAT_DIAG=0"` (110,700 bytes). With Diagnostics on the image is 632 bytes over the limit; `-DNX_FEAT_TIMERS=0` or `NX_PRESETS=0` fit too, `-DNX_FEAT_SUPPORT=0` misses by 16 bytes (all measured on 2026-10-14) |
+| Checked | host tests `tests/host/nx/test_nx_bfb.c`: the token of a recorded handshake, the codes, the grid, a whole scan on the world with a generator model answering the reads (the lines of each phase in order, 70 ms per step, two peaks found at the step after them, the slot's program, the hits played), STOP, a generator without replies. Not on a unit yet (2026-10-14): whether the generator answers `:r11` in standalone mode, with or without the handshake, comes first; then a scan with the TENS cable against Spooky2's hits on the same person |
+| Code | `src/nx/nx_bfb.c`, `src/nx/nx_scr_bfb.c`; `nx_src.c`, `nx_runner.c` (one step without an end, no step time), `nx_diag.c` (the tap), `nx_loop.c`, `main_nx.c` |
 
 ## 10. Screenshots
 
@@ -833,7 +851,7 @@ The menu grid and the Diagnostics page with the key test were cut earlier; they 
 | Drop 3 | Spooky2 presets other than Terrain, favourites / recent, archive. Back since 2026-09-25: chains, multi-day plans, on-device slot copy / erase (section 9), the Terrain Protocol standalone (section 9.12). Back since 2026-10-05: one Spooky2 preset with sweeps (section 9.17). Both in personal builds only until 2026-10-13, built in by default since |
 | Drop 4 | independent Out2, amplitude cap, waveform uploads, dual mirror, program inspector. Back: usage statistics, as the History totals; the manual generator and sweeps (section 9.14); the two wave tables of a built-in preset (section 9.17) |
 | Rest of Drop 2 | the `#` side channel and `nx_ctl.py`. Back: history, session timer, auto-start, diagnostics, a richer PC monitor (it reads the PC's waveform, amplitude and gating) |
-| Backlog | on-device biofeedback scan, RTC |
+| Backlog | RTC. Back since 2026-10-14, off by default: the on-device biofeedback scan (section 9.18) |
 
 ## 17. Limits and open points
 

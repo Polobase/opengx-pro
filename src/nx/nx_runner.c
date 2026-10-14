@@ -2,6 +2,7 @@
 #include "nx_runner.h"
 
 #include "nx_config.h"
+#include "nx_bfb.h"
 #include "nx_chain.h"
 #include "nx_core.h"
 #include "nx_hist.h"
@@ -72,6 +73,10 @@ static uint32_t current_step(unsigned ch, const struct channel *c)
 #if NX_FEAT_MANUAL
     if (c->prog_slot == NX_SRC_MANUAL)
         return nx_manual_step(c);   /* one step without an end (a sweep once: then the end) */
+#endif
+#if NX_FEAT_BFB
+    if (c->prog_slot == NX_SRC_BFB)
+        return 1;   /* the scan sends its own lines and ends with a stop or the hits' slot */
 #endif
 #if NX_TIMED
     if (nx_src_timed(c->prog_slot))
@@ -199,6 +204,14 @@ void nx_runner_times(unsigned ch, struct nx_run_times *t)
     const struct channel *c = &g_ch[ch];
     uint64_t dwell = c->prog.hdr[HDR_DWELL];
     uint32_t count = step_count(c);
+#if NX_FEAT_BFB
+    if (c->prog_slot == NX_SRC_BFB) {   /* no step ends: never in the way of a flash write */
+        t->count = t->step = 1;
+        t->dwell_ms = t->total_ms = t->elapsed_ms = t->left_ms = 0;
+        t->step_left_ms = UINT32_MAX;
+        return;
+    }
+#endif
 #if NX_FEAT_MANUAL
     if (c->prog_slot == NX_SRC_MANUAL) {   /* a sweep's time; a fixed frequency has none */
         uint32_t T = nx_manual_period_ms(), el = c->elapsed;

@@ -230,6 +230,9 @@ static const struct menu_item k_menu[] = {
 #if NX_FEAT_MANUAL
     { NX_I20_TUNE, NX_S_MENU_MANUAL, &nx_scr_manual, 0 },
 #endif
+#if NX_FEAT_BFB
+    { NX_I20_BFB, NX_S_MENU_BFB, &nx_scr_bfb, 0 },
+#endif
 #if NX_FEAT_TIMERS
     { NX_I20_TIMER, NX_S_MENU_TIMERS, &nx_scr_set, NX_SET_TIMERS },
 #endif

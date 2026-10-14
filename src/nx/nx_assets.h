@@ -14,7 +14,7 @@
 #include "nx_asset_fmt.h"
 #include "nx_str_ids.h"
 
-#define NX_ASSET_BYTES 20458u   /* all tables in nx_assets.c (tool budget report) */
+#define NX_ASSET_BYTES 20799u   /* all tables in nx_assets.c (tool budget report) */
 #define NX_ASSET_MAX 36864u
 
 /* String codes of the extra characters of the text fonts (HTML entity names). */
@@ -68,6 +68,7 @@ enum {
     NX_I20_COPY,
     NX_I20_MOVE,
     NX_I20_CHAIN,
+    NX_I20_BFB,
     NX_I20_COUNT
 };
 extern const nx_font_t nx_icons20;
