@@ -43,8 +43,8 @@ The SVG sheets add no labels beyond `build_schematic.py`.
 | PC6 (38) | LCD D/C | output | [FW] | board.h:11-12 |
 | PC7 (39) | LCD RESET# | output | [FW] | board.h:13-14; lcd.c:127-130 |
 | PB12 (32) | LCD backlight through T2 (SOT-23) with R7/R9/R10; TIM3 software PWM | output | [FW][PCB] | board.c:155-163; sch:412-417; photo |
-| PA9 (37) / PA10 (42) | USART1 TX/RX. Reaches **generator A (G1)** and **PC USB channel …903** (link A). The vendor bootloader also listens here | AF1, RX pull-up | [FW measured] | hw:474; cmds:15 |
-| PA2 (19) / PA3 (20) | USART2 TX/RX. Reaches **generator B (G2)** and **PC channel …901** (link B) | AF1, RX pull-up | [FW measured] | hw:474; cmds:16 |
+| PA9 (37) / PA10 (42) | USART1 TX/RX. Reaches **generator A (G1)** and the PC's **second USB channel** (link A; …903 on the unit measured). The vendor bootloader also listens here | AF1, RX pull-up | [FW measured] | hw:474; cmds:15 |
+| PA2 (19) / PA3 (20) | USART2 TX/RX. Reaches **generator B (G2)** and the PC's **first USB channel** (link B; …901 there) | AF1, RX pull-up | [FW measured] | hw:474; cmds:16 |
 | PB8 (62) / PB9 (63) | USART3 TX/RX, factory/calibration port. Goes to the populated 5-pin JST `GND 5V Rx Tx FSEL`, which has no cable fitted | AF4 | [FW][PCB] | board.c:108-109; sch:373-378; photo |
 | PB1 (28) | Input with pull-up. **High = USB/PC connected (PC mode)**, low = standalone | input | [FW measured] | hw:210,471; app.c:104-135 |
 | PB2 (29) | Output. **1 = PC isolated, the display owns the generator links. 0 = PC ↔ generator/display links connected.** After a long POWER press it toggles forever as the ~37.6 kHz power-off signal | output, low at init | [FW measured] | hw:211,474-475; board.c:183-191 |

@@ -71,7 +71,7 @@ Do §8 (both generators at once) first.
 | Check | Result |
 |---|---|
 | USB connected: PC monitor (names, frequencies, outputs, sync); START/STOP/LOOP do nothing; the screen stays lit | |
-| `make conformance PORT=/dev/cu.wchusbserial...903 COMPARE=build/conf-original.json RECORD=build/conf-nx-ui.json` (Spooky2 closed): all replies identical | |
+| `make conformance PORT=<link A> COMPARE=build/conf-original.json RECORD=build/conf-nx-ui.json` (Spooky2 closed): all replies identical | |
 | `.venv/bin/python tools/gx_serial_test.py run --save build/serial-nx.json`, then `compare build/serial-fw.json build/serial-nx.json`: identical | |
 | `.venv/bin/python tools/gx_latency.py --save build/latency-nx.json`, then `compare build/latency-nx.json build/latency-fw.json`: nx faster (≈ 3-5 ms) | |
 | Spooky2 session: upload a program to a slot, run it from Spooky2, a biofeedback scan: works as with the original | |

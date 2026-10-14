@@ -472,7 +472,7 @@ block and program-slot layouts (6.1), and the `:w00` / `:w95` / `:w96` hardware 
 | PB1 with USB connected to the PC | **1 (high)** | Supports "PB1 = PC/USB connected" → the original would be in PC mode |
 | Keys | all 8 keys and both combos report the expected codes | Key map in section 3.1 confirmed |
 | Flashing via the vendor bootloader | custom image boots from 0x08004000 | No app validation by the bootloader beyond what the image provides |
-| Serial routing, PB2 = 0 (link probe) | PC channel **…903 ↔ USART1**, PC channel **…901 ↔ USART2**, both directions | The PC shares the generator A/B links with the display; the vendor bootloader listens on USART1 (flasher finds it on …903) |
+| Serial routing, PB2 = 0 (link probe) | PC channel **…903 ↔ USART1**, PC channel **…901 ↔ USART2**, both directions (channel names of the unit measured; they differ per unit and computer: …903 is the second channel) | The PC shares the generator A/B links with the display; the vendor bootloader listens on USART1 (the flasher finds it by its hardware ID) |
 | Serial routing, PB2 = 1 | **no PC ↔ display traffic in either tested direction** | PB2 = 1 isolates the PC; the display owns the generator links (matches the original's PB2 = 1 around its own generator commands) |
 | Generator reaction to `#…` lines | none observed on either channel with PB2 = 0 | lines not starting with ':' are ignored by the generator boards (as far as visible to the PC) |
 
