@@ -53,6 +53,9 @@ const missing = computed(() => {
           <li><span><b>For the way back:</b> get <a :href="VENDOR_DOWNLOADS_URL" target="_blank" rel="noopener">Spooky2's updater
             file</a> now, then you have it when you want it.</span></li>
         </ul>
+        <p class="note warn"><b>Only for the GeneratorX Pro.</b> The original GeneratorX looks the same from the front, but it
+          differs inside (Spooky2 treats it as another generator), and OpenGX Pro is neither made nor tested for it. Please do
+          not install it there.</p>
         <p class="lead">Only the software of the screen and keys is replaced. Your programs, their names and the calibration
           stay, and Spooky2 works as before.</p>
         <h2>Choose a version</h2>

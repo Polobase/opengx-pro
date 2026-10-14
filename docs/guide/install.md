@@ -7,6 +7,10 @@ puts the vendor's original firmware back. Read [Safety and recovery](./safety.md
 
 ## What you need
 
+- A Spooky2 GeneratorX Pro. Not the original GeneratorX: it looks the same from the front, but it
+  differs inside (Spooky2's change log of 2022-04-28: another frequency resolution), and OpenGX
+  Pro is neither made nor tested for it. Spooky2 publishes display firmware updates for the GX Pro
+  only, so on an original GeneratorX there would be no file for the way back.
 - A desktop computer with Chrome, Edge, Opera or Brave. The page talks to the unit with Web Serial,
   which these browsers have. Firefox and Safari do not have it. An older Brave has it switched
   off: update Brave, or open `brave://flags`, search for "serial", set "Web Serial API" to

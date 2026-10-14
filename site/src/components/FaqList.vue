@@ -11,6 +11,13 @@ import { VENDOR_DOWNLOADS_URL } from '../lib/links'
         keep their own software, untouched.</p>
     </details>
     <details>
+      <summary>Does it work on the original GeneratorX (not the Pro)?</summary>
+      <p>No, please do not install it there. The original GeneratorX looks the same from the front, but it differs inside:
+        Spooky2 treats it as another generator, with another frequency resolution. OpenGX Pro is made and tested for the
+        GeneratorX Pro only, and Spooky2 publishes display firmware updates for the GX Pro only, so on an original
+        GeneratorX there would be no file for the way back.</p>
+    </details>
+    <details>
       <summary>Do I lose my programs or my calibration?</summary>
       <p>No. Your 30 programs, their names and the calibration are stored in a separate memory chip. Installing OpenGX
         Pro, updating it or going back to the original does not touch them.</p>
