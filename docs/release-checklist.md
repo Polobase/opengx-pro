@@ -73,7 +73,8 @@ notes and into [Known issues](guide/known-issues.md).
 | 5.4 | Hold G1+G2 1.5 s; press a key; hold START+STOP 1.5 s | locked, the card "Keys locked"; unlocked | |
 | 5.5 | POWER short; any key; then wait without a key | screen off; the key only wakes it; the screen dims after 1 minute and goes off 5 minutes later (the defaults) | |
 | 5.6 | Hold POWER while a program plays | a ring, "Goodbye", the unit switches off | |
-| 5.7 | Play for more than a minute, pull the power plug, power on | "Resume after power cut?"; START continues at most a minute back | |
+| 5.7 | Play for more than a minute, pull the power plug, power on | "Resume where it stopped?"; START continues at most a minute back | |
+| 5.8 | Play a program on G1 and the Terrain Protocol on G2; plug in USB with Spooky2 running, then unplug | PC mode, then "Resume where it stopped?"; START: both go on where they were when USB was plugged in | |
 
 ## 6. The way back
 

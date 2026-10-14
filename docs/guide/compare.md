@@ -44,6 +44,7 @@ has been checked on a real unit so far is in [Known issues](./known-issues.md).
 | A preset with sweeps without a PC | only from Spooky2 on the PC | one built in: "Radionics (Boost) Manifestation"; the data is taken from Spooky2's preset | New |
 | The list of menu > Chains | none | the six Terrain rows first, then the built-in preset, then Chain 1 to 4 and Plan 1 and 2 | New |
 | Resume after a power cut | both generators start empty | the unit offers to continue | New |
+| After PC mode | both generators stay empty | the unit offers to continue what played before PC mode | New |
 | Diagnostics and key test | none | menu > Diagnostics | New |
 | Own data in the SPI flash | none | settings, chains, plans, the positions in the Terrain protocols and the resume position, in an area the original does not use | New |
 

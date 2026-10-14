@@ -61,8 +61,9 @@ Settings > About, and the page "Support the project" with its QR code.
   0 to 20 V in steps of 0.1 V, on G1 or G2. Out 2 follows Out 1 inverted.
 - **Timers**: stop a generator after 5 to 240 minutes of running, power off when all programs
   have finished, start the last programs at power-on.
-- **Resume after a power cut**: the unit offers to continue what was playing, at most one minute
-  back.
+- **Resume after a power cut or PC mode**: after a power cut the unit offers to continue what
+  was playing, at most one minute back. When Spooky2 took the unit over (USB plugged in) and lets
+  it go again (USB unplugged), it offers to continue what played before, where it was.
 - **Key lock**: hold G1+G2 to lock, START+STOP to unlock. It can lock by itself while a program
   runs.
 - **Diagnostics and key test**: firmware version, uptime, last reset, both generator links, PC
@@ -82,7 +83,7 @@ frequency or a sweep by hand.
 
 ![Timers](../../tests/gallery/nx/settings_timers.png) ![Resume after a power cut](../../tests/gallery/nx/resume_offer.png)
 
-The timers page, and the offer after a power cut.
+The timers page, and the offer after a power cut or PC mode.
 
 Every key and screen is described in [Keys and screens](./keys.md).
 

@@ -104,9 +104,10 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <p>Chains play programs one after the other. A plan gives every day its chain.</p>
       </article>
       <article class="tile" v-reveal>
-        <img :src="screen('resume_offer')" alt="Offer to resume after a power cut" width="320" height="240" loading="lazy" />
+        <img :src="screen('resume_offer')" alt="Offer to resume after a power cut or PC mode" width="320" height="240" loading="lazy" />
         <h3>Power cut? It goes on</h3>
-        <p>The unit remembers where it was. Timers stop a program or switch the unit off when all is done.</p>
+        <p>The unit remembers where it was, also when Spooky2 took over for a while. Timers stop a program or switch the
+          unit off when all is done.</p>
       </article>
       <article class="tile" v-reveal="60">
         <img :src="screen('night_view')" alt="Night view" width="320" height="240" loading="lazy" />

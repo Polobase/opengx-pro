@@ -11,9 +11,9 @@
   },
   "max_bytes": 36864,
   "outputs": {
-    "src/nx/nx_assets.c": "59f7e25091dd5f513db2d2e0eb3ebc507f4bb2654c032fc5b09b8fc5d19931e0",
-    "src/nx/nx_assets.h": "d3afea54913b85ccf39503f87c10e5e315be737a7c377f91dcbe3c8f58488679",
-    "src/nx/nx_str_ids.h": "978864b4c4ac24d143d70b44075a481a0099f6382fc3460a20c371cc96660296",
+    "src/nx/nx_assets.c": "471e7c8d85a1a2865ffc9dd6d35793bd106901f32881f27b8c02bf0be1c57743",
+    "src/nx/nx_assets.h": "e800567efc144bf24b5d285260af85e61857ce1959a2d18724d3f87c95a5ed80",
+    "src/nx/nx_str_ids.h": "9d0880f9b849ee62b17a07112e766b5408670c4912e6a4e74dfeac71618f356a",
     "tests/host/nx/nx_asset_vectors.h": "d25fccb4cb801771baa130723566bbe82b11dff583fdb4a6d8a5398b5d6ba0a3"
   },
   "sources": {
@@ -22,7 +22,7 @@
     "assets/nx/palettes.json": "520654765f85905f738e8280dbca75cfac78211cd83f9661a55c90eb13f85709",
     "assets/nx/qr.json": "1352bcb1887882ad7012dd9eae7737a4c03ccd6f6c462efc550ca2fc7280dcc2",
     "assets/nx/sources.json": "1643ce2243ccdd54234c3cd90f9d7c28f32a4afeef429497078b7fdd1bbceca1",
-    "assets/nx/strings/en.json": "6375c54c54ca3dc60bda5dd7a81cd647af6ab49992831be62c64842a733c78a6",
+    "assets/nx/strings/en.json": "e4dde93fcf2c527736bd3e04dbedbe156a219631329ff4c2383f4f8dddf00535",
     "assets/nx/third_party/Inter-Medium.ttf": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872",
     "assets/nx/third_party/Inter-Regular.ttf": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
     "assets/nx/third_party/InterDisplay-Medium.ttf": "99665c256585aeaab2d06950c2d7715cca8fd7883c2d0e7a421b8b287e1f17de",
@@ -69,15 +69,15 @@
     },
     "nx_str_off": {
       "bytes": 620,
-      "sha256": "b9f717a86132fb514453abfabcc8fd0e65f3690d3740290268d7bfa9b6d0d445"
+      "sha256": "50cc1c3d33135cc3d722d7c384b78580361890fb5b4b2455345e0c4bf9bf5300"
     },
     "nx_str_pool": {
-      "bytes": 4686,
-      "sha256": "e83a63e43f40a600fc3b770cfa0d80ef37518f3f3596268bf3a70920f1c02234"
+      "bytes": 4690,
+      "sha256": "6c7b4db59ba6e9136134503f22a5be806629acdcd2f4979737661af229bab01a"
     }
   },
   "tool": {
     "sha256": "19ffcb41587e87b15177b196c4dd6c2df5eca7de6b924c7c014b64b4af325a2e"
   },
-  "total_bytes": 20458
+  "total_bytes": 20462
 }

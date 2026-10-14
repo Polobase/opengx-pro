@@ -99,12 +99,12 @@ Do §8 (both generators at once) first.
 | Check | Result |
 |---|---|
 | G1 and G2 play (one paused), wait over a minute, then pull the power plug | |
-| Power on: after the splash "Resume after power cut?" with a filling ring; START: both continue within a minute of where they were (scope), the paused one stays paused | |
+| Power on: after the splash "Resume where it stopped?" with a filling ring; START: both continue within a minute of where they were (scope), the paused one stays paused | |
 | Again, but press nothing: after 15 s it resumes by itself | |
 | Again, STOP on the card: nothing is loaded; the next power-on offers nothing | |
 | POWER held (clean power-off) while playing, then on: no card | |
 | Spooky2 session (USB) while playing, unplug, power cycle: no card | |
-| Settings > Keys & lock > Resume after power cut off, pull the plug while playing: no card | |
+| Settings > Keys & lock > Offer to resume off, pull the plug while playing: no card | |
 
 ## 7. Restored screens and details
 
@@ -213,7 +213,7 @@ Only for an image built with `make APP=nx NX_VENDOR=1` (off by default since 202
 | 5 | Power cycle again, START on the card | both start at once | |
 | 6 | Power on with USB connected | no card (PC monitor) | |
 | 7 | Hold UP, press POWER, release UP when the splash shows | no card (a key was held) | |
-| 8 | Play on G1, pull the plug (resume on) | the next power-on shows "Resume after power cut?", not the auto-start | |
+| 8 | Play on G1, pull the plug (resume on) | the next power-on shows "Resume where it stopped?", not the auto-start | |
 | 9 | Start last programs at boot: off, power cycle | no card | |
 
 ## 15. History
@@ -229,7 +229,7 @@ Only for an image built with `make APP=nx NX_LCD_OPTS=-DNX_FEAT_HIST=1` (off by 
 | 4 | A timer stop (§13) | "timer" | |
 | 5 | Play on G1, connect USB (PC mode), unplug | "PC mode" | |
 | 6 | A run of less than 5 s | not listed | |
-| 7 | Play on G1 for over a minute (Resume after power cut on), pull the plug, power on, answer the card | a "power cut" record for G1 with about the time it had played (up to a minute less: the last saved position), "+0:00" | |
+| 7 | Play on G1 for over a minute (Offer to resume on), pull the plug, power on, answer the card | a "power cut" record for G1 with about the time it had played (up to a minute less: the last saved position), "+0:00" | |
 | 8 | Play on G1 for 30 s, POWER held (clean power-off), power on | that run is listed as "stopped" | |
 | 9 | A chain of two programs (§17) | each program is a run of its own | |
 | 10 | Power cycle | the list and the totals are kept | |

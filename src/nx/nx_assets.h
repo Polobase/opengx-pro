@@ -14,7 +14,7 @@
 #include "nx_asset_fmt.h"
 #include "nx_str_ids.h"
 
-#define NX_ASSET_BYTES 20458u   /* all tables in nx_assets.c (tool budget report) */
+#define NX_ASSET_BYTES 20462u   /* all tables in nx_assets.c (tool budget report) */
 #define NX_ASSET_MAX 36864u
 
 /* String codes of the extra characters of the text fonts (HTML entity names). */

@@ -76,7 +76,7 @@ export const groups: Group[] = [
       { feature: 'Start the last programs at power-on', original: false, ours: true },
       { feature: 'Terrain Protocol built in', note: 'Terrain, Terrain-Mercury and Terrain-Nonviolent, as Remote and as Contact sets. The unit counts the days and goes on where it stopped.', original: false, ours: true, glance: true },
       { feature: '“Radionics (Boost) Manifestation” built in', note: 'Spooky2’s preset, with its sweeps, without a PC. Programs uploaded from Spooky2 cannot sweep; this one can.', original: false, ours: true, glance: true },
-      { feature: 'Resume after a power cut', note: 'The unit offers to continue where it stopped.', original: false, ours: true, glance: true },
+      { feature: 'Resume after a power cut or PC mode', note: 'The unit offers to continue where it stopped, also after Spooky2 had taken over.', original: false, ours: true, glance: true },
       { feature: 'Copy, move or erase a program on the unit', original: false, ours: true },
       { feature: 'Play one program on both generators', original: false, ours: true },
       { feature: 'Key lock', original: false, ours: true, glance: true },

@@ -173,7 +173,7 @@ A key acts when pressed. If it also has a "hold" meaning, a short press acts on 
 | – | manual generator (menu > Manual, or LOOP held on its dashboard) | New |
 | – | set-end card "Set finished · safe to pause" (a Terrain Contact session; section 9.13) | New |
 | – | slot actions sheet (program detail > LOOP), target list "Copy NN to" / "Move NN to", "Erase this program?" | New |
-| – | "Resume after power cut?" card with a 15 s ring | New |
+| – | "Resume where it stopped?" card with a 15 s ring, after a power cut and at the end of PC mode | New |
 | – | "Start the last programs?" card with a 10 s ring (auto-start) | New |
 | – | "All programs finished · Powering off" card with a 15 s ring | New |
 | – | key-lock card ("Keys locked · Hold START+STOP to unlock") | New |
@@ -365,7 +365,7 @@ display is new: Spooky2 sees nothing of this.
 | What is recorded | every run of 5 s or more: slot and its name at the time, generator, running time (paused time not), the uptime at its start, the session (a boot in which something was played), and how it ended |
 | Ends | finished, stopped (STOP, another program, switched off with POWER held), timer, PC mode, power cut. Each program of a chain is a run of its own; so is each Terrain set (a Remote set is "finished" when its hours are done) and each run of the manual generator (named "Manual") |
 | Power-off | at a clean power-off the playing runs end as "stopped" and the records still waiting in RAM are written (not in PC mode) |
-| Power cut | the resume snapshot found at the next boot becomes a "power cut" record (so only with "Resume after power cut" on); its time is the program position of the last snapshot, its start "+0:00" |
+| Power cut | the resume snapshot found at the next boot becomes a "power cut" record (so only with "Offer to resume" on); its time is the program position of the last snapshot, its start "+0:00" |
 | Where | a ring at 0x0A0000: 32 sectors of 64 records of 64 bytes (2,048); the oldest sector is erased when the ring comes round. Totals (all-time running time, runs, runs per slot, sessions) in KV key 0x0005 |
 | Writing | records wait in RAM (up to 4) and are written like the settings: never in PC mode, only when quiet. Each record has a sequence number and a CRC-32, so a torn record is skipped |
 | Screen | menu > History: the title shows the total running time and runs; below, newest first, two lines per run: "NN  name", then "G1 · 45:00 · finished · session 14 +1:05" (finished in green). "Nothing played yet" when empty |
@@ -619,7 +619,7 @@ positions in them are examples. The host tests keep their own made-up tables
 | | |
 |---|---|
 | ![Quick settings](../../tests/gallery/nx/quick.png) | ![Resume offer](../../tests/gallery/nx/resume_offer.png) |
-| Quick settings (UP) | Resume after a power cut |
+| Quick settings (UP) | Resume after a power cut or PC mode |
 | ![Keys locked](../../tests/gallery/nx/lock_card.png) | ![Toast](../../tests/gallery/nx/toast.png) |
 | Keys locked | A toast (factory port wrote a value) |
 | ![POWER hold ring](../../tests/gallery/nx/power_ring.png) | ![STOP hold ring](../../tests/gallery/nx/stop_both_ring.png) |
@@ -681,7 +681,7 @@ Defaults from `src/nx/nx_uiset.c` and `src/nx/nx_settings.c`.
 | Splash screen | Settings > Display | Off, Short, Full | Full |
 | Key repeat | Settings > Keys & lock | Slow, Normal, Fast (first repeat after 600 / 400 / 300 ms, then every 180 / 110 / 70 ms, every 50 ms once held 1.5 s) | Normal |
 | Lock keys automatically | Settings > Keys & lock | on / off (10 s after the last key while a generator runs) | off |
-| Resume after power cut | Settings > Keys & lock | on / off | on |
+| Offer to resume (after a power cut or PC mode) | Settings > Keys & lock | on / off | on |
 | Original key behaviour | Settings > Keys & lock | on / off (section 9.11) | off |
 | Reduce motion | Quick settings; Settings > Motion | on / off | off |
 | Scroll long names | Settings > Motion | on / off | on |
@@ -699,22 +699,23 @@ Panel ("ST7789" and the panel type A or B) and "Support the project" (section 9.
 licence lines of the fonts and icons, "Free software without any warranty" and "Not made or
 endorsed by the device maker".
 
-## 12. Resume after a power cut
+## 12. Resume after a power cut or PC mode
 
 New in nx (`src/nx/nx_resume.c`). The original starts with both generators empty after every
-power-on.
+power-on, and leaves them empty after PC mode, which unloads both.
 
 | Part | How it works |
 |---|---|
 | What is saved | per generator: slot, running or paused, repeat on/off, position in the program, CRC-32 of the stored program, and the position in a chain or plan. For a Terrain set: the set, its protocol, the power level and the set's running time (section 9.12). The manual generator is not saved |
 | When | on each change (slot, run, repeat, chain position) and every 60 s while a generator runs; only when both queues are idle and no step ends within 100 ms; never in PC mode or in the calibration menu |
 | Where | the key-value store in the nx SPI-flash area (key 0x0002) |
-| The offer | after a power cut or a crash, the dashboard shows "Resume after power cut?" with a ring that fills in 15 s |
+| The offer | after a power cut or a crash, the dashboard shows "Resume where it stopped?" with a ring that fills in 15 s |
+| After PC mode | at its start what plays is kept in RAM (nothing is written in PC mode); at its end the same card offers it, at the position where PC mode began, for each generator whose slot still holds the same program (Spooky2 may have uploaded into it) |
 | Keys | START resumes now; STOP discards; a full ring resumes by itself; other keys do nothing (POWER works) |
 | Result | each generator continues at the saved position (at most one minute back); a paused one stays paused; repeat is kept; a chain, plan or Terrain protocol goes on from its saved position |
 | History | with History built in, the snapshot also becomes a "power cut" record (section 9.5) |
-| Not offered | after a clean power-off (POWER held); after both generators were stopped; after a PC session; if the slot's program changed; when the setting is off; in safe mode after a boot loop |
-| Setting | Settings > Keys & lock > "Resume after power cut" (default on) |
+| Not offered | after a clean power-off (POWER held); after both generators were stopped; if the slot's program changed; when the setting is off; in safe mode after a boot loop. A power cut's offer goes when PC mode starts before it is answered; any offer goes when something else is loaded meanwhile |
+| Setting | Settings > Keys & lock > "Offer to resume" (default on) |
 | Auto-start | a different offer at a normal power-on (section 9.4); a resume offer wins |
 | Tests | host: `tests/host/nx/test_nx_resume.c`; device: `docs/nx/drop1-checklist.md` §6 (still to do) |
 
@@ -852,7 +853,7 @@ The menu grid and the Diagnostics page with the key test were cut earlier; they 
 | Resume | goes back at most one minute; not offered after a PC session or when the slot's program changed. |
 | PC monitor | names, four frequencies, outputs on/off and sync from the protocol core; waveforms, amplitudes and gating from the receive tap. A waveform number the display does not know shows as "#N" (20, 21: Spooky2's user-defined shapes). Gating is per generator, not per output. The cycles of a wave table come from its crossings of the middle: a table with fewer than three crossings on a grid (an H-Bomb table with a Wave Cycle Multiplier under 6), or a shape that crosses the middle more than once per cycle, shows the wire value. Not shown, though Spooky2's own output pane has them: offset, duty cycle, phase, measured current and angle (the list below) |
 | MCU temperature and supply | from the chip's factory calibration and the datasheet slope; not checked against a thermometer or a meter. The chip reads a few degrees above the room. |
-| History (when built in) | no clock: a session number and the uptime instead of a date. The screen lists the newest 255 runs (the ring keeps up to 2,016 readable). Runs per slot and the session count are kept but not shown. A "power cut" record needs "Resume after power cut" on; it carries the program position of the last snapshot as its time and the session of the boot that found it. |
+| History (when built in) | no clock: a session number and the uptime instead of a date. The screen lists the newest 255 runs (the ring keeps up to 2,016 readable). Runs per slot and the session count are kept but not shown. A "power cut" record needs "Offer to resume" on; it carries the program position of the last snapshot as its time and the session of the boot that found it. |
 | Chains and plans | a chain plays each program once (repeat off), with its own waveform and amplitude (since 2026-09-25, section 9.8). A plan has no clock: the next day starts with START on the plan. A day whose chain repeats "until stopped" never completes. |
 | Auto-start | starts the last program of each generator from step 1; it does not restart a chain or plan. A Terrain protocol goes on from its stored position. |
 
