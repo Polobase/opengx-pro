@@ -32,7 +32,8 @@ which hold data taken from Spooky2's preset files (below).
 `make release` builds with the two built-in tables and without the original's splash artwork,
 test timing and changed switches, whatever your `local.mk` says. `tools/release_check.py` checks
 the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.0 is
-108,456 bytes, 4,184 below the limit. The linker refuses an nx image above 112,640 bytes
+108,456 bytes; since the two text fonts went to 2 bits per pixel (2026-10-14) the default build
+is 105,632 bytes, 7,008 below the limit. The linker refuses an nx image above 112,640 bytes
 (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
 too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
 
@@ -94,10 +95,10 @@ the build and `tools/release_check.py` stop when one is missing.
 
 | Build | Image |
 |---|---|
-| default (the release image) | 108,456 bytes |
-| `NX_PRESETS=0` | 107,248 bytes |
-| `NX_TERRAIN=0` | 104,084 bytes |
-| `NX_TERRAIN=0 NX_PRESETS=0` | 102,876 bytes |
+| default (the release image) | 105,632 bytes (0.9.0, with 4 bpp text fonts: 108,456) |
+| `NX_PRESETS=0` | 104,424 bytes |
+| `NX_TERRAIN=0` | 101,252 bytes |
+| `NX_TERRAIN=0 NX_PRESETS=0` | 100,044 bytes |
 
 Neither feature has been checked on a real unit yet: [Known issues](./known-issues.md).
 
@@ -119,7 +120,7 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_FEAT_SUPPORT` | on | Settings > About > Support the project |
 | `NX_FEAT_HIST` | off | History: a list of what was played, and totals |
 | `NX_FEAT_HERO48` | off | The dashboard frequency in 48-pixel digits when it fits |
-| `NX_FEAT_BFB` | off | Biofeedback scan on the unit (menu > Bio scan). About 4.5 KB: it needs another feature off, e.g. `make APP=nx NX_LCD_OPTS="-DNX_FEAT_BFB=1 -DNX_FEAT_DIAG=0" BUILD=build/nx-bfb` |
+| `NX_FEAT_BFB` | off | Biofeedback scan on the unit (menu > Bio scan). About 4.5 KB; fits with every other feature on since the text fonts went to 2 bpp (110,088 bytes): `make APP=nx NX_LCD_OPTS=-DNX_FEAT_BFB=1 BUILD=build/nx-bfb` |
 | `NX_FEAT_TERRAIN`, `NX_FEAT_PRESET` | follow chains | The code of the Terrain Protocol and of the preset with sweeps |
 | `NX_TERRAIN`, `NX_PRESETS` (`make` variables) | on | Their two tables (above); `NX_TERRAIN=0` or `NX_PRESETS=0` leaves the rows out of menu > Chains |
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |

@@ -11,13 +11,13 @@
   },
   "max_bytes": 36864,
   "outputs": {
-    "src/nx/nx_assets.c": "d5da77f1969652b68710b90dec546d259827b920ea026bb702ab207a860c1a5d",
-    "src/nx/nx_assets.h": "a109abfc3c3460fb4ad818d147c20f0e9da088ffc2c1618e8a2777535614f840",
+    "src/nx/nx_assets.c": "3697ff379fb7f4b8c97bf179f364e772c76e8b458d7a9e175a22838429a4f0af",
+    "src/nx/nx_assets.h": "930513cc87661a82330c103a71403bb4236e67106f8d0dcedff725d0db6ca11c",
     "src/nx/nx_str_ids.h": "ed23bc2aff313ae9a5371880cd3a1a1a808d3409ad426d0d752060059ffe7a29",
-    "tests/host/nx/nx_asset_vectors.h": "d6155013357d0c2fd370a0f95f122eb97ab3989a31d4781995139c249b69ab01"
+    "tests/host/nx/nx_asset_vectors.h": "2537e3a84360fa101d38d3a61a461c3e23e845a603e76e2b98475addb4b311cd"
   },
   "sources": {
-    "assets/nx/fonts.json": "e90b927c225618d4af714c31893dd4b9e81fa306a4bafe99defb53bf50005681",
+    "assets/nx/fonts.json": "fc0a7390fd801eccd980299612e48cd31ca887ee034e0474b9b572d0df64de43",
     "assets/nx/icons.json": "ecd621bed1fde75ad0ee83e49accc44ccb5b186b5efa104cc1d49a730aea2a6e",
     "assets/nx/palettes.json": "520654765f85905f738e8280dbca75cfac78211cd83f9661a55c90eb13f85709",
     "assets/nx/qr.json": "1352bcb1887882ad7012dd9eae7737a4c03ccd6f6c462efc550ca2fc7280dcc2",
@@ -32,16 +32,16 @@
   },
   "tables": {
     "nx_font_body16": {
-      "bytes": 4569,
-      "sha256": "0589d09654ccf241a77a6503fbee5aecd9b0005105ed9b6dc50dc25926afac93"
+      "bytes": 2878,
+      "sha256": "7c8c4bd47f263d45cfb1c836715e4c8024b07abde3957084c6760dc7b950b1a3"
     },
     "nx_font_brand": {
       "bytes": 1023,
       "sha256": "4b3fcbf04ffec6c7342f83e3ce57bb4ffa76aeef2f8ef39e6a88709e72f5af19"
     },
     "nx_font_cap13": {
-      "bytes": 3953,
-      "sha256": "d94a36df67ab2af896fb2e733feedadb6f1ba0239dc14f43ac44cd7227a78e2f"
+      "bytes": 2462,
+      "sha256": "d4b10a03de82f1eb0c0c83703ecdd8af3cf7e392bac4f77ca9ce17e1dc2deeca"
     },
     "nx_font_num28": {
       "bytes": 1350,
@@ -79,5 +79,5 @@
   "tool": {
     "sha256": "19ffcb41587e87b15177b196c4dd6c2df5eca7de6b924c7c014b64b4af325a2e"
   },
-  "total_bytes": 20799
+  "total_bytes": 17617
 }

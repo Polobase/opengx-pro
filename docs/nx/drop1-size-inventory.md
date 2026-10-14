@@ -6,9 +6,10 @@ Terrain sets and the Radionics preset built in (then a personal build, with `TER
 
 Since 2026-10-13 that is the default build and the released image (`make release`): the two
 tables are committed in `src/nx/data/`, and `NX_TERRAIN` and `NX_PRESETS` are on by default. The
-image is 108,456 bytes now, 4,184 left of the 112,640 the bootloader is proven to take. Without
-the two tables it is 102,876 bytes; with only `NX_TERRAIN=0` 104,084, with only `NX_PRESETS=0`
-107,248. The numbers below are those of 2026-10-06 and were not measured again.
+image was 108,456 bytes then, 4,184 left of the 112,640 the bootloader is proven to take. Since
+2026-10-14 the two text fonts are 2 bpp (section 5): 105,632 bytes, 7,008 left. Without the two
+tables it is 100,044 bytes; with only `NX_TERRAIN=0` 101,252, with only `NX_PRESETS=0` 104,424.
+The numbers below are those of 2026-10-06 and were not measured again.
 
 **Image: 106,538 B of 112,640 B (`NX_FLASH_LIMIT` = `FLASH_PROVEN`): 6,102 B left.**
 RAM: 24,008 B + 40 B crash record + 3,072 B stack of 36,864 B, 9,744 B left. RAM is not the
@@ -211,13 +212,15 @@ Not candidates unless nx may do less than the original firmware.
 
 | Font | Used for | Glyphs | Pixels | Tables | Total |
 |---|---|---:|---:|---:|---:|
-| `body16`: Inter Regular 16 px | names, list rows, values, titles, toasts | 100 | 3,744 | 825 | 4,569 |
-| `cap13`: Inter Medium 13 px | captions, labels, hints, the status bar | 101 | 3,119 | 834 | 3,953 |
+| `body16`: Inter Regular 16 px | names, list rows, values, titles, toasts | 100 | 3,744 (2,053 at 2 bpp) | 825 | 4,569 (2,878) |
+| `cap13`: Inter Medium 13 px | captions, labels, hints, the status bar | 101 | 3,119 (1,628 at 2 bpp) | 834 | 3,953 (2,462) |
 | `num28`: Inter Display Medium 28 px | the dashboard frequency, the PC monitor, the night view | 17 | 1,187 | 163 | 1,350 |
 | `num48`: Inter Display SemiBold 48 px | the dashboard frequency with `NX_FEAT_HERO48=1` only: **not linked** by default | 14 | 1,708 | 136 | (1,844) |
-| **Fonts in the image** | | | | | **9,872** |
+| **Fonts in the image** | | | | | **9,872** (6,690 since 2026-10-14) |
 
-All are 4-bit anti-aliased and run-length coded. The two text fonts carry every printable
+All were 4-bit anti-aliased and run-length coded; since 2026-10-14 the two text fonts are 2-bit
+(4 alpha levels, stored raw: at 2 bpp the run-length code never wins) and look the same on the
+panel. The two text fonts carry every printable
 ASCII character (95) plus 5 or 6 signs (· … – × ‹ › ▸ °), because a program name from Spooky2 can
 contain any of them; a glyph is 39 to 46 B on average. The digit fonts carry only what a number
 needs; a 28 px digit is about 80 B.
@@ -365,6 +368,7 @@ The preset's two wave tables (2 × 1,024 samples) are not stored: `nx_preset_sam
 
 | What | Saves | Mark | State |
 |---|---:|---|---|
+| The two text fonts at 2 bits per pixel instead of 4 (`"bpp": 2` in `assets/nx/fonts.json`): 4 alpha levels, no visible change in the 122 gallery shots | 3,182 | exact | **applied 2026-10-14** |
 | Unsigned instead of signed division in `nx_manual_chz`, `chz_at`, `set_key`, `nx_lcd_scroll`: the library's signed 64-bit division (536 B) is no longer linked | 512 | measured | tried against today's image, host tests pass, **not applied**; a patch of 4 files |
 | The same for the last 5 signed 32-bit divisions (`nx_bl_tick_1ms`, `nx_list_draw` ×3, `nx_diag_sensors`): `_divsi3` (468 B) goes | ≈ 450 | est. | not tried |
 | History's texts and icon: History is off, but its 11 texts (147 B), its hint line (30 B), its menu text (10 B) and its icon (61 B) are still in the tables | 248 | exact | needs the asset generator to follow the switches (they must come back with `NX_FEAT_HIST=1`) |
