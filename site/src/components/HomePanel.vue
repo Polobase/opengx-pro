@@ -33,7 +33,7 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
       </svg>
     </div>
     <div class="wrap hero-top">
-      <a class="pill" href="#/docs/known-issues"><b>Beta 0.9.0</b><span>free and open source</span><i aria-hidden="true">→</i></a>
+      <a class="pill" href="#/docs/known-issues"><b>Beta{{ latest ? ` ${latest.version}` : '' }}</b><span>free and open source</span><i aria-hidden="true">→</i></a>
       <h1>More from the screen of your <span class="grad">GeneratorX Pro</span></h1>
       <p class="hero-lead">OpenGX Pro is free software for the screen and keys of the Spooky2 GeneratorX Pro. It shows more,
         does more without a computer (the Terrain Protocol and “Radionics (Boost) Manifestation” are built in), and

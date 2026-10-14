@@ -5,7 +5,7 @@ time the display takes to answer, with the original firmware and with the new on
 measured and how you can repeat it.
 
 **The numbers are from 2026-09-25, measured with a development build of the new firmware, not
-with the release file of 0.9.0. The measurement will be repeated on 0.9.0 and this page updated.**
+with a release file. The measurement will be repeated on the current release and this page updated.**
 
 ## Method
 
@@ -61,7 +61,7 @@ same computer.
 | Step | Command |
 |---|---|
 | With the original firmware installed | `.venv/bin/python tools/latency_bench.py run --firmware original-v7789` |
-| With OpenGX Pro installed | `.venv/bin/python tools/latency_bench.py run --firmware opengx-pro-0.9.0 --image build/release/opengx-pro-0.9.0.bin` |
+| With OpenGX Pro installed | `.venv/bin/python tools/latency_bench.py run --firmware opengx-pro-0.9.1 --image build/release/opengx-pro-0.9.1.bin` |
 | Both runs side by side | `.venv/bin/python tools/latency_bench.py summarize build/latency/*.csv` |
 | Try the tool without a unit | `.venv/bin/python tools/latency_bench.py selftest` |
 

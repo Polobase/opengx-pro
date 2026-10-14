@@ -31,8 +31,8 @@ which hold data taken from Spooky2's preset files (below).
 
 `make release` builds with the two built-in tables and without the original's splash artwork,
 test timing and changed switches, whatever your `local.mk` says. `tools/release_check.py` checks
-the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.0 is
-108,456 bytes, 4,184 below the limit. The linker refuses an nx image above 112,640 bytes
+the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.1 is
+108,664 bytes, 3,976 below the limit. The linker refuses an nx image above 112,640 bytes
 (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
 too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
 
@@ -94,7 +94,7 @@ the build and `tools/release_check.py` stop when one is missing.
 
 | Build | Image |
 |---|---|
-| default (the release image) | 108,456 bytes |
+| default (the release image) | 108,664 bytes |
 | `NX_PRESETS=0` | 107,248 bytes |
 | `NX_TERRAIN=0` | 104,084 bytes |
 | `NX_TERRAIN=0 NX_PRESETS=0` | 102,876 bytes |
@@ -123,8 +123,8 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_TERRAIN`, `NX_PRESETS` (`make` variables) | on | Their two tables (above); `NX_TERRAIN=0` or `NX_PRESETS=0` leaves the rows out of menu > Chains |
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |
 
-History and the 48-pixel digits are off by default to save space: the image of 0.9.0 leaves
-4,184 bytes, and each of the two costs about 2 KB. The linker stops when an image is too large.
+History and the 48-pixel digits are off by default to save space: the image of 0.9.1 leaves
+3,976 bytes, and each of the two costs about 2 KB. The linker stops when an image is too large.
 The splash artwork of the original needs your own copy of the vendor's image and is never in a
 release. A build with other switches than the defaults is your own build, not a release image.
 

@@ -1,5 +1,5 @@
 /**
- * The original firmware (v7789) and OpenGX Pro 0.9.0, feature by feature, in plain words. The
+ * The original firmware (v7789) and OpenGX Pro 0.9.1, feature by feature, in plain words. The
  * technical record with the place in the code for each difference is docs/guide/compare.md,
  * DEVIATIONS.md and docs/parity.md; this list must not say more than they do.
  *

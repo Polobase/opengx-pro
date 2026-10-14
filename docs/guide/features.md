@@ -2,7 +2,7 @@
 
 OpenGX Pro is open firmware for the display board of the Spooky2 GeneratorX Pro. It replaces the
 firmware of the display only; the two generator boards and the bootloader stay as they are. This
-page lists what version 0.9.0 (beta) contains: the file that the site installs. OpenGX Pro is an
+page lists what version 0.9.1 (beta) contains: the file that the site installs. OpenGX Pro is an
 independent project, not affiliated with or endorsed by Spooky2.
 
 The pictures are drawn by the firmware's own screen code from sample data. The program names and

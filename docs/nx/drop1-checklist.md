@@ -10,7 +10,7 @@ Chains, Manual, Timers, Diagnostics, Settings). The keys and screens are in
 `docs/nx/key-model.md`; everything nx does compared with the original: `docs/nx/features.md`.
 
 Since 2026-10-13 every build, and the released image (`make release`), has the Terrain Protocol
-and the preset with sweeps from the committed tables in `src/nx/data/`: 108,456 bytes (106,538
+and the preset with sweeps from the committed tables in `src/nx/data/`: 108,664 bytes in 0.9.1, 108,456 in 0.9.0 (106,538
 bytes on 2026-10-06, when the tables were made at build time from `TERRAIN_DIR` / `PRESET_FILE`
 in an untracked `local.mk`). So §23, §24 and §28 need no preset files (§23 and §24 still use the
 test build with fast time). `make release` is built without the vendor splash. Off by default
@@ -40,7 +40,7 @@ preset.
 
 | Check | Result |
 |---|---|
-| Splash on black: the wordmark "OpenGX Pro" (its "O" is the ring with the sine), "Open firmware for the GeneratorX Pro", "v0.9.0" at the foot, "any key: skip"; any key skips it. (A build with `NX_VENDOR=1`: the original's Spooky2 ghost fades in, §9.) | |
+| Splash on black: the wordmark "OpenGX Pro" (its "O" is the ring with the sine), "Open firmware for the GeneratorX Pro", "v0.9.1" at the foot, "any key: skip"; any key skips it. (A build with `NX_VENDOR=1`: the original's Spooky2 ghost fades in, §9.) | |
 | First boot: the key guide after the splash; a key closes it and acts (e.g. G1 opens the program list) | |
 | Upright, not mirrored, colours right (G1 cyan, G2 amber) | |
 | Every text in English; a text too long for its place ends in "…" | |
@@ -163,7 +163,7 @@ Only for an image built with `make APP=nx NX_VENDOR=1` (off by default since 202
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | menu > Diagnostics | Firmware "0.9.0 · ST7789 A" (or B), Uptime counting up and "boot N", Last reset "Power on", G1 link and G2 link with a green dot and a few ms, PC mode, SPI flash (an ID, KB free, 0 errors), Main loop, MCU; UP/DOWN scroll | |
+| 1 | menu > Diagnostics | Firmware "0.9.1 · ST7789 A" (or B), Uptime counting up and "boot N", Last reset "Power on", G1 link and G2 link with a green dot and a few ms, PC mode, SPI flash (an ID, KB free, 0 errors), Main loop, MCU; UP/DOWN scroll | |
 | 2 | MCU row (after 10 min switched on, room temperature noted) | the temperature near room temperature (the chip may read a few degrees above it), the supply about 3.3 V (3.2–3.4 V). Note both values and the room temperature | |
 | 3 | Watch the MCU row for a minute; START | it updates every second without jumping more than about 1 °C / 0.02 V; START reads it at once | |
 | 4 | LOOP | the key test: 8 key caps | |
@@ -342,7 +342,7 @@ of real time is about an hour on the Terrain screen.
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | `make APP=nx NX_TIME_X=60 BUILD=build/nx-x60 flash` | the splash says "v0.9.0 TEST: fast time" | |
+| 1 | `make APP=nx NX_TIME_X=60 BUILD=build/nx-x60 flash` | the splash says "v0.9.1 TEST: fast time" | |
 | 2 | menu > Chains | the list opens on the six Terrain rows (Terrain, Terrain-Mercury, Terrain-Nonviolent, each "· Remote" and "· Contact") with "Day 1/11" (Terrain-Nonviolent: "Day 1/10") | |
 | 3 | LOOP on "Terrain · Remote" | the Terrain screen: the day-1 set's name, "Day 1 of 11 · 24 h" (a half day: "Day 1.1 of 11 · 12 h"), "Ran 0:00:00 of 24:00:00", "Power 5 V · LOOP changes", the Spooky Remote hint and the water hint | |
 | 4 | LOOP five times | 2.5 V, 1 V, 0.5 V, 0.25 V, then 5 V again | |

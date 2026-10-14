@@ -6,8 +6,8 @@ Terrain sets and the Radionics preset built in (then a personal build, with `TER
 
 Since 2026-10-13 that is the default build and the released image (`make release`): the two
 tables are committed in `src/nx/data/`, and `NX_TERRAIN` and `NX_PRESETS` are on by default. The
-image is 108,456 bytes now, 4,184 left of the 112,640 the bootloader is proven to take. Without
-the two tables it is 102,876 bytes; with only `NX_TERRAIN=0` 104,084, with only `NX_PRESETS=0`
+image is 108,664 bytes in 0.9.1 (2026-10-14), 3,976 left of the 112,640 the bootloader is proven
+to take; in 0.9.0 it was 108,456. Measured on 0.9.0: without the two tables it is 102,876 bytes; with only `NX_TERRAIN=0` 104,084, with only `NX_PRESETS=0`
 107,248. The numbers below are those of 2026-10-06 and were not measured again.
 
 **Image: 106,538 B of 112,640 B (`NX_FLASH_LIMIT` = `FLASH_PROVEN`): 6,102 B left.**

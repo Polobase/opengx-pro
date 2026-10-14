@@ -1,6 +1,6 @@
 # The original firmware and OpenGX Pro side by side
 
-This page compares the vendor's original display firmware (v7789) with OpenGX Pro 0.9.0. The
+This page compares the vendor's original display firmware (v7789) with OpenGX Pro 0.9.1. The
 table says what stays the same, what is new and what is different on purpose. The list below it
 names the differences you will notice when you use the unit.
 
