@@ -85,6 +85,10 @@ const supported = webSerialSupported()
       </header>
       <div class="wrap page">
         <BrowserHelp v-if="needsSerial && !supported" />
+        <p v-if="route.section === 'install' || route.section === 'restore'" class="note warn pro-only">
+          <b>Only for the GeneratorX Pro.</b> Please do not use this page with the original GeneratorX: it looks the same
+          from the front, but it is different inside. OpenGX Pro is neither made nor tested for it, and there is no known
+          firmware file to go back to on it.</p>
         <KeepAlive>
           <ComparePanel v-if="route.section === 'compare'" />
           <ScreensPanel v-else-if="route.section === 'screens'" />

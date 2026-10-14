@@ -398,6 +398,7 @@ button:disabled { opacity: 0.45; cursor: not-allowed; }
 .note.info b { color: var(--ink); }
 .note a { color: inherit; font-weight: 600; }
 .browser-help { margin: 0 0 18px; }
+.pro-only { margin: 0 0 18px; }
 .browser-help p { margin: 0 0 8px; }
 .browser-help p:last-child { margin-bottom: 0; }
 .browser-help ol { margin: 0 0 8px; padding-left: 22px; }
