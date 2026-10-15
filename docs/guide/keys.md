@@ -42,7 +42,8 @@ The status bar shows the state, the repeat badge, the minutes left of a "stop af
 
 DOWN on the dashboard opens a sheet with six cells: Programs, Chains, Manual in the first row,
 Timers, Diagnostics, Settings in the second. After power-on it opens on Settings, then on the cell
-you used last. G1 and G2 move along the row, UP and DOWN change the row, START opens, STOP closes.
+you used last. UP and DOWN move through the cells in order and round the end; G1 and G2 move along
+the row. START opens, STOP closes.
 "Programs" is the program list of the generator in focus.
 
 ## Program list and program detail
@@ -115,11 +116,20 @@ row moves the underlined digit that G1 and G2 change. START plays on the chosen 
 stops it if it plays there. STOP goes back. Changes apply at once, also while it plays.
 
 **Biofeedback scan** (menu > Bio scan; only in a build with `NX_FEAT_BFB`). Rows: Run on,
-Amplitude, Per hit, Save as program. UP and DOWN choose a row, G1 and G2 change the value. START
+Speed, Amplitude, Per hit, Save as program (the list scrolls to the fifth). UP and DOWN choose a
+row, G1 and G2 change the value. Speed: Standard is Spooky2's sweep, every 0.025 % at 70 ms a
+step, about 18 minutes; Balanced takes every other frequency, about 9 minutes; Fast also shortens
+the step to 45 ms, about 6 minutes. A response is 6 to 20 standard steps wide, so the coarser grid
+still finds it; a very narrow one can be missed. START
 starts the scan on the chosen generator; the line under the rows shows its stage, then the step,
-the frequency and the reading. STOP ends a running scan and stops the generator, otherwise goes
-back. LOOP shows the hits of the last scan, and the rows again. When the scan ends, its hits play
-as the chosen program.
+the frequency and the reading, a progress bar and the time left (from the pace so far). When the
+sweep begins the rows give way to the scan graph: on top the last readings (about 20 seconds)
+scrolling by, their deviation from the running average; below, the whole sweep so far, the
+current column in the generator's colour, a mark above each hit.
+When the scan ends with hits they play as the chosen program and the dashboard comes up, with
+a toast saying so; menu > Bio scan then opens on the hits, strongest first, with their deviation;
+UP and DOWN scroll them. LOOP goes to the next page that has something to show: settings, graph,
+hits. STOP ends a running scan and stops the generator, otherwise goes back.
 
 **Timers** (menu > Timers). Rows: G1 stops after, G2 stops after, Power off when all finished,
 Start last programs at boot. UP and DOWN choose, G1 and G2 change, START steps a value or flips a

@@ -365,6 +365,11 @@ const struct nx_bfb_view *nx_uc_bfb(void)
 {
     return &s_bfb_view;
 }
+
+struct nx_bfb_view *nxg_bfb_view(void)   /* the fixtures' hand on it */
+{
+    return &s_bfb_view;
+}
 #endif
 
 #if NX_FEAT_TERRAIN

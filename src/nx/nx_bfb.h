@@ -47,7 +47,18 @@
 #define NX_BFB_START_F8 4100000000000ull   /* 41 kHz in 1e-8 Hz */
 #define NX_BFB_END_F8 180000000000000ull   /* 1.8 MHz */
 #define NX_BFB_STEPS 15130u     /* the grid of 0.025 % steps from the start past the end (host-tested) */
+#define NX_BFB_STEPS2 7566u     /* the 0.05 % grid of the quicker speeds (host-tested) */
+#define NX_BFB_FAST_MS 45u      /* per sweep step at the fast speed */
+/* The speed (nx_bfb_cfg.speed): 0 standard, Spooky2's grid and pace; 1 balanced, every other
+ * frequency; 2 fast, and 45 ms a step. The responses are 6 to 20 standard steps wide (the Android
+ * app's phone logs), so the coarser grid still finds them. The sweep's steps, grid (f += f / grid)
+ * and pace at a speed: */
+#define NX_BFB_SPEEDS 3u
+#define NX_BFB_SPEED_STEPS(sp) ((sp) ? NX_BFB_STEPS2 : NX_BFB_STEPS)
+#define NX_BFB_SPEED_GRID(sp) ((sp) ? 2000u : 4000u)
+#define NX_BFB_SPEED_MS(sp) ((sp) == 2u ? NX_BFB_FAST_MS : NX_BFB_STEP_MS)
 #define NX_BFB_NAME "Biofeedback"
+#define NX_BFB_TRACE 296u       /* columns of the scan graph: the screen's width less its margins */
 
 enum nx_bfb_state {
     NX_BFB_IDLE = 0,
@@ -66,11 +77,13 @@ struct nx_bfb_cfg {
     uint8_t slot;        /* the program the hits become, 1..30 */
     uint16_t ampl_cv;    /* target amplitude, 0.01 V peak to peak (Spooky2: 20 V) */
     uint16_t dwell_s;    /* per hit when the hits play (Spooky2: 180 s) */
+    uint8_t speed;       /* 0 standard, 1 balanced, 2 fast (NX_BFB_SPEED_*) */
 };
 
 struct nx_bfb_hit {
     uint64_t code;       /* the frequency's :w24 code (state.h) */
     uint32_t dev20;      /* reading minus the running average, in 1/20 of a reading unit */
+    uint16_t step;       /* the sweep step of that frequency (1-based): the graph's column */
 };
 
 struct nx_bfb_view {   /* what the screen shows */
@@ -81,8 +94,16 @@ struct nx_bfb_view {   /* what the screen shows */
     uint16_t step;       /* sweep steps done */
     uint16_t missed;     /* reads without a reply */
     uint32_t reading;    /* the last :r11 value */
+    uint32_t sweep_ms;   /* nx_ms() when the sweep began: the screen's time left from the pace so far */
+    uint16_t steps;      /* of the sweep, at the speed chosen (NX_BFB_SPEED_STEPS) */
     uint64_t code;       /* the sweep frequency now, as a :w24 code */
     struct nx_bfb_hit hits[NX_BFB_HITS];
+    /* the scan graph: per column of the sweep the largest deviation above the running average
+     * among its readings (reading units, saturating), and the last NX_BFB_TRACE readings'
+     * deviations (clipped to +-127) as a ring, live_n pushed so far */
+    uint8_t trace[NX_BFB_TRACE];
+    int8_t live[NX_BFB_TRACE];
+    uint16_t live_n;
 };
 
 extern struct nx_bfb_cfg g_nx_bfb_cfg;

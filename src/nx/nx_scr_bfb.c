@@ -1,9 +1,13 @@
-/* The biofeedback scan (menu > Biofeedback; NX_FEAT_BFB, nx_bfb.h): its settings as a list, the
- * scan's progress below them, and the hits once there are some.
+/* The biofeedback scan (menu > Biofeedback; NX_FEAT_BFB, nx_bfb.h): three pages above the status
+ * lines: the settings as a list, the scan graph (the last readings' deviation scrolling by, and
+ * the whole sweep's below it with the hits marked), the hits as a list. The sweep brings the
+ * graph up; its end goes to the dashboard when there are hits (they play), and the screen opens
+ * on them afterwards.
  *
- * Keys: UP/DOWN select, G1/G2 change the value (held: repeat), START starts the scan on the
- * chosen generator, STOP ends a running scan (the generator stops), else back; LOOP shows the
- * hits of the last scan instead of the settings, and back. */
+ * Keys: UP/DOWN select or scroll, G1/G2 change a setting (held: repeat), START starts the scan
+ * on the chosen generator, STOP ends a running scan (the generator stops), else back; LOOP goes
+ * to the next page that has something to show. The status shows the time left from the pace so
+ * far. */
 #include "nx_config.h"
 
 #if NX_FEAT_BFB
@@ -12,19 +16,34 @@
 #include "nx_comp.h"
 #include "nx_uifmt.h"
 
-enum { R_GEN, R_AMPL, R_DWELL, R_SLOT, ROWS };
-static const uint16_t k_label[ROWS] = { NX_S_DETAIL_RUN_ON, NX_S_MANUAL_AMPL, NX_S_BFB_DWELL, NX_S_BFB_SLOT };
+enum { R_GEN, R_SPEED, R_AMPL, R_DWELL, R_SLOT, ROWS };
+static const uint16_t k_label[ROWS] = { NX_S_DETAIL_RUN_ON, NX_S_BFB_SPEED, NX_S_MANUAL_AMPL, NX_S_BFB_DWELL, NX_S_BFB_SLOT };
+static const uint16_t k_speed[NX_BFB_SPEEDS] = { NX_S_BFB_STANDARD, NX_S_BFB_BALANCED, NX_S_BFB_FAST };
+#define VIS 4   /* rows in view: the list scrolls to the fifth */
 
 #define LIST_Y0 (NX_BAR_H + 2)
-#define STATUS_Y0 (LIST_Y0 + ROWS * NX_ROW_H)   /* 152: the status lines below the list */
+#define STATUS_Y0 (LIST_Y0 + VIS * NX_ROW_H)   /* 152: the status lines below the list */
 static const nx_rect k_title = { 0, 0, NX_LCD_W, NX_BAR_H };
 static const nx_rect k_status = { 0, STATUS_Y0, NX_LCD_W, NX_HINT_Y };
+static const nx_rect k_page = { 0, LIST_Y0, NX_LCD_W, STATUS_Y0 };   /* the list or the graph */
+/* the graph page: the live strip (the last NX_BFB_TRACE readings, about 20 s, the newest at the
+ * right) above the sweep strip (the whole sweep, a column per 51 steps, the hits marked) */
+#define LIVE_Y0 (LIST_Y0 + 4)
+#define LIVE_Y1 (LIST_Y0 + 80)
+#define SWEEP_Y0 (LIST_Y0 + 88)
+#define SWEEP_Y1 (STATUS_Y0 - 4)
+static const nx_rect k_live = { 0, LIVE_Y0, NX_LCD_W, LIVE_Y1 };
+
+enum { P_SET, P_GRAPH, P_HITS };
 
 struct bfbs {
     struct nx_list l;
-    uint8_t hits;           /* the list shows the hits, not the settings */
+    uint8_t page;           /* P_* */
     uint8_t state, nhits;   /* what the status was drawn from */
     uint16_t step;
+    uint32_t sig;           /* the hits drawn (hits_sig) */
+    uint16_t col;           /* the graph's column of the last reading drawn */
+    uint8_t scale;          /* the graph's full scale drawn */
 };
 
 static int scanning(void)
@@ -35,8 +54,74 @@ static int scanning(void)
 
 static void init_list(struct bfbs *s)
 {
-    uint8_t n = s->hits ? nx_uc_bfb()->nhits : (uint8_t)ROWS;
-    nx_list_init(&s->l, LIST_Y0, NX_ROW_H, s->hits ? 6u : (uint8_t)ROWS, n, 0, nx_ms());
+    uint8_t n = s->page == P_HITS ? nx_uc_bfb()->nhits : (uint8_t)ROWS;
+    nx_list_init(&s->l, LIST_Y0, NX_ROW_H, VIS, n, 0, nx_ms());
+}
+
+static uint32_t hits_sig(const struct nx_bfb_view *v)
+{
+    uint32_t sig = v->nhits;
+    for (unsigned i = 0; i < v->nhits; i++)
+        sig = sig * 31u + (uint32_t)v->hits[i].code + v->hits[i].dev20;
+    return sig;
+}
+
+static unsigned trace_col(unsigned step)
+{
+    unsigned c = (uint32_t)step * NX_BFB_TRACE / nx_uc_bfb()->steps;
+    return c < NX_BFB_TRACE ? c : NX_BFB_TRACE - 1u;
+}
+
+static uint8_t graph_scale(const struct nx_bfb_view *v)   /* the largest deviation so far, at least 8 units */
+{
+    uint8_t a = 8;
+    for (unsigned c = 0; c < NX_BFB_TRACE; c++)
+        a = v->trace[c] > a ? v->trace[c] : a;
+    return a;
+}
+
+static void draw_live(nx_gc *gc, const struct nx_bfb_view *v)   /* the last readings, newest at the right */
+{
+    const int16_t mid = (LIVE_Y0 + LIVE_Y1) / 2, half = (LIVE_Y1 - LIVE_Y0) / 2 - 1;
+    unsigned n = v->live_n < NX_BFB_TRACE ? v->live_n : NX_BFB_TRACE, idx = (v->live_n - n) % NX_BFB_TRACE;
+    int scale = 8;
+    uint16_t col = nx_col(gc, NX_PAL_TEXT1);
+    for (unsigned i = 0, k = idx; i < n; i++, k = k + 1u == NX_BFB_TRACE ? 0u : k + 1u) {
+        int a = v->live[k] < 0 ? -v->live[k] : v->live[k];
+        scale = a > scale ? a : scale;
+    }
+    nx_fill(gc, (nx_rect){ NX_M, mid, NX_M + NX_BFB_TRACE, mid + 1 }, nx_col(gc, NX_PAL_TRACK));
+    int16_t prev = mid;
+    for (unsigned i = 0, k = idx; i < n; i++, k = k + 1u == NX_BFB_TRACE ? 0u : k + 1u) {   /* joined: each
+                                                                       * column spans to the reading before */
+        int16_t y = (int16_t)(mid - v->live[k] * half / scale), x = (int16_t)(NX_M + NX_BFB_TRACE - n + i);
+        int16_t y0 = i && prev < y ? prev : y, y1 = i && prev > y ? prev : y;
+        nx_fill(gc, (nx_rect){ x, y0, (int16_t)(x + 1), (int16_t)(y1 + 1) }, col);
+        prev = y;
+    }
+}
+
+static void draw_sweep(nx_gc *gc, const struct nx_bfb_view *v)   /* the whole sweep so far, the hits marked */
+{
+    const int16_t base = SWEEP_Y1 - 1, h = SWEEP_Y1 - SWEEP_Y0 - 5;
+    int scale = graph_scale(v);
+    unsigned cur = trace_col(v->step);
+    uint16_t acc = nx_col(gc, nx_accent(v->ch)), col = nx_col(gc, NX_PAL_TEXT2);
+    nx_fill(gc, (nx_rect){ NX_M, base, NX_M + NX_BFB_TRACE, base + 1 }, nx_col(gc, NX_PAL_TRACK));
+    for (unsigned c = 0; c <= cur && c < NX_BFB_TRACE; c++) {
+        int16_t y0 = (int16_t)(base - v->trace[c] * h / scale);
+        nx_fill(gc, (nx_rect){ (int16_t)(NX_M + c), c == cur ? SWEEP_Y0 + 4 : y0, (int16_t)(NX_M + c + 1u), base }, c == cur ? acc : col);
+    }
+    for (unsigned i = 0; i < v->nhits; i++) {   /* a mark above each hit */
+        int16_t x = (int16_t)(NX_M + trace_col(v->hits[i].step));
+        nx_fill(gc, (nx_rect){ (int16_t)(x - 1), SWEEP_Y0, (int16_t)(x + 2), SWEEP_Y0 + 3 }, acc);
+    }
+}
+
+static void draw_graph(nx_gc *gc, const struct nx_bfb_view *v)
+{
+    draw_live(gc, v);
+    draw_sweep(gc, v);
 }
 
 static void row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel, uint32_t sel_ms)
@@ -44,11 +129,11 @@ static void row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel, uint
     (void)sel_ms;
     const struct bfbs *s = ctx;
     const struct nx_bfb_cfg *c = nx_uc_bfb_cfg();
-    int16_t ty = (int16_t)(r.y0 + (r.y1 - r.y0 - 20) / 2), rx = NX_LCD_W - NX_M - (sel && !s->hits ? 16 : 0);
+    int16_t ty = (int16_t)(r.y0 + (r.y1 - r.y0 - 20) / 2), rx = NX_LCD_W - NX_M - (sel && s->page == P_SET ? 16 : 0);
     char v[32];
     const char *t = v;
     uint16_t col = nx_col(gc, NX_PAL_TEXT1);
-    if (s->hits) {   /* "41 010.25 Hz" and the deviation */
+    if (s->page == P_HITS) {   /* "41 010.25 Hz" and the deviation */
         const struct nx_bfb_hit *h = &nx_uc_bfb()->hits[i];
         char *p = nx_fmt_freq(v, h->code, 2, 2, 0);
         strcpy(p, " Hz");
@@ -64,6 +149,9 @@ static void row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel, uint
     case R_GEN:
         t = nx_str(c->ch ? NX_S_GEN_G2 : NX_S_GEN_G1);
         col = nx_col(gc, nx_accent(c->ch));
+        break;
+    case R_SPEED:
+        t = nx_str(k_speed[c->speed < NX_BFB_SPEEDS ? c->speed : 0u]);
         break;
     case R_AMPL:
         nx_fmt_cv(v, c->ampl_cv);
@@ -92,7 +180,7 @@ static void status(nx_gc *gc)
     uint16_t sid = NX_S_BFB_IDLE;
     uint8_t tok = NX_PAL_TEXT2;
     nx_fmt_u(a[0], v->step);
-    nx_fmt_u(a[1], NX_BFB_STEPS);
+    nx_fmt_u(a[1], v->steps);
     nx_fmt_u(a[2], v->nhits);
     switch (v->state) {
     case NX_BFB_AUTH:
@@ -119,8 +207,11 @@ static void status(nx_gc *gc)
         sid = NX_S_BFB_FAILED;
         tok = NX_PAL_ERROR;
         break;
-    default:
+    default: {   /* idle: the minutes a sweep takes at the speed chosen */
+        unsigned sp = nx_uc_bfb_cfg()->speed;
+        nx_fmt_u(a[0], (NX_BFB_SPEED_STEPS(sp) * NX_BFB_SPEED_MS(sp) + 30000u) / 60000u);
         break;
+    }
     }
     nx_str_format(buf, sizeof buf, sid, args, 3);
     nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 4, buf, nx_col(gc, tok));
@@ -130,14 +221,19 @@ static void status(nx_gc *gc)
         nx_text(gc, &nx_font_body16, NX_M + 4, STATUS_Y0 + 22, f, nx_col(gc, NX_PAL_TEXT1));
         nx_fmt_u(f, v->reading);
         nx_text_r(gc, &nx_font_body16, NX_LCD_W - NX_M, STATUS_Y0 + 22, f, nx_col(gc, NX_PAL_TEXT2));
-        int16_t x1 = (int16_t)(NX_M + (NX_LCD_W - 2 * NX_M) * (uint32_t)v->step / NX_BFB_STEPS);
-        nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 46, NX_LCD_W - NX_M, STATUS_Y0 + 50 }, nx_col(gc, NX_PAL_TRACK));
-        nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 46, x1, STATUS_Y0 + 50 }, nx_col(gc, nx_accent(v->ch)));
+        int16_t x1 = (int16_t)(NX_M + (NX_LCD_W - 2 * NX_M) * (uint32_t)v->step / v->steps);
+        nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 40, NX_LCD_W - NX_M, STATUS_Y0 + 44 }, nx_col(gc, NX_PAL_TRACK));
+        nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 40, x1, STATUS_Y0 + 44 }, nx_col(gc, nx_accent(v->ch)));
+        /* time left: the steps to go at the pace so far (ms per step; the nominal pace before the first) */
+        uint32_t per = v->step ? (nx_ms() - v->sweep_ms) / v->step : NX_BFB_SPEED_MS(nx_uc_bfb_cfg()->speed);
+        nx_fmt_dur(a[0], per * (v->steps - v->step) / 1000u);
+        nx_str_format(buf, sizeof buf, NX_S_BFB_LEFT, args, 1);
+        nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 48, buf, nx_col(gc, NX_PAL_TEXT2));
     }
     if (v->missed) {
         nx_fmt_u(a[0], v->missed);
         nx_str_format(buf, sizeof buf, NX_S_BFB_MISSED, args, 1);
-        nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M, STATUS_Y0 + 4, buf, nx_col(gc, NX_PAL_WARNING));
+        nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M, STATUS_Y0 + 48, buf, nx_col(gc, NX_PAL_WARNING));
     }
 }
 
@@ -145,7 +241,10 @@ static void bfb_enter(void *st, uint32_t arg)
 {
     (void)arg;
     struct bfbs *s = st;
-    s->hits = nx_uc_bfb()->nhits != 0u && !scanning();
+    const struct nx_bfb_view *v = nx_uc_bfb();
+    s->page = v->state == NX_BFB_SWEEP || v->state == NX_BFB_SAVE ? P_GRAPH : v->nhits ? P_HITS : P_SET;
+    s->state = v->state;
+    s->col = 0xFFFFu;
     init_list(s);
 }
 
@@ -153,7 +252,10 @@ static void bfb_draw(nx_gc *gc, const void *st)
 {
     const struct bfbs *s = st;
     nx_comp_title_target(gc, nx_str(NX_S_BFB_TITLE), NX_S_DETAIL_RUN_ON, nx_uc_bfb_cfg()->ch);
-    nx_list_draw(gc, &s->l, nx_accent(nx_uc_bfb_cfg()->ch), row, s);
+    if (s->page == P_GRAPH)
+        draw_graph(gc, nx_uc_bfb());
+    else
+        nx_list_draw(gc, &s->l, nx_accent(nx_uc_bfb_cfg()->ch), row, s);
     status(gc);
 }
 
@@ -171,6 +273,10 @@ static void change(struct bfbs *s, int up)
     case R_GEN:
         c->ch ^= 1u;
         nx_inval(k_title);
+        break;
+    case R_SPEED:   /* the idle line's minutes follow */
+        c->speed = (uint8_t)step_by(c->speed, 1u, up, 0u, NX_BFB_SPEEDS - 1u);
+        nx_inval(k_status);
         break;
     case R_AMPL:   /* 0.5 V steps, 1 to 20 V */
         c->ampl_cv = (uint16_t)step_by(c->ampl_cv, 50u, up, 100u, 2000u);
@@ -194,14 +300,21 @@ static int bfb_key(void *st, const struct nx_kev *e)
     switch (e->keys) {
     case NX_KEY_G1:
     case NX_KEY_G2:
-        if ((press || e->type == NXK_REPEAT) && !s->hits && !scanning())
+        if ((press || e->type == NXK_REPEAT) && s->page == P_SET && !scanning())
             change(s, e->keys == NX_KEY_G2);
         return 1;
-    case NX_KEY_LOOP:
-        if (press && nx_uc_bfb()->nhits) {
-            s->hits ^= 1u;
-            init_list(s);
-            nx_inval(nx_list_view(&s->l));
+    case NX_KEY_LOOP:   /* the next page with something on it */
+        if (press) {
+            const struct nx_bfb_view *v = nx_uc_bfb();
+            uint8_t p = s->page;
+            do
+                p = (uint8_t)((p + 1u) % 3u);
+            while ((p == P_HITS && !v->nhits) || (p == P_GRAPH && v->state < NX_BFB_SWEEP));
+            if (p != s->page) {
+                s->page = p;
+                init_list(s);
+                nx_inval(k_page);
+            }
         }
         return 1;
     case NX_KEY_START:
@@ -209,11 +322,6 @@ static int bfb_key(void *st, const struct nx_kev *e)
             int rc = nx_uc_bfb_start();
             if (rc == NX_BUSY)   /* the other generator has the slot, or a scan runs */
                 nx_ui_toast_s(NX_I20_WARNING, NX_PAL_WARNING, NX_S_SLOT_IN_USE, 0, 0);
-            else if (rc == NX_OK && s->hits) {
-                s->hits = 0;
-                init_list(s);
-                nx_inval(nx_list_view(&s->l));
-            }
         }
         return 1;
     case NX_KEY_STOP:
@@ -233,14 +341,49 @@ static void bfb_tick(void *st, uint32_t now)
 {
     struct bfbs *s = st;
     const struct nx_bfb_view *v = nx_uc_bfb();
+    uint32_t sig = hits_sig(v);
     nx_list_tick(&s->l, now);
-    if (v->state != s->state || v->step != s->step || v->nhits != s->nhits) {
+    if (v->state == NX_BFB_DONE && s->state != NX_BFB_DONE && v->nhits) {   /* the hits play: the dashboard, as a
+                                                                              * loaded program (the hits stay here) */
+        char a0[4], a1[4];
+        nx_fmt_u(a0, v->nhits);
+        nx_fmt_u(a1, v->slot);
+        nx_ui_set_focus(v->ch);
+        nx_ui_reset(&nx_scr_dash, 0, NX_TR_BACK);
+        nx_ui_toast_s(NX_I20_CHECK_CIRCLE, nx_accent(v->ch), NX_S_BFB_SAVED, a0, a1);
+        return;
+    }
+    if (v->state != s->state) {   /* a scan: its settings, then the graph, then its hits */
+        uint8_t p = v->state == NX_BFB_SWEEP ? P_GRAPH : v->state == NX_BFB_DONE && v->nhits ? P_HITS
+                  : v->state == NX_BFB_AUTH ? P_SET : s->page;
+        if (p != s->page) {
+            s->page = p;
+            init_list(s);
+            nx_inval(k_page);
+        }
+    }
+    if (s->page == P_GRAPH && v->step != s->step) {   /* a reading: the live strip scrolls; the sweep strip's
+                                                       * column, or all of it on a new column or a larger scale */
+        unsigned c = trace_col(v->step);
+        if (c != s->col || v->trace[c] > s->scale) {
+            s->col = (uint16_t)c;
+            s->scale = graph_scale(v);
+            nx_inval(k_page);
+        } else {
+            nx_inval(k_live);
+            nx_inval((nx_rect){ (int16_t)(NX_M + c), SWEEP_Y0, (int16_t)(NX_M + c + 1u), SWEEP_Y1 });
+        }
+    }
+    if (v->state != s->state || v->step != s->step || sig != s->sig) {
+        if (s->page == P_HITS && sig != s->sig) {   /* a hit came or a stronger one replaced one */
+            s->l.n = v->nhits;
+            nx_inval(k_page);
+        }
         s->state = v->state;
         s->step = v->step;
         s->nhits = v->nhits;
+        s->sig = sig;
         nx_inval(k_status);
-        if (s->hits)   /* the hits' rows */
-            nx_inval(nx_list_view(&s->l));
     }
 }
 

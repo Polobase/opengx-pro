@@ -13,6 +13,7 @@
 #include "nx_core.h"
 #include "nx_slots.h"
 #include "nx_src.h"
+#include "nx_ui_int.h"
 #include "nx_world.h"
 #include "state.h"
 #include "storage.h"
@@ -114,6 +115,14 @@ static void pure(void)
     CHECK_EQ(n, NX_BFB_STEPS);
     CHECK_EQ(grid_f8(1), 4101025000000ull);
     CHECK(f > NX_BFB_END_F8 && f < 180020000000000ull);
+    /* the 0.05 % grid of the quicker speeds */
+    f = NX_BFB_START_F8;
+    n = 0;
+    while (f <= NX_BFB_END_F8) {
+        f += f / 2000u;
+        n++;
+    }
+    CHECK_EQ(n, NX_BFB_STEPS2);
 }
 
 static int run_until_state(const struct nx_bfb_view *v, uint8_t st, unsigned max_ms)
@@ -132,11 +141,13 @@ static void scan(void)
     nxw_on_line = gen;
     s_w24 = s_r11_n = s_mute = 0;
     nxw_run_until(4600);   /* past the boot gate */
-    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u };
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u, 0 };
     nxw_clear();
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);   /* the screen is up: the end of the scan takes it to the dashboard */
     CHECK_EQ(nx_bfb_start(), NX_OK);
     CHECK_EQ(nx_bfb_start(), NX_BUSY);
     const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK_EQ(v->steps, NX_BFB_STEPS);
     run_ms(100, 1000);
     CHECK(has(0, ":r90=271543986,") && has(0, ":w92=883542462."));   /* the session */
     /* the program: its idle configuration, the sine table, the step at the first ramp value */
@@ -187,12 +198,19 @@ static void scan(void)
     CHECK(sim_ms() - t0 < NX_BFB_STEPS * (NX_BFB_STEP_MS + 6u));
     run_ms(500, 1000);
     CHECK_EQ(v->state, NX_BFB_DONE);
+    CHECK(nx_ui_top() == &nx_scr_dash);
     CHECK_EQ(v->nhits, 2);
     CHECK_EQ(v->hits[0].dev20, 40u * 20u);
     CHECK_EQ(v->hits[1].dev20, 25u * 20u);
     CHECK_EQ(v->hits[0].code, nx_bfb_code(grid_f8(PEAK1 + 1u)));   /* the step after the peak's first reading */
     CHECK_EQ(v->hits[1].code, nx_bfb_code(grid_f8(PEAK2 + 1u)));
     CHECK_EQ(v->missed, 0);
+    /* the graph: the peak in its column, the trace filled end to end */
+    CHECK_EQ(v->hits[0].step, PEAK1 + 1u);
+    unsigned col = PEAK1 * NX_BFB_TRACE / NX_BFB_STEPS;
+    CHECK(v->trace[col] >= 39u && v->trace[col] <= 41u);
+    CHECK_EQ(v->live_n, NX_BFB_STEPS);   /* every sweep reading went into the live ring */
+    CHECK(v->live[(NX_BFB_STEPS - 1u) % NX_BFB_TRACE] <= 1 && v->live[(NX_BFB_STEPS - 1u) % NX_BFB_TRACE] >= -1);
     /* the hits in slot 30, loaded and playing on G1 */
     CHECK(nx_slot_used(30));
     uint64_t hdr[5];
@@ -210,13 +228,37 @@ static void scan(void)
     nxw_on_line = 0;
 }
 
+/* The fast speed: the 0.05 % grid at 45 ms a step */
+static void fast(void)
+{
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    nxw_run_until(4600);
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u, 2 };
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK_EQ(v->steps, NX_BFB_STEPS2);
+    CHECK(run_until_state(v, NX_BFB_SWEEP, 12000));
+    nxw_clear();
+    run_ms(1000, 1000);
+    CHECK(v->step >= 21u && v->step <= 23u);   /* 45 ms a step */
+    char l24[32];
+    snprintf(l24, sizeof l24, ":w24=%llu,", (unsigned long long)nx_bfb_code(NX_BFB_START_F8 + NX_BFB_START_F8 / 2000u));
+    CHECK_EQ(has(0, l24), 1);   /* the first step is 0.05 % up */
+    nx_bfb_stop();
+    run_ms(500, 1000);
+    CHECK_EQ(v->state, NX_BFB_IDLE);
+    nxw_on_line = 0;
+}
+
 static void stopped(void)
 {
     nxw_reset();
     nxw_on_line = gen;
     s_w24 = s_r11_n = s_mute = 0;
     nxw_run_until(4600);
-    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 1, 29, 1000u, 60u };
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 1, 29, 1000u, 60u, 0 };
     CHECK_EQ(nx_bfb_start(), NX_OK);
     const struct nx_bfb_view *v = nx_bfb_view();
     run_ms(3000, 1000);
@@ -237,7 +279,7 @@ static void stopped(void)
     s_w24 = s_r11_n = 0;
     s_mute = 1;
     nxw_run_until(4600);
-    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u };
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u, 0 };
     CHECK_EQ(nx_bfb_start(), NX_OK);
     run_ms(8000, 1000);
     CHECK_EQ(v->state, NX_BFB_FAILED);
@@ -252,6 +294,7 @@ void test_nx_bfb(void)
 #if NX_FEAT_BFB
     pure();
     scan();
+    fast();
     stopped();
 #endif
 }

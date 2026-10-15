@@ -61,7 +61,8 @@ Settings > About, and the page "Support the project" with its QR code.
   0 to 20 V in steps of 0.1 V, on G1 or G2. Out 2 follows Out 1 inverted.
 - **Biofeedback scan** (not in the release image: a build switch, see
   [Build from source](build.md)): Spooky2's scan on the unit alone, 41 kHz to 1.8 MHz in about
-  18 minutes, the 10 strongest responses saved as a program and played.
+  18 minutes (9 or 6 at a coarser, quicker setting), with the scan graph and the time left as it runs, the 10 strongest responses saved
+  as a program and played.
 - **Timers**: stop a generator after 5 to 240 minutes of running, power off when all programs
   have finished, start the last programs at power-on.
 - **Resume after a power cut**: the unit offers to continue what was playing, at most one minute

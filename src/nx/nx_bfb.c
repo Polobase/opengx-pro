@@ -67,6 +67,7 @@ struct det {
     uint32_t plat_at;       /* index of the plateau's first reading */
     int32_t plat_dev20;     /* its deviation, in 1/20 of a reading unit (exact: reading * 20 - sum) */
     uint64_t next_code;     /* the frequency (:w24 code) of the step after the plateau's first reading */
+    uint16_t next_step;     /* ... and that step (1-based) */
 };
 
 static struct {
@@ -85,7 +86,8 @@ void nx_bfb_boot(void)
 {
     memset(&s, 0, sizeof s);
     memset(s_rx, 0, sizeof s_rx);
-    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, PROGRAM_SLOTS, 2000u, 180u };   /* G1, slot 30, 20 V, 3 min per hit */
+    s.v.steps = NX_BFB_STEPS;
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, PROGRAM_SLOTS, 2000u, 180u, 0 };   /* G1, slot 30, 20 V, 3 min per hit, standard */
 }
 
 const struct nx_bfb_view *nx_bfb_view(void)
@@ -171,6 +173,7 @@ int nx_bfb_start(void)
     memset(&s, 0, sizeof s);
     s.v.ch = c->ch;
     s.v.slot = c->slot;
+    s.v.steps = NX_BFB_SPEED_STEPS(c->speed);
     s.v.state = NX_BFB_AUTH;
     return NX_OK;
 }
@@ -245,7 +248,20 @@ static int pair_step(unsigned ch)
     }
 }
 
-static void add_hit(uint64_t code, uint32_t dev20)
+static void trace_push(int32_t dev20)   /* a sweep reading into its column of the graph */
+{
+    struct nx_bfb_view *v = &s.v;
+    int32_t u = dev20 / 20;
+    unsigned col = (uint32_t)v->step * NX_BFB_TRACE / v->steps;
+    if (col >= NX_BFB_TRACE)
+        col = NX_BFB_TRACE - 1u;
+    if (u > (int32_t)v->trace[col])
+        v->trace[col] = (uint8_t)(u > 255 ? 255 : u);
+    v->live[v->live_n % NX_BFB_TRACE] = (int8_t)(u > 127 ? 127 : u < -127 ? -127 : u);
+    v->live_n++;
+}
+
+static void add_hit(uint64_t code, uint32_t dev20, uint16_t step)
 {
     struct nx_bfb_view *v = &s.v;
     unsigned n = v->nhits, k = n;
@@ -255,7 +271,7 @@ static void add_hit(uint64_t code, uint32_t dev20)
         return;
     for (unsigned j = n < NX_BFB_HITS ? n : NX_BFB_HITS - 1u; j > k; j--)
         v->hits[j] = v->hits[j - 1u];
-    v->hits[k] = (struct nx_bfb_hit){ code, dev20 };
+    v->hits[k] = (struct nx_bfb_hit){ code, dev20, step };
     if (n < NX_BFB_HITS)
         v->nhits++;
 }
@@ -269,6 +285,8 @@ static void det_push(uint64_t code, uint32_t r)
         r = 10000000u;
     if (d->wn == NX_BFB_WINDOW) {
         dev20 = (int32_t)(r * 20u) - (int32_t)d->sum;
+        if (s.v.state == NX_BFB_SWEEP)
+            trace_push(dev20);
         if (!d->warm && i <= 5u * NX_BFB_WINDOW && d->sum) {
             uint32_t lo = 0xFFFFFFFFu, hi = 0, a = (uint32_t)(dev20 < 0 ? -dev20 : dev20);
             for (unsigned k = 0; k < NX_BFB_WINDOW; k++) {
@@ -291,6 +309,7 @@ static void det_push(uint64_t code, uint32_t r)
     } else {
         if (!d->next_set) {
             d->next_code = code;
+            d->next_step = (uint16_t)(s.v.step + 1u);
             d->next_set = 1;
         }
         if (r != d->plat) {
@@ -298,7 +317,7 @@ static void det_push(uint64_t code, uint32_t r)
              * readings is past the settle */
             if (r < d->plat && d->has_before && d->before < d->plat && d->warm && i - 1u >= d->warm_at
                 && d->plat_dev20 > 0)
-                add_hit(d->next_code, (uint32_t)d->plat_dev20);
+                add_hit(d->next_code, (uint32_t)d->plat_dev20, d->next_step);
             d->before = d->plat;
             d->has_before = 1;
             d->plat = r;
@@ -340,7 +359,7 @@ static void sweep(unsigned ch, struct channel *c, uint32_t now)
             v->state = NX_BFB_SAVE;
             break;
         }
-        s.f8 += s.f8 / 4000u;   /* 0.025 % */
+        s.f8 += s.f8 / NX_BFB_SPEED_GRID(g_nx_bfb_cfg.speed);   /* 0.025 %, or 0.05 % at the quicker speeds */
         v->code = c->prog.freq[0] = c->step_freq = nx_bfb_code(s.f8);   /* the dashboard follows */
         nx_txq_submit_freq(ch, c->step_freq);
         s.t0 = now;
@@ -372,7 +391,7 @@ static void sweep(unsigned ch, struct channel *c, uint32_t now)
         s.sub = 6;
         /* fall through */
     default:   /* the step's time */
-        if (now - s.t0 >= NX_BFB_STEP_MS)
+        if (now - s.t0 >= NX_BFB_SPEED_MS(g_nx_bfb_cfg.speed))
             s.sub = 0;
         break;
     }
@@ -462,6 +481,9 @@ void nx_bfb_task(uint32_t now)
         }
         if (++s.i >= NX_BFB_BASELINE) {
             v->state = NX_BFB_SWEEP;
+            v->sweep_ms = now;
+            memset(v->trace, 0, sizeof v->trace);
+            v->live_n = 0;
             s.f8 = NX_BFB_START_F8;
             s.sub = 0;
         }

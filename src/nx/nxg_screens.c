@@ -9,6 +9,7 @@
 #include "nx_keys.h"
 #include "nx_lcd.h"
 #include "nx_scope.h"
+#include "nx_time.h"
 #include "nx_trans.h"
 #include "nx_ui.h"
 #include "nx_ui_int.h"
@@ -201,6 +202,32 @@ static void terrain_on(void)   /* G1 plays Terrain · Remote (protocol 1), day 6
     g->frac = (uint16_t)((uint32_t)(g->total_s - g->left_s) * 65535u / g->total_s);
     g->freq = 1658u;           /* 165 Hz */
     g->next = 2008u;
+}
+#endif
+
+#if NX_FEAT_BFB
+static void bfb_scanning(void)   /* a scan on G1 at step 6 200 of 15 130 (190 kHz), three hits, two missed reads */
+{
+    struct nx_bfb_view *v = nxg_bfb_view();
+    memset(v, 0, sizeof *v);
+    v->state = NX_BFB_SWEEP;
+    v->step = 6200;
+    v->steps = NX_BFB_STEPS;
+    v->sweep_ms = nx_ms() - 6200u * 71u;
+    v->missed = 2;
+    v->reading = 1631;
+    v->code = 1900008ull /* 190 kHz as a :w24 code: mantissa, exponent */;
+    v->nhits = 3;
+    v->hits[0] = (struct nx_bfb_hit){ 581208ull, 40u * 20u, 1396 };    /* 58 120 Hz, +40 */
+    v->hits[1] = (struct nx_bfb_hit){ 1234508ull, 25u * 20u, 4409 };   /* 123 450 Hz */
+    v->hits[2] = (struct nx_bfb_hit){ 1775008ull, 12u * 20u, 5862 };   /* 177 500 Hz */
+    for (unsigned c = 0; c < NX_BFB_TRACE; c++) {   /* noise of a few units in both strips, a bump in the live one */
+        v->trace[c] = (uint8_t)(c * 37u % 5u);
+        v->live[c] = (int8_t)((int)(c * 53u % 9u) - 4 + (c > 150u && c < 156u ? 20 : 0));
+    }
+    v->live_n = 1000;   /* the ring is full: the oldest shown is live[1000 % 296] */
+    for (unsigned i = 0; i < 3u; i++)
+        v->trace[(uint32_t)v->hits[i].step * NX_BFB_TRACE / NX_BFB_STEPS] = (uint8_t)(v->hits[i].dev20 / 20u);
 }
 #endif
 
@@ -429,6 +456,15 @@ static void settings(void)
     nx_ui_push(&nx_scr_plan_edit, 0x101u, NX_TR_NONE);   /* plan 1 */
     run(300);
     nxg_take("plan_edit");
+#endif
+#if NX_FEAT_BFB
+    begin(NX_THEME_DARK, bfb_scanning);
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    run(300);
+    nxg_take("bfb_scan");
+    press(NX_KEY_LOOP, 80);   /* the hits so far */
+    run(300);
+    nxg_take("bfb_hits");
 #endif
 #if NX_FEAT_MANUAL
     begin(NX_THEME_DARK, 0);
