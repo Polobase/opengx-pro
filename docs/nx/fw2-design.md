@@ -197,8 +197,9 @@ See "Resume" above. Host tests: `tests/host/nx/test_nx_resume.c`. Device check:
 ## Budgets
 - **Flash (nx):** the image (the default build, and the released image of `make release`) holds
   the Terrain table and the preset table (committed in `src/nx/data/` since 2026-10-13) and no
-  vendor splash: 105,632 bytes of the 112,640 the bootloader is proven to take (since the text
-  fonts went to 2 bpp on 2026-10-14; 0.9.0: 108,456 bytes), 100,044 without the two tables
+  vendor splash: 103,384 bytes of the 112,640 the bootloader is proven to take (since the text
+  fonts went to 2 bpp and link-time optimisation came on 2026-10-14; 0.9.0: 108,456 bytes),
+  96,372 without the two tables
   (`NX_TERRAIN=0 NX_PRESETS=0`). `make nx-data` writes the tables again from a
   Spooky2 installation (`TERRAIN_DIR` / `PRESET_FILE`, e.g. in an untracked `local.mk`).
   The linker checks the build budget (`NX_FLASH_LIMIT`, 112,640 bytes); `make flash` refuses

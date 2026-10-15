@@ -113,9 +113,19 @@ $(error release build: NX_VENDOR must be 0, NX_TERRAIN and NX_PRESETS 1, NX_TIME
 endif
 CFLAGS_nx   += -DNX_RELEASE=1
 endif
+# Link-time optimisation for the nx image: 2.4 KB smaller (2026-10-14). The two symbols the
+# startup assembly refers to carry 'used', and the reset handler keeps its own literal pool.
+# NX_LTO=0 builds without it: the linker map then names every object again, which the size
+# inventory (tools/nx_size.py --modules) needs; with LTO it shows three link partitions only.
+NX_LTO ?= 1
+ifeq ($(NX_LTO),1)
+CFLAGS_nx   += -flto=auto
+LTO_LDFLAGS := -flto=auto -Os
+endif
 LDSCRIPT_nx := ld/nx.ld
 LDFLAGS_nx  := $(if $(NX_FLASH_LIMIT),-Wl$(comma)--defsym$(comma)NX_FLASH_LIMIT=$(NX_FLASH_LIMIT)) \
-               $(if $(NX_NOINIT_ADDR),-Wl$(comma)--defsym$(comma)NX_NOINIT_ADDR=$(NX_NOINIT_ADDR))
+               $(if $(NX_NOINIT_ADDR),-Wl$(comma)--defsym$(comma)NX_NOINIT_ADDR=$(NX_NOINIT_ADDR)) \
+               $(LTO_LDFLAGS)
 
 # nx engine gallery (tools/nx_gallery.py run --emu): the UI engine and its sheets on a virtual
 # clock, no firmware around them. NX_LCD_OPTS overrides Drop-0 constants of nx_config.h for a

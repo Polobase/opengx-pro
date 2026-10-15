@@ -7,8 +7,10 @@ Terrain sets and the Radionics preset built in (then a personal build, with `TER
 Since 2026-10-13 that is the default build and the released image (`make release`): the two
 tables are committed in `src/nx/data/`, and `NX_TERRAIN` and `NX_PRESETS` are on by default. The
 image was 108,456 bytes then, 4,184 left of the 112,640 the bootloader is proven to take. Since
-2026-10-14 the two text fonts are 2 bpp (section 5): 105,632 bytes, 7,008 left. Without the two
-tables it is 100,044 bytes; with only `NX_TERRAIN=0` 101,252, with only `NX_PRESETS=0` 104,424.
+2026-10-14 the two text fonts are 2 bpp and the image is linked with link-time optimisation
+(section 5; `NX_LTO=0` builds without it, which the per-module figures below need): 103,384 bytes,
+9,256 left. Without the two tables it is 96,372 bytes; with only `NX_TERRAIN=0` 97,904, with only
+`NX_PRESETS=0` 101,848.
 The numbers below are those of 2026-10-06 and were not measured again.
 
 **Image: 106,538 B of 112,640 B (`NX_FLASH_LIMIT` = `FLASH_PROVEN`): 6,102 B left.**
@@ -373,7 +375,7 @@ The preset's two wave tables (2 × 1,024 samples) are not stored: `nx_preset_sam
 | The same for the last 5 signed 32-bit divisions (`nx_bl_tick_1ms`, `nx_list_draw` ×3, `nx_diag_sensors`): `_divsi3` (468 B) goes | ≈ 450 | est. | not tried |
 | History's texts and icon: History is off, but its 11 texts (147 B), its hint line (30 B), its menu text (10 B) and its icon (61 B) are still in the tables | 248 | exact | needs the asset generator to follow the switches (they must come back with `NX_FEAT_HIST=1`) |
 | Texts and icons of the other features, when one of them is switched off (section 2) | up to ≈ 2,800 | exact | the same generator work; saves nothing while those features are on |
-| Link-time optimisation (`-flto`) | ? | – | tried: the link stops with an assembler error ("invalid offset, value too big"). Not looked into further |
+| Link-time optimisation (`-flto`) | 2,376 | measured | **applied 2026-10-14** for the nx image (`NX_LTO=0` switches it off). The assembler error was the reset handler's inline assembly: its `ldr =` literal had no pool in reach once LTO put everything into one section (`.ltorg` after the final branch fixes it); then LTO dropped `reset_c` and `nx_fault`, referenced from assembly only (`__attribute__((used))`). Checked: the image boots on the emulated board, and the whole gallery rendered from an LTO build is pixel-identical to the baselines |
 
 The library today: `libgcc` 2,076 B (`_divsi3` 468, `_divdi3` 464, `_udivmoddi4` 408, `_udivsi3`
 276, `_muldi3` 80, `_aeabi_ldivmod` 72, `_aeabi_uldivmod` 64, `_clzsi2` 60 and smaller ones) and

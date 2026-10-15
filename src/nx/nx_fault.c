@@ -125,7 +125,9 @@ void nx_fault_init(void)
     g_nx_diag.safe_mode = (uint8_t)nx_fault_safe_mode(&g_nx_noinit);
 }
 
-void nx_fault(const uint32_t *frame, uint32_t ipsr)
+/* Called from the fault handlers' assembly in startup.c only: 'used' keeps it under link-time
+ * optimisation, which cannot see that reference. */
+__attribute__((used)) void nx_fault(const uint32_t *frame, uint32_t ipsr)
 {
     __disable_irq();
     uint32_t a = (uint32_t)frame;
