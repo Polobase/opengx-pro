@@ -1,5 +1,12 @@
 # Backlog: ideas for later
 
+## Site: pace the Web Serial writes
+
+- On a Mac with the generic USB serial driver (ports `usbmodem…`) the Python tool had to send
+  each 2 KB block in 64-byte pieces 10 ms apart; at once, the bootloader refused every block
+  (2026-10-14). The page writes a block at once (`site/src/lib/byteport.ts`): either pace it
+  the same way or try it on such a Mac first.
+
 Not implemented. First priority is the same features as the original firmware (see
 [`DEVIATIONS.md`](DEVIATIONS.md)); these items wait until then.
 
