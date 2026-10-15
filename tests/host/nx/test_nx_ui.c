@@ -547,6 +547,22 @@ static void test_night_view(void)
 
 /* Settings > Reset all settings: START only asks, START held 1 s resets (the key guide stays
  * seen). */
+/* The menu: UP/DOWN go through every cell and round the end (from Settings, the last, DOWN is
+ * Programs, the first) */
+static void test_menu_wrap(void)
+{
+    boot();
+    press(NX_KEY_DOWN, 150);   /* the menu, on Settings */
+    press(NX_KEY_DOWN, 150);   /* round to Programs */
+    press(NX_KEY_START, 150);
+    CHECK(nx_ui_top() == &nx_scr_lib);
+    press(NX_KEY_STOP, 150);   /* the dashboard */
+    press(NX_KEY_DOWN, 150);   /* the menu, on Programs */
+    press(NX_KEY_UP, 150);     /* round to Settings */
+    press(NX_KEY_START, 150);
+    CHECK(nx_ui_top() == &nx_scr_set);
+}
+
 static void test_reset_settings(void)
 {
     boot();
@@ -622,6 +638,7 @@ void test_nx_ui(void)
     test_original_keys();
     test_first_boot_guide();
     test_night_view();
+    test_menu_wrap();
     test_reset_settings();
     test_traffic();
     test_lock();
