@@ -27,6 +27,7 @@ The generator in focus is large; the other one is the strip at the bottom.
 | Key | What it does |
 |---|---|
 | START | Play, pause, play on. After the end: play again. Without a program: open the program list. |
+| START, held | The biofeedback scan, on the generator shown (only in a build with `NX_FEAT_BFB`). |
 | STOP, short | Stop the generator in focus: back to step 1, outputs off. |
 | STOP, held 1 s, then released | Stop both generators. A ring shows from 0.5 s. |
 | LOOP, short | While running: repeat on or off. Stopped or paused: play with repeat. |
@@ -115,21 +116,32 @@ UP and DOWN choose a row. G1 and G2 change the value, and repeat while held. LOO
 row moves the underlined digit that G1 and G2 change. START plays on the chosen generator, or
 stops it if it plays there. STOP goes back. Changes apply at once, also while it plays.
 
-**Biofeedback scan** (menu > Bio scan; only in a build with `NX_FEAT_BFB`). Rows: Run on,
-Speed, Amplitude, Per hit, Save as program (the list scrolls to the fifth). UP and DOWN choose a
-row, G1 and G2 change the value. Speed: Standard is Spooky2's sweep, every 0.025 % at 70 ms a
+**Biofeedback scan** (menu > Bio scan, or START held on the dashboard; only in a build with `NX_FEAT_BFB`). Rows: Run on,
+Speed, Refine, Amplitude, Per hit, Save as program (the list scrolls). UP and DOWN choose a row,
+G1 and G2 change the value (on Run on, G1 picks G1 and G2 picks G2). Speed: Standard is Spooky2's sweep, every 0.025 % at 70 ms a
 step, about 18 minutes; Balanced takes every other frequency, about 9 minutes; Fast also shortens
 the step to 45 ms, about 6 minutes. A response is 6 to 20 standard steps wide, so the coarser grid
-still finds it; a very narrow one can be missed. START
-starts the scan on the chosen generator; the line under the rows shows its stage, then the step,
-the frequency and the reading, a progress bar and the time left (from the pace so far). When the
-sweep begins the rows give way to the scan graph: on top the last readings (about 20 seconds)
-scrolling by, their deviation from the running average; below, the whole sweep so far, the
-current column in the generator's colour, a mark above each hit.
-When the scan ends with hits they play as the chosen program and the dashboard comes up, with
-a toast saying so; menu > Bio scan then opens on the hits, strongest first, with their deviation;
+still finds it; a very narrow one can be missed. Refine on: when the hits' program ends by itself
+(not looped), the scan screen comes back on the hits, marked "Pass 2", and sweeps a narrow
+window around each hit at half the step, 10 steps each side, about 20 seconds; the new hits
+replace the old ones in the program, which plays again, and so on until a pass finds no hits or
+you stop or replace the program. START
+starts the scan on the chosen generator (from the graph or hits page it first shows the settings,
+so a stray press restarts nothing). While the sweep runs, START pauses it: no step goes out,
+the generator holds the frequency reached with the outputs on (so going on needs no ramp), the
+time left excludes the pause; START again goes on. The line under the rows shows its stage, with a progress bar
+for the ramp and the baseline, then the step, the frequency, the missed reads and the reading, a
+progress bar, the time elapsed at the left and the time left at the right (from the pace so far). When the sweep begins the rows give way to the scan graph: on top the last readings
+(about 20 seconds) scrolling by, their deviation from the running average, with a mark in the
+generator's colour above each hit still in view and a line down to its peak; below, the whole
+sweep so far, the current column in the generator's colour, a mark above each hit.
+When the scan ends with hits they play as the chosen program, repeating, and the dashboard comes
+up with a toast saying so (with Refine on they play once, the next pass follows the end; the
+last possible pass repeats); menu > Bio scan then opens on the hits, strongest first, with their deviation;
 UP and DOWN scroll them. LOOP goes to the next page that has something to show: settings, graph,
-hits. STOP ends a running scan and stops the generator, otherwise goes back.
+hits. STOP ends a running scan and stops the generator (nothing stays loaded on it); the screen
+keeps the graph and the hits found so far and says at which step it stopped, until the next scan.
+Otherwise STOP goes back.
 
 **Timers** (menu > Timers). Rows: G1 stops after, G2 stops after, Power off when all finished,
 Start last programs at boot. UP and DOWN choose, G1 and G2 change, START steps a value or flips a

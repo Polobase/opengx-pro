@@ -1,13 +1,18 @@
-/* The biofeedback scan (menu > Biofeedback; NX_FEAT_BFB, nx_bfb.h): three pages above the status
+/* The biofeedback scan (menu > Bio scan, or START held on the dashboard; NX_FEAT_BFB, nx_bfb.h): three pages above the status
  * lines: the settings as a list, the scan graph (the last readings' deviation scrolling by, and
- * the whole sweep's below it with the hits marked), the hits as a list. The sweep brings the
+ * the whole sweep's below it with the hits marked; a hit's peak still in the last readings is
+ * marked there too), the hits as a list. The sweep brings the
  * graph up; its end goes to the dashboard when there are hits (they play), and the screen opens
  * on them afterwards.
  *
  * Keys: UP/DOWN select or scroll, G1/G2 change a setting (held: repeat), START starts the scan
- * on the chosen generator, STOP ends a running scan (the generator stops), else back; LOOP goes
- * to the next page that has something to show. The status shows the time left from the pace so
- * far. */
+ * on the chosen generator (from the graph or hits page it shows the settings first), or pauses
+ * its sweep and goes on (nx_bfb_pause), STOP ends a running
+ * scan (the generator stops; the screen keeps what
+ * it found and says where it stopped), else back; LOOP goes to the next page that has something
+ * to show. The status shows the time elapsed and the time left from the pace so far. With Refine
+ * on, the end of the hits' program brings the screen back for the pass on the hits
+ * (NXE_BFB_REFINE, nx_ui.c): on the hits, with "Pass N", until the pass's sweep replaces them. */
 #include "nx_config.h"
 
 #if NX_FEAT_BFB
@@ -16,10 +21,11 @@
 #include "nx_comp.h"
 #include "nx_uifmt.h"
 
-enum { R_GEN, R_SPEED, R_AMPL, R_DWELL, R_SLOT, ROWS };
-static const uint16_t k_label[ROWS] = { NX_S_DETAIL_RUN_ON, NX_S_BFB_SPEED, NX_S_MANUAL_AMPL, NX_S_BFB_DWELL, NX_S_BFB_SLOT };
+enum { R_GEN, R_SPEED, R_REFINE, R_AMPL, R_DWELL, R_SLOT, ROWS };
+static const uint16_t k_label[ROWS] = { NX_S_DETAIL_RUN_ON, NX_S_BFB_SPEED, NX_S_BFB_REFINE, NX_S_MANUAL_AMPL,
+                                        NX_S_BFB_DWELL, NX_S_BFB_SLOT };
 static const uint16_t k_speed[NX_BFB_SPEEDS] = { NX_S_BFB_STANDARD, NX_S_BFB_BALANCED, NX_S_BFB_FAST };
-#define VIS 4   /* rows in view: the list scrolls to the fifth */
+#define VIS 4   /* rows in view: the list scrolls to the rest */
 
 #define LIST_Y0 (NX_BAR_H + 2)
 #define STATUS_Y0 (LIST_Y0 + VIS * NX_ROW_H)   /* 152: the status lines below the list */
@@ -40,7 +46,8 @@ struct bfbs {
     struct nx_list l;
     uint8_t page;           /* P_* */
     uint8_t state, nhits;   /* what the status was drawn from */
-    uint16_t step;
+    uint8_t playing;
+    uint16_t step, missed, prog;
     uint32_t sig;           /* the hits drawn (hits_sig) */
     uint16_t col;           /* the graph's column of the last reading drawn */
     uint8_t scale;          /* the graph's full scale drawn */
@@ -99,6 +106,17 @@ static void draw_live(nx_gc *gc, const struct nx_bfb_view *v)   /* the last read
         nx_fill(gc, (nx_rect){ x, y0, (int16_t)(x + 1), (int16_t)(y1 + 1) }, col);
         prev = y;
     }
+    uint16_t acc = nx_col(gc, nx_accent(v->ch));
+    for (unsigned i = 0; i < v->nhits; i++) {   /* a mark above each hit whose peak is in view, a line down to it */
+        unsigned back = (uint16_t)(v->live_n - v->hits[i].live);   /* readings since the peak */
+        if (back && back <= n) {
+            int16_t x = (int16_t)(NX_M + NX_BFB_TRACE - back);
+            int16_t y = (int16_t)(mid - v->live[v->hits[i].live % NX_BFB_TRACE] * half / scale);
+            nx_fill(gc, (nx_rect){ (int16_t)(x - 1), LIVE_Y0, (int16_t)(x + 2), LIVE_Y0 + 3 }, acc);
+            if (y > LIVE_Y0 + 3)
+                nx_fill(gc, (nx_rect){ x, LIVE_Y0 + 3, (int16_t)(x + 1), y }, acc);
+        }
+    }
 }
 
 static void draw_sweep(nx_gc *gc, const struct nx_bfb_view *v)   /* the whole sweep so far, the hits marked */
@@ -153,6 +171,9 @@ static void row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel, uint
     case R_SPEED:
         t = nx_str(k_speed[c->speed < NX_BFB_SPEEDS ? c->speed : 0u]);
         break;
+    case R_REFINE:
+        t = nx_str(c->refine ? NX_S_COMMON_ON : NX_S_COMMON_OFF);
+        break;
     case R_AMPL:
         nx_fmt_cv(v, c->ampl_cv);
         break;
@@ -172,6 +193,13 @@ static void row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel, uint
     }
 }
 
+static void bar(nx_gc *gc, unsigned ch, uint32_t n, uint32_t of)   /* the progress bar, n of of */
+{
+    int16_t x1 = (int16_t)(NX_M + (NX_LCD_W - 2 * NX_M) * n / of);
+    nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 37, NX_LCD_W - NX_M, STATUS_Y0 + 41 }, nx_col(gc, NX_PAL_TRACK));
+    nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 37, x1, STATUS_Y0 + 41 }, nx_col(gc, nx_accent(ch)));
+}
+
 static void status(nx_gc *gc)
 {
     const struct nx_bfb_view *v = nx_uc_bfb();
@@ -179,6 +207,7 @@ static void status(nx_gc *gc)
     const char *args[3] = { a[0], a[1], a[2] };
     uint16_t sid = NX_S_BFB_IDLE;
     uint8_t tok = NX_PAL_TEXT2;
+    int sweep = v->state == NX_BFB_SWEEP || v->state == NX_BFB_SAVE;
     nx_fmt_u(a[0], v->step);
     nx_fmt_u(a[1], v->steps);
     nx_fmt_u(a[2], v->nhits);
@@ -195,7 +224,9 @@ static void status(nx_gc *gc)
         break;
     case NX_BFB_SWEEP:
     case NX_BFB_SAVE:
-        sid = NX_S_BFB_SCAN;
+        sid = v->paused ? NX_S_BFB_PAUSED : NX_S_BFB_SCAN;
+        if (v->paused)
+            tok = NX_PAL_WARNING;
         break;
     case NX_BFB_DONE:
         nx_fmt_u(a[0], v->nhits);
@@ -207,6 +238,10 @@ static void status(nx_gc *gc)
         sid = NX_S_BFB_FAILED;
         tok = NX_PAL_ERROR;
         break;
+    case NX_BFB_STOPPED:
+        sid = NX_S_BFB_STOPPED;
+        tok = NX_PAL_WARNING;
+        break;
     default: {   /* idle: the minutes a sweep takes at the speed chosen */
         unsigned sp = nx_uc_bfb_cfg()->speed;
         nx_fmt_u(a[0], (NX_BFB_SPEED_STEPS(sp) * NX_BFB_SPEED_MS(sp) + 30000u) / 60000u);
@@ -214,35 +249,54 @@ static void status(nx_gc *gc)
     }
     }
     nx_str_format(buf, sizeof buf, sid, args, 3);
-    nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 4, buf, nx_col(gc, tok));
-    if (v->state == NX_BFB_SWEEP || v->state == NX_BFB_SAVE) {   /* the frequency, the reading, the progress */
+    nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 2, buf, nx_col(gc, tok));
+    if (v->pass > 1u) {   /* a refining pass, or the hits of one */
+        nx_fmt_u(a[0], v->pass);
+        nx_str_format(buf, sizeof buf, NX_S_BFB_PASS, args, 1);
+        nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M, STATUS_Y0 + 2, buf, nx_col(gc, NX_PAL_TEXT2));
+    }
+    if (v->state == NX_BFB_DONE && v->playing && nx_uc_bfb_cfg()->refine) {   /* the next pass follows the program */
+        nx_fmt_u(a[0], v->pass + 1u);
+        nx_str_format(buf, sizeof buf, NX_S_BFB_REFINES, args, 1);
+        nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 19, buf, nx_col(gc, NX_PAL_TEXT2));
+    }
+    int freq = sweep || (v->state == NX_BFB_STOPPED && v->step);
+    if (v->state == NX_BFB_RAMP || v->state == NX_BFB_BASE)   /* the stage's progress */
+        bar(gc, v->ch, v->prog, v->state == NX_BFB_RAMP ? NX_BFB_RAMP_STEPS : NX_BFB_BASELINE);
+    if (freq) {   /* the frequency, the reading, the progress: the sweep's, or how far a stopped one came */
         char *p = nx_fmt_freq(f, v->code, 2, 2, 0);
         strcpy(p, " Hz");
-        nx_text(gc, &nx_font_body16, NX_M + 4, STATUS_Y0 + 22, f, nx_col(gc, NX_PAL_TEXT1));
+        nx_text(gc, &nx_font_body16, NX_M + 4, STATUS_Y0 + 19, f, nx_col(gc, NX_PAL_TEXT1));
         nx_fmt_u(f, v->reading);
-        nx_text_r(gc, &nx_font_body16, NX_LCD_W - NX_M, STATUS_Y0 + 22, f, nx_col(gc, NX_PAL_TEXT2));
-        int16_t x1 = (int16_t)(NX_M + (NX_LCD_W - 2 * NX_M) * (uint32_t)v->step / v->steps);
-        nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 40, NX_LCD_W - NX_M, STATUS_Y0 + 44 }, nx_col(gc, NX_PAL_TRACK));
-        nx_fill(gc, (nx_rect){ NX_M, STATUS_Y0 + 40, x1, STATUS_Y0 + 44 }, nx_col(gc, nx_accent(v->ch)));
-        /* time left: the steps to go at the pace so far (ms per step; the nominal pace before the first) */
-        uint32_t per = v->step ? (nx_ms() - v->sweep_ms) / v->step : NX_BFB_SPEED_MS(nx_uc_bfb_cfg()->speed);
-        nx_fmt_dur(a[0], per * (v->steps - v->step) / 1000u);
-        nx_str_format(buf, sizeof buf, NX_S_BFB_LEFT, args, 1);
-        nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 48, buf, nx_col(gc, NX_PAL_TEXT2));
+        nx_text_r(gc, &nx_font_body16, NX_LCD_W - NX_M, STATUS_Y0 + 19, f, nx_col(gc, NX_PAL_TEXT2));
+        bar(gc, v->ch, v->step, v->steps);
+        if (sweep) {   /* the time elapsed, and left: the steps to go at the pace so far (ms per step; the
+                        * nominal pace before the first) */
+            uint32_t el = (v->paused ? v->pause_ms : nx_ms()) - v->sweep_ms;   /* still while paused */
+            uint32_t per = v->step ? el / v->step : NX_BFB_SPEED_MS(nx_uc_bfb_cfg()->speed);
+            nx_fmt_dur(a[0], el / 1000u);
+            nx_str_format(buf, sizeof buf, NX_S_BFB_ELAPSED, args, 1);
+            nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 44, buf, nx_col(gc, NX_PAL_TEXT2));
+            nx_fmt_dur(a[0], per * (v->steps - v->step) / 1000u);
+            nx_str_format(buf, sizeof buf, NX_S_BFB_LEFT, args, 1);
+            nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M, STATUS_Y0 + 44, buf, nx_col(gc, NX_PAL_TEXT2));
+        }
     }
-    if (v->missed) {
+    if (v->missed) {   /* on the frequency's line, left of the reading */
         nx_fmt_u(a[0], v->missed);
         nx_str_format(buf, sizeof buf, NX_S_BFB_MISSED, args, 1);
-        nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M, STATUS_Y0 + 48, buf, nx_col(gc, NX_PAL_WARNING));
+        nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M - (freq ? 64 : 0), STATUS_Y0 + 22, buf, nx_col(gc, NX_PAL_WARNING));
     }
 }
 
-static void bfb_enter(void *st, uint32_t arg)
+static void bfb_enter(void *st, uint32_t arg)   /* arg: 0 from the menu; 1 + ch from that generator's dashboard */
 {
-    (void)arg;
     struct bfbs *s = st;
     const struct nx_bfb_view *v = nx_uc_bfb();
-    s->page = v->state == NX_BFB_SWEEP || v->state == NX_BFB_SAVE ? P_GRAPH : v->nhits ? P_HITS : P_SET;
+    if (arg && !scanning())
+        nx_uc_bfb_cfg()->ch = (uint8_t)(arg - 1u);
+    s->page = v->state == NX_BFB_SWEEP || v->state == NX_BFB_SAVE ? P_GRAPH : v->nhits ? P_HITS
+            : v->step ? P_GRAPH : P_SET;   /* a sweep that ran: its graph */
     s->state = v->state;
     s->col = 0xFFFFu;
     init_list(s);
@@ -270,12 +324,16 @@ static void change(struct bfbs *s, int up)
 {
     struct nx_bfb_cfg *c = nx_uc_bfb_cfg();
     switch (s->l.sel) {
-    case R_GEN:
-        c->ch ^= 1u;
+    case R_GEN:   /* G1 picks G1, G2 picks G2 */
+        c->ch = (uint8_t)up;
         nx_inval(k_title);
         break;
     case R_SPEED:   /* the idle line's minutes follow */
         c->speed = (uint8_t)step_by(c->speed, 1u, up, 0u, NX_BFB_SPEEDS - 1u);
+        nx_inval(k_status);
+        break;
+    case R_REFINE:   /* the done line follows */
+        c->refine ^= 1u;
         nx_inval(k_status);
         break;
     case R_AMPL:   /* 0.5 V steps, 1 to 20 V */
@@ -309,7 +367,7 @@ static int bfb_key(void *st, const struct nx_kev *e)
             uint8_t p = s->page;
             do
                 p = (uint8_t)((p + 1u) % 3u);
-            while ((p == P_HITS && !v->nhits) || (p == P_GRAPH && v->state < NX_BFB_SWEEP));
+            while ((p == P_HITS && !v->nhits) || (p == P_GRAPH && !v->step));
             if (p != s->page) {
                 s->page = p;
                 init_list(s);
@@ -318,10 +376,17 @@ static int bfb_key(void *st, const struct nx_kev *e)
         }
         return 1;
     case NX_KEY_START:
-        if (press && !scanning()) {
-            int rc = nx_uc_bfb_start();
-            if (rc == NX_BUSY)   /* the other generator has the slot, or a scan runs */
-                nx_ui_toast_s(NX_I20_WARNING, NX_PAL_WARNING, NX_S_SLOT_IN_USE, 0, 0);
+        if (!press)
+            return 1;
+        if (scanning()) {   /* the sweep paused, or on again */
+            nx_uc_bfb_pause();
+            nx_inval(k_status);
+        } else if (s->page != P_SET) {   /* a result on show: its settings first, so a stray press scans nothing */
+            s->page = P_SET;
+            init_list(s);
+            nx_inval(k_page);
+        } else if (nx_uc_bfb_start() == NX_BUSY) {   /* the other generator has the slot */
+            nx_ui_toast_s(NX_I20_WARNING, NX_PAL_WARNING, NX_S_SLOT_IN_USE, 0, 0);
         }
         return 1;
     case NX_KEY_STOP:
@@ -374,13 +439,19 @@ static void bfb_tick(void *st, uint32_t now)
             nx_inval((nx_rect){ (int16_t)(NX_M + c), SWEEP_Y0, (int16_t)(NX_M + c + 1u), SWEEP_Y1 });
         }
     }
-    if (v->state != s->state || v->step != s->step || sig != s->sig) {
-        if (s->page == P_HITS && sig != s->sig) {   /* a hit came or a stronger one replaced one */
-            s->l.n = v->nhits;
+    if (v->state != s->state || v->step != s->step || sig != s->sig || v->playing != s->playing
+        || v->missed != s->missed || v->prog != s->prog) {
+        if (sig != s->sig && s->page != P_SET) {   /* a hit came, a stronger one replaced one, or the settle dropped
+                                                    * them: the list anew, the sweep strip's marks */
+            if (s->page == P_HITS)
+                init_list(s);
             nx_inval(k_page);
         }
         s->state = v->state;
+        s->playing = v->playing;
         s->step = v->step;
+        s->missed = v->missed;
+        s->prog = v->prog;
         s->nhits = v->nhits;
         s->sig = sig;
         nx_inval(k_status);

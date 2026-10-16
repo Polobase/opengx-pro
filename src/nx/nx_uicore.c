@@ -368,6 +368,11 @@ void nx_uc_bfb_stop(void)
     nx_bfb_stop();
 }
 
+void nx_uc_bfb_pause(void)
+{
+    nx_bfb_pause(nx_ms());
+}
+
 const struct nx_bfb_view *nx_uc_bfb(void)
 {
     return nx_bfb_view();

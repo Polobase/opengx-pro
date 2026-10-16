@@ -158,6 +158,7 @@ static void finished(unsigned ch, struct channel *c)
             nx_timer_finished(ch);
             nx_chain_finished(ch);
             nx_terrain_finished(ch);
+            nx_bfb_finished(ch);
             nx_hist_end(ch, NX_HEND_FINISHED);
             struct seq s;
             seq_off(&s);

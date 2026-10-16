@@ -101,6 +101,7 @@ int nx_uc_manual_play(unsigned ch);
 struct nx_bfb_cfg *nx_uc_bfb_cfg(void);
 int nx_uc_bfb_start(void);
 void nx_uc_bfb_stop(void);
+void nx_uc_bfb_pause(void);
 const struct nx_bfb_view *nx_uc_bfb(void);
 unsigned nx_uc_terrain_count(void);
 int nx_uc_terrain_view(unsigned id, struct nx_tview *v);

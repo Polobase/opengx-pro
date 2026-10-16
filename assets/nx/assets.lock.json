@@ -11,10 +11,10 @@
   },
   "max_bytes": 36864,
   "outputs": {
-    "src/nx/nx_assets.c": "cdd8341bb8fe8bc2abd011db41fe1a09d92555ddbd98c1e5d503e822e62b8701",
-    "src/nx/nx_assets.h": "456f0a75634d3a5f457bae8d705af694282708a2a23278537a269495bf9da925",
-    "src/nx/nx_str_ids.h": "67bd6e890abb9f8167df28dc24b901894367e0a9619b26ca09d84ae0fbf206f8",
-    "tests/host/nx/nx_asset_vectors.h": "2537e3a84360fa101d38d3a61a461c3e23e845a603e76e2b98475addb4b311cd"
+    "src/nx/nx_assets.c": "a980923649e00a43570aca3e67801f0b3feae9067eb19aa0a37f026425075991",
+    "src/nx/nx_assets.h": "3d79448e4c012892d8d95fa163e26377b766e0e51fecb395121328127b4620be",
+    "src/nx/nx_str_ids.h": "0a1959770f4a753a06541f7beee636436e90f06d3a979dd3fd10da784af3b411",
+    "tests/host/nx/nx_asset_vectors.h": "7d1d8141848d5fe0f858ccd1997d86f35e70257afd0d5b40a20c53e6541df111"
   },
   "sources": {
     "assets/nx/fonts.json": "fc0a7390fd801eccd980299612e48cd31ca887ee034e0474b9b572d0df64de43",
@@ -22,7 +22,7 @@
     "assets/nx/palettes.json": "520654765f85905f738e8280dbca75cfac78211cd83f9661a55c90eb13f85709",
     "assets/nx/qr.json": "1352bcb1887882ad7012dd9eae7737a4c03ccd6f6c462efc550ca2fc7280dcc2",
     "assets/nx/sources.json": "1643ce2243ccdd54234c3cd90f9d7c28f32a4afeef429497078b7fdd1bbceca1",
-    "assets/nx/strings/en.json": "2265ee31e066d76dbd3710917a37196e10fc5bc2c4482c755a561b55b964691c",
+    "assets/nx/strings/en.json": "b86b81e0174bba6f20891fdd37b6eedf5ab1414e2b3f82f611497d106bd79499",
     "assets/nx/third_party/Inter-Medium.ttf": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872",
     "assets/nx/third_party/Inter-Regular.ttf": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
     "assets/nx/third_party/InterDisplay-Medium.ttf": "99665c256585aeaab2d06950c2d7715cca8fd7883c2d0e7a421b8b287e1f17de",
@@ -68,16 +68,16 @@
       "sha256": "60e871ced8122deab75b13294574bef8f76faa789288f05500a55a641a1a207d"
     },
     "nx_str_off": {
-      "bytes": 658,
-      "sha256": "7c81517de4cb506bb85a6d622e89960aad7a826781b75e0b292f9cd00c8d7b0d"
+      "bytes": 672,
+      "sha256": "e2921206b944808dcbcc227fd80224bd6824df803448e29d24d7d4a63c8891bf"
     },
     "nx_str_pool": {
-      "bytes": 5008,
-      "sha256": "54366731463669057bcd89fe47169759bf8a928a42483e47dbf02c84bf66d853"
+      "bytes": 5135,
+      "sha256": "f9aa87a2814082999ae595058df0be70200d2c249e3989e2b8def47bccaf1141"
     }
   },
   "tool": {
     "sha256": "19ffcb41587e87b15177b196c4dd6c2df5eca7de6b924c7c014b64b4af325a2e"
   },
-  "total_bytes": 17644
+  "total_bytes": 17785
 }

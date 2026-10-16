@@ -48,7 +48,12 @@ int nx_core_act(const struct nx_action *a)
     case NXA_LOAD:   /* app.c list_keys START; another source (nx_src.h) is loaded the same way */
         if (!nx_src_is_slot(a->id) && nx_src_fill(a->id, (uint16_t)a->v, c) != NX_OK)
             return NX_EINVAL;
-        g_ch[0].step_sent = g_ch[1].step_sent = 0xFF;
+        c->step_sent = 0xFF;
+#if NX_FEAT_BFB
+        if (g_ch[ch ^ 1u].prog_slot != NX_SRC_BFB)   /* the other link resends its step too (the original), unless a
+                                                      * scan drives it: its sweep's lines are its own */
+#endif
+            g_ch[ch ^ 1u].step_sent = 0xFF;
         flags_clear(&g_ui_flags, UIF_RUN(ch));
         c->elapsed = 0;
         if (nx_src_is_slot(a->id))
@@ -125,6 +130,9 @@ void nx_core_pcmode_task(void)
         else
             g_nx_diag.pc_exits++;
         core_pcmode_update(pb1);
+    } else {
+        s_pc_wait = 0;   /* PB1 went back before the queues were idle: the hold ends (it used to stay set
+                          * until power-off: the runner held, every action busy) */
     }
     if (g_ui_state == ST_BOOT)
         g_ui_state = ST_HOME;

@@ -1,6 +1,7 @@
 /* Biofeedback scan (nx_bfb.h). */
 #include "nx_bfb.h"
 
+#include <stddef.h>
 #include <string.h>
 
 #include "link.h"
@@ -9,6 +10,8 @@
 #include "nx_runner.h"
 #include "nx_src.h"
 #include "nx_txq.h"
+#include "nx_ui.h"
+#include "nx_vm.h"
 #include "state.h"
 #include "storage.h"
 
@@ -42,6 +45,16 @@ void nx_bfb_auth_token(const char *chal, const char *resp, char *tok)
 #if NX_FEAT_BFB
 #define CHALLENGE "271543986"   /* any permutation of 1..9; this one is from a Spooky2 capture */
 #define BASE_FAILS 5u          /* baseline reads without a reply in a row: the generator does not answer */
+#define SAVE_WAIT_MS 3000u     /* the slot write waits this long for a quiet moment of the other generator, then goes */
+#define GRID_MAX 0x1000000u    /* the step's divisor at most (f / 2^24: 0.0025 Hz at 41 kHz); a pass at it is the last */
+
+static uint64_t code_f8(uint64_t code)   /* the inverse of nx_bfb_code */
+{
+    uint64_t f = code / 10u;
+    for (unsigned e = (unsigned)(code % 10u); e; e--)
+        f *= 10u;
+    return f;
+}
 
 struct nx_bfb_cfg g_nx_bfb_cfg;
 
@@ -59,18 +72,17 @@ struct det {
     uint32_t win[NX_BFB_WINDOW];
     uint32_t sum;
     uint8_t wn, wi;         /* readings in the window, the oldest one's slot */
-    uint8_t warm;           /* 1: scoring starts at index warm_at */
-    uint8_t has_before, next_set;
+    uint8_t warm;           /* 1: the window has settled (the hits before it went), or it had 5 windows to */
+    uint8_t has_before;
     uint32_t n;             /* readings pushed */
-    uint32_t warm_at;
     uint32_t before, plat;  /* the reading before the plateau; the plateau's reading */
-    uint32_t plat_at;       /* index of the plateau's first reading */
-    int32_t plat_dev20;     /* its deviation, in 1/20 of a reading unit (exact: reading * 20 - sum) */
-    uint64_t next_code;     /* the frequency (:w24 code) of the step after the plateau's first reading */
-    uint16_t next_step;     /* ... and that step (1-based) */
+    int32_t plat_dev20;     /* the plateau's first reading's deviation, in 1/20 of a reading unit (exact: reading * 20 - sum) */
+    uint64_t plat_code;     /* ... its frequency (:w24 code) */
+    uint16_t plat_step;     /* ... its step (1-based) */
+    uint16_t plat_live;     /* ... its count in the live ring */
 };
 
-static struct {
+static struct bfb {
     uint8_t sub;            /* the step within the state */
     uint8_t valid;          /* bit 0: r11 of the pair answered, bit 1: r12 */
     uint8_t miss_run;       /* baseline pairs without a reply in a row */
@@ -78,6 +90,12 @@ static struct {
     uint32_t t0, t1;        /* the step's :w24 submit time; its :ok time (the settle wait) */
     uint32_t r11, r12;
     uint64_t f8;
+    uint32_t grid;          /* the sweep's step: f += f / grid (NX_BFB_SPEED_GRID, doubled per refining pass) */
+    uint64_t end_f8;        /* a refining pass: the end of the window being swept */
+    uint64_t base_f8;       /* a refining pass: the first window's start, where the baseline is read (0: 41 kHz) */
+    uint64_t win[NX_BFB_HITS];   /* a refining pass: the hits of the pass before, the windows' centres */
+    uint8_t nwin;
+    uint8_t refine_due;     /* the hits' program ended by itself: the next pass begins */
     struct det d;
     struct nx_bfb_view v;
 } s;
@@ -87,7 +105,7 @@ void nx_bfb_boot(void)
     memset(&s, 0, sizeof s);
     memset(s_rx, 0, sizeof s_rx);
     s.v.steps = NX_BFB_STEPS;
-    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, PROGRAM_SLOTS, 2000u, 180u, 0 };   /* G1, slot 30, 20 V, 3 min per hit, standard */
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, PROGRAM_SLOTS, 2000u, 180u, 0, 0 };   /* G1, slot 30, 20 V, 3 min per hit, standard, no refine */
 }
 
 const struct nx_bfb_view *nx_bfb_view(void)
@@ -145,7 +163,7 @@ int nx_bfb_fill(struct program *p)
     p->hdr[HDR_OFFS] = 120;
     p->hdr[HDR_DWELL] = 1;
     p->hdr[HDR_COUNT] = 1;
-    p->freq[0] = nx_bfb_code(NX_BFB_START_F8);
+    p->freq[0] = nx_bfb_code(s.base_f8 ? s.base_f8 : NX_BFB_START_F8);
     return NX_OK;
 }
 
@@ -153,6 +171,14 @@ static void act(unsigned ch, uint8_t type, uint16_t id)
 {
     struct nx_action a = { type, (uint8_t)ch, id, 0, 0 };
     nx_core_act(&a);
+}
+
+static void unload(unsigned ch)   /* a scan over without a hits program: the generator stops and its one-step
+                                   * program goes (the dashboard's START would replay it at the ramp's amplitude) */
+{
+    act(ch, NXA_STOP, 0);
+    if (g_ch[ch].prog_slot == NX_SRC_BFB)
+        g_ch[ch].prog_slot = 0;
 }
 
 int nx_bfb_start(void)
@@ -174,17 +200,111 @@ int nx_bfb_start(void)
     s.v.ch = c->ch;
     s.v.slot = c->slot;
     s.v.steps = NX_BFB_SPEED_STEPS(c->speed);
+    s.v.pass = 1;
+    s.grid = NX_BFB_SPEED_GRID(c->speed);
     s.v.state = NX_BFB_AUTH;
     return NX_OK;
 }
+
+/* A refining pass sweeps a window around each hit of the pass before, 10 steps each side at the
+ * halved step, the windows in rising order and overlapping ones as one. The sweep's next
+ * frequency, 0 at its end; s.end_f8 is the window's end (0 before the first). */
+static uint64_t refine_next(void)
+{
+    if (s.f8 >= s.end_f8) {   /* past the window: the next is the lowest hit whose window reaches beyond */
+        uint64_t h = 0, w = 0;
+        for (unsigned i = 0; i < s.nwin; i++) {
+            uint64_t wi = s.win[i] * 10u / s.grid;
+            if (s.win[i] + wi > s.end_f8 && (!h || s.win[i] < h)) {
+                h = s.win[i];
+                w = wi;
+            }
+        }
+        if (!h)
+            return 0;
+        if (s.f8 < h - w)   /* else the windows overlap: on from where the sweep is */
+            s.f8 = h - w;
+        s.end_f8 = h + w;
+    }
+    return s.f8 + s.f8 / s.grid;
+}
+
+static uint16_t refine_steps(void)   /* the steps of the pass: the walk run through once */
+{
+    uint16_t n = 0;
+    uint64_t f;
+    s.f8 = s.end_f8 = 0;
+    while ((f = refine_next()) != 0u && n < 0xFFFFu) {
+        s.f8 = f;
+        n++;
+    }
+    s.f8 = s.end_f8 = 0;
+    return n;
+}
+
+static void refine_begin(void)   /* the hits' program ended by itself: the next pass, on the hits alone */
+{
+    struct nx_bfb_view *v = &s.v;
+    uint64_t lo = 0;
+    uint32_t grid = s.grid * 2u;   /* nx_bfb_finished keeps it within GRID_MAX */
+    act(v->ch, NXA_STOP, 0);   /* the idle configuration, as a scan starts from */
+    memset(&s, 0, offsetof(struct bfb, v));   /* the view stays: its hits and graph show until the pass's sweep */
+    for (unsigned i = 0; i < v->nhits; i++) {
+        s.win[i] = code_f8(v->hits[i].code);
+        if (!lo || s.win[i] < lo)
+            lo = s.win[i];
+    }
+    s.nwin = v->nhits;
+    s.grid = grid;
+    s.base_f8 = lo - lo * 10u / grid;
+    v->pass++;
+    v->missed = 0;
+    v->prog = 0;
+    v->playing = 0;
+    v->state = NX_BFB_AUTH;
+}
+
+void nx_bfb_finished(unsigned ch)
+{
+    if (s.v.playing && g_nx_bfb_cfg.refine && ch == s.v.ch && s.grid * 2u <= GRID_MAX)
+        s.refine_due = 1;
+}
+
+#ifdef HOST_TEST
+uint16_t nx_bfb_t_walk(const uint64_t *win, unsigned n, uint32_t grid, uint64_t *out, unsigned max)
+{   /* a pass's walk over the windows of the hits win[], at most max steps into out[]: the count */
+    uint16_t k = 0;
+    uint64_t f;
+    memcpy(s.win, win, n * sizeof *win);
+    s.nwin = (uint8_t)n;
+    s.grid = grid;
+    s.f8 = s.end_f8 = 0;
+    while (k < max && (f = refine_next()) != 0u)
+        s.f8 = out[k++] = f;
+    return k;
+}
+#endif
 
 void nx_bfb_stop(void)
 {
     if (s.v.state == NX_BFB_IDLE || s.v.state >= NX_BFB_DONE)
         return;
     if (g_ch[s.v.ch].prog_slot == NX_SRC_BFB)
-        act(s.v.ch, NXA_STOP, 0);
-    s.v.state = NX_BFB_IDLE;
+        unload(s.v.ch);
+    s.v.paused = 0;
+    s.v.state = NX_BFB_STOPPED;
+}
+
+void nx_bfb_pause(uint32_t now)
+{
+    struct nx_bfb_view *v = &s.v;
+    if (v->state != NX_BFB_SWEEP)
+        return;
+    if (v->paused)
+        v->sweep_ms += now - v->pause_ms;   /* the pause is not pace */
+    else
+        v->pause_ms = now;
+    v->paused ^= 1u;
 }
 
 static void w_line(unsigned ch, unsigned id, uint32_t v)   /* ":wNN=v," */
@@ -261,7 +381,7 @@ static void trace_push(int32_t dev20)   /* a sweep reading into its column of th
     v->live_n++;
 }
 
-static void add_hit(uint64_t code, uint32_t dev20, uint16_t step)
+static void add_hit(uint64_t code, uint32_t dev20, uint16_t step, uint16_t live)
 {
     struct nx_bfb_view *v = &s.v;
     unsigned n = v->nhits, k = n;
@@ -271,7 +391,7 @@ static void add_hit(uint64_t code, uint32_t dev20, uint16_t step)
         return;
     for (unsigned j = n < NX_BFB_HITS ? n : NX_BFB_HITS - 1u; j > k; j--)
         v->hits[j] = v->hits[j - 1u];
-    v->hits[k] = (struct nx_bfb_hit){ code, dev20, step };
+    v->hits[k] = (struct nx_bfb_hit){ code, dev20, step, live };
     if (n < NX_BFB_HITS)
         v->nhits++;
 }
@@ -281,49 +401,42 @@ static void det_push(uint64_t code, uint32_t r)
     struct det *d = &s.d;
     uint32_t i = d->n;
     int32_t dev20 = 0;
-    if (r > 10000000u)   /* readings are five digits; keeps the arithmetic below in 32 bits */
+    if (r > 10000000u)   /* readings are five digits; the cap keeps r * 20 in 32 bits */
         r = 10000000u;
     if (d->wn == NX_BFB_WINDOW) {
         dev20 = (int32_t)(r * 20u) - (int32_t)d->sum;
         if (s.v.state == NX_BFB_SWEEP)
             trace_push(dev20);
-        if (!d->warm && i <= 5u * NX_BFB_WINDOW && d->sum) {
-            uint32_t lo = 0xFFFFFFFFu, hi = 0, a = (uint32_t)(dev20 < 0 ? -dev20 : dev20);
-            for (unsigned k = 0; k < NX_BFB_WINDOW; k++) {
-                lo = d->win[k] < lo ? d->win[k] : lo;
-                hi = d->win[k] > hi ? d->win[k] : hi;
-            }
-            /* (hi - lo) <= mean / 100 and |reading - mean| <= mean / 100, with mean = sum / 20 */
-            if ((hi - lo) * 2000u <= d->sum && a * 100u <= d->sum) {
-                d->warm = 1;
-                d->warm_at = i;
-            }
-        }
-    }
-    if (!d->warm && i > 5u * NX_BFB_WINDOW) {   /* never settled: from the first full window */
-        d->warm = 1;
-        d->warm_at = NX_BFB_WINDOW;
     }
     if (i == 0u) {
         d->plat = r;
-    } else {
-        if (!d->next_set) {
-            d->next_code = code;
-            d->next_step = (uint16_t)(s.v.step + 1u);
-            d->next_set = 1;
+    } else if (r != d->plat) {
+        /* a fall after a rise: a maximum, scored at the plateau's first reading and at its own
+         * frequency, as Spooky2 reports it (its scan replayed, test_nx_bfb.c); the deviation is 0
+         * before the window is full */
+        if (r < d->plat && d->has_before && d->before < d->plat && d->plat_dev20 > 0)
+            add_hit(d->plat_code, (uint32_t)d->plat_dev20, d->plat_step, d->plat_live);
+        d->before = d->plat;
+        d->has_before = 1;
+        d->plat = r;
+        d->plat_dev20 = dev20;
+        d->plat_code = code;
+        d->plat_step = (uint16_t)(s.v.step + 1u);     /* this reading's step (v->step counts it after) */
+        d->plat_live = (uint16_t)(s.v.live_n - 1u);   /* ... and its count in the live ring (trace_push above) */
+    }
+    if (!d->warm && d->wn == NX_BFB_WINDOW && i <= 5u * NX_BFB_WINDOW && d->sum) {
+        /* the settle, on the window before this reading: (hi - lo) <= mean / 100 and
+         * |reading - mean| <= mean / 100, with mean = sum / 20. The hits scored before it were a
+         * startup transient and go, as the PC's do (it scores from the settle; never settled in 5
+         * windows, from the first full window, so then they stay) */
+        uint32_t lo = 0xFFFFFFFFu, hi = 0, a = (uint32_t)(dev20 < 0 ? -dev20 : dev20);
+        for (unsigned k = 0; k < NX_BFB_WINDOW; k++) {
+            lo = d->win[k] < lo ? d->win[k] : lo;
+            hi = d->win[k] > hi ? d->win[k] : hi;
         }
-        if (r != d->plat) {
-            /* a fall after a rise: a maximum, scored at the plateau's first reading if any of its
-             * readings is past the settle */
-            if (r < d->plat && d->has_before && d->before < d->plat && d->warm && i - 1u >= d->warm_at
-                && d->plat_dev20 > 0)
-                add_hit(d->next_code, (uint32_t)d->plat_dev20, d->next_step);
-            d->before = d->plat;
-            d->has_before = 1;
-            d->plat = r;
-            d->plat_dev20 = dev20;
-            d->plat_at = i;
-            d->next_set = 0;
+        if (hi - lo <= d->sum / 2000u && a <= d->sum / 100u) {
+            d->warm = 1;
+            s.v.nhits = 0;
         }
     }
     if (d->wn == NX_BFB_WINDOW)
@@ -354,17 +467,20 @@ static void sweep(unsigned ch, struct channel *c, uint32_t now)
 {
     struct nx_bfb_view *v = &s.v;
     switch (s.sub) {
-    case 0:   /* the next frequency */
-        if (s.f8 > NX_BFB_END_F8) {
+    case 0: {   /* the next frequency: on the grid to the end, or the pass's windows */
+        uint64_t f = v->pass > 1u ? refine_next() : s.f8 > NX_BFB_END_F8 ? 0u : s.f8 + s.f8 / s.grid;
+        if (!f) {
             v->state = NX_BFB_SAVE;
+            s.t0 = now;   /* the wait for the write begins */
             break;
         }
-        s.f8 += s.f8 / NX_BFB_SPEED_GRID(g_nx_bfb_cfg.speed);   /* 0.025 %, or 0.05 % at the quicker speeds */
+        s.f8 = f;
         v->code = c->prog.freq[0] = c->step_freq = nx_bfb_code(s.f8);   /* the dashboard follows */
         nx_txq_submit_freq(ch, c->step_freq);
         s.t0 = now;
         s.sub = 1;
         break;
+    }
     case 1:   /* its :ok: the settle time starts */
         s.t1 = now;
         s.sub = 2;
@@ -402,13 +518,27 @@ void nx_bfb_task(uint32_t now)
     struct nx_bfb_view *v = &s.v;
     unsigned ch = v->ch;
     struct channel *c = &g_ch[ch];
+    if (v->state == NX_BFB_DONE && v->playing) {   /* the hits play; a refining pass may follow their end */
+        if (s.refine_due) {
+            refine_begin();
+            nx_ui_post(NXE_BFB_REFINE, (uint8_t)ch, 0);
+        } else if (g_ui_state == ST_PC || c->prog_slot != v->slot || (!(g_ui_flags & UIF_RUN(ch)) && c->elapsed <= 1u)) {
+            v->playing = 0;   /* stopped, replaced, or over with no pass to follow */
+        }
+    }
     if (v->state == NX_BFB_IDLE || v->state >= NX_BFB_DONE)
         return;
     int loaded = v->state > NX_BFB_LOAD || (v->state == NX_BFB_LOAD && s.sub);
     if (g_ui_state == ST_PC || (loaded && (c->prog_slot != NX_SRC_BFB || !(g_ui_flags & UIF_RUN(ch))))) {
-        v->state = NX_BFB_IDLE;   /* PC mode, STOP or another program ended it */
+        v->state = NX_BFB_STOPPED;   /* PC mode, STOP or another program ended it */
+        if (g_ui_state != ST_PC && c->prog_slot == NX_SRC_BFB)
+            c->prog_slot = 0;   /* stopped: the one-step program goes, as unload() */
         return;
     }
+    if (nx_core_runner_held())   /* a PC-mode change waits for the queues: nothing new goes out */
+        return;
+    if (v->paused)   /* nothing goes out: the generator holds the frequency reached */
+        return;
     if (!nx_txq_idle(ch))   /* every line waits for the one before it: its :ok or its reply */
         return;
     switch (v->state) {
@@ -454,16 +584,23 @@ void nx_bfb_task(uint32_t now)
             w_line(ch, 28, cv);
             w_line(ch, 29, cv);
             c->prog.hdr[HDR_AMPL] = cv;   /* the dashboard follows */
+            v->prog = s.i;
         } else if (s.sub == 0u) {
             s.t0 = now;
             s.sub = 1;
         } else if (now - s.t0 >= NX_BFB_START_DELAY_MS) {
             v->state = NX_BFB_BASE;
+            v->prog = 0;
             s.i = 0;
             s.sub = 0;
         }
         break;
     case NX_BFB_BASE:
+        if (s.sub == 0u) {   /* a pair per step time, as Spooky2 paces them: the level settles before the window is seeded */
+            if (now - s.t0 < NX_BFB_SPEED_MS(g_nx_bfb_cfg.speed))
+                break;
+            s.t0 = now;
+        }
         if (!pair_step(ch))
             break;
         if (s.valid == 3u) {
@@ -474,25 +611,32 @@ void nx_bfb_task(uint32_t now)
         } else {
             v->missed++;
             if (++s.miss_run >= BASE_FAILS) {
-                act(ch, NXA_STOP, 0);
+                unload(ch);
                 v->state = NX_BFB_FAILED;
                 break;
             }
         }
-        if (++s.i >= NX_BFB_BASELINE) {
+        v->prog = ++s.i;
+        if (s.i >= NX_BFB_BASELINE) {   /* the sweep: the pass before leaves the view now */
             v->state = NX_BFB_SWEEP;
             v->sweep_ms = now;
             memset(v->trace, 0, sizeof v->trace);
             v->live_n = 0;
-            s.f8 = NX_BFB_START_F8;
+            v->step = 0;
+            v->nhits = 0;
+            if (v->pass > 1u)   /* a pass: its windows' steps; refine_next starts at the first window */
+                v->steps = refine_steps();
+            s.f8 = v->pass > 1u ? 0u : NX_BFB_START_F8;
+            s.end_f8 = 0;
             s.sub = 0;
         }
         break;
     case NX_BFB_SWEEP:
         sweep(ch, c, now);
         break;
-    default:   /* NX_BFB_SAVE: the slot write blocks up to about 400 ms; the other generator's step must not be due */
-        if (!nx_runner_quiet(1000u))
+    default:   /* NX_BFB_SAVE: the slot write blocks up to about 400 ms; the other generator's step should not be
+                * due (a program with a 1 s dwell there may never give a moment: SAVE_WAIT_MS, then it is late once) */
+        if (!nx_runner_quiet(1000u) && now - s.t0 < SAVE_WAIT_MS)
             break;
         if (v->nhits) {
             static const char k_name[] = NX_BFB_NAME " G1";
@@ -504,9 +648,12 @@ void nx_bfb_task(uint32_t now)
             name_set(v->slot, name, sizeof name - 1u);
             names_save();
             act(ch, NXA_LOAD, v->slot);
-            act(ch, NXA_PLAY, 0);
+            /* looped; once when a refining pass is to follow its end (not after the last possible pass) */
+            struct nx_action play = { NXA_PLAY, (uint8_t)ch, 0, g_nx_bfb_cfg.refine && s.grid * 2u <= GRID_MAX ? 0u : 1u, 0 };
+            nx_core_act(&play);
+            v->playing = 1;
         } else {
-            act(ch, NXA_STOP, 0);
+            unload(ch);
         }
         v->state = NX_BFB_DONE;
         break;
@@ -520,5 +667,10 @@ void nx_bfb_boot(void)
 void nx_bfb_task(uint32_t now)
 {
     (void)now;
+}
+
+void nx_bfb_finished(unsigned ch)
+{
+    (void)ch;
 }
 #endif

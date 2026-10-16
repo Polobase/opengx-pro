@@ -431,7 +431,7 @@ static const vec_fit_t k_vec_fits[] = {
 };
 static const vec_str_t k_vec_strs[] = {
     { 0, NX_S_COMMON_OFF, "Off" },
-    { 0, NX_S_COMMON_NEVER, "Never" },
+    { 0, NX_S_COMMON_ON, "On" },
     { 0, NX_S_HINT_SUPPORT, "STOP back" },
     { 0, NX_S_RESUME_KEYS, "START: resume \210 STOP: discard" },
 };

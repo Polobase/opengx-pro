@@ -564,8 +564,21 @@ static int dash_key(void *st, const struct nx_kev *e)
             nx_ui_push(&nx_scr_menu, 0, NX_TR_SHEET);
         return 1;
     case NX_KEY_START:
+#if NX_FEAT_BFB
+        switch (nx_keys_act(e, 1)) {   /* short: the generator's; held: the biofeedback scan on it */
+        case NXKA_SHORT:
+            act_start(ch, g);
+            break;
+        case NXKA_HOLD:
+            nx_ui_push(&nx_scr_bfb, 1u + ch, NX_TR_PUSH);
+            break;
+        default:
+            break;
+        }
+#else
         if (e->type == NXK_PRESS)
             act_start(ch, g);
+#endif
         return 1;
     case NX_KEY_STOP:
         if (e->type == NXK_HOLD) {

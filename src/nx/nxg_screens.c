@@ -218,9 +218,9 @@ static void bfb_scanning(void)   /* a scan on G1 at step 6 200 of 15 130 (190 kH
     v->reading = 1631;
     v->code = 1900008ull /* 190 kHz as a :w24 code: mantissa, exponent */;
     v->nhits = 3;
-    v->hits[0] = (struct nx_bfb_hit){ 581208ull, 40u * 20u, 1396 };    /* 58 120 Hz, +40 */
-    v->hits[1] = (struct nx_bfb_hit){ 1234508ull, 25u * 20u, 4409 };   /* 123 450 Hz */
-    v->hits[2] = (struct nx_bfb_hit){ 1775008ull, 12u * 20u, 5862 };   /* 177 500 Hz */
+    v->hits[0] = (struct nx_bfb_hit){ 581208ull, 40u * 20u, 1396, 0 };    /* 58 120 Hz, +40 */
+    v->hits[1] = (struct nx_bfb_hit){ 1234508ull, 25u * 20u, 4409, 0 };   /* 123 450 Hz */
+    v->hits[2] = (struct nx_bfb_hit){ 1775008ull, 12u * 20u, 5862, 743 }; /* 177 500 Hz; its peak is the live strip's bump */
     for (unsigned c = 0; c < NX_BFB_TRACE; c++) {   /* noise of a few units in both strips, a bump in the live one */
         v->trace[c] = (uint8_t)(c * 37u % 5u);
         v->live[c] = (int8_t)((int)(c * 53u % 9u) - 4 + (c > 150u && c < 156u ? 20 : 0));
