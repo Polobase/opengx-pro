@@ -30,6 +30,7 @@ static uint8_t s_stored;      /* the KV store holds a snapshot */
 static uint32_t s_written_t;  /* last write or delete */
 static struct nx_resume_rec s_rec;    /* the stored snapshot (the offer) */
 static struct nx_resume_rec s_seen;   /* the capture of the last write, for the change check */
+static struct nx_resume_rec s_pc;     /* what played when PC mode began */
 #if NX_FEAT_TIMERS
 static uint8_t s_auto;                /* the offer is the auto-start */
 static struct nx_last_rec s_last;     /* the stored last programs */
@@ -76,6 +77,28 @@ void nx_resume_capture(struct nx_resume_rec *r)
     }
 }
 
+/* The checks of a capture: a slot's program in RAM (a generator whose program is not its slot's
+ * own, after a PC upload into the channel, is dropped), a Terrain set's time in its item. */
+static void stamp(struct nx_resume_rec *r)
+{
+    for (unsigned ch = 0; ch < 2u; ch++) {
+        struct nx_resume_gen *g = &r->g[ch];
+        if (!g->slot)
+            continue;
+        if (nx_src_is_set(g->slot)) {   /* a Terrain set: the item's running time */
+            struct nx_trun t;
+            nx_terrain_run(ch, &t);
+            g->crc = t.run_s;
+            continue;
+        }
+        if (nx_src_is_preset(g->slot))   /* part of the image: nothing to compare */
+            continue;
+        g->crc = nx_crc32(0, &g_ch[ch].prog, PROG_RECORD_BYTES);
+        if (slot_crc(g->slot) != g->crc)
+            memset(g, 0, sizeof *g);
+    }
+}
+
 static int same_state(const struct nx_resume_rec *a, const struct nx_resume_rec *b)
 {
     for (unsigned ch = 0; ch < 2u; ch++)
@@ -97,6 +120,21 @@ static int resumable_set(unsigned id)
 #endif
     (void)id;
     return 0;
+}
+
+/* The generators of r that can be offered: a slot that still holds the same program, a set or
+ * preset this image has; none when the setting is off or in safe mode. */
+static uint8_t offerable(const struct nx_resume_rec *r)
+{
+    uint8_t m = 0;
+    if (g_nx_settings.resume_mode == NX_RESUME_OFF || g_nx_diag.safe_mode)
+        return 0;
+    for (unsigned ch = 0; ch < 2u; ch++) {
+        const struct nx_resume_gen *g = &r->g[ch];
+        if (nx_src_is_slot(g->slot) ? slot_crc(g->slot) == g->crc : resumable_set(g->slot))
+            m = (uint8_t)(m | (1u << ch));
+    }
+    return m;
 }
 
 #if NX_FEAT_TIMERS
@@ -158,13 +196,8 @@ void nx_resume_boot(void)
         if (len == (int)sizeof r && r.ver == NX_RESUME_VER)
             for (unsigned ch = 0; ch < 2u; ch++)   /* what the power cut ended */
                 nx_hist_add(ch, r.g[ch].slot, 0, r.g[ch].elapsed_ms / 1000u, NX_HEND_CUT);
-        if (len == (int)sizeof r && r.ver == NX_RESUME_VER && g_nx_settings.resume_mode != NX_RESUME_OFF
-            && !g_nx_diag.safe_mode) {
-            for (unsigned ch = 0; ch < 2u; ch++) {
-                const struct nx_resume_gen *g = &r.g[ch];
-                if (nx_src_is_slot(g->slot) ? slot_crc(g->slot) == g->crc : resumable_set(g->slot))
-                    s_offer = (uint8_t)(s_offer | (1u << ch));
-            }
+        if (len == (int)sizeof r && r.ver == NX_RESUME_VER) {
+            s_offer = offerable(&r);
             s_rec = r;
         }
     }
@@ -229,6 +262,10 @@ void nx_resume_task(uint32_t now)
         s_offer = 0;
         return;
     }
+    if (s_offer && (g_ch[0].prog_slot || g_ch[1].prog_slot)) {
+        s_offer = 0;   /* something else was loaded meanwhile: the offer is out of date */
+        memset(&s_seen, 0, sizeof s_seen);   /* and what plays now is written at once */
+    }
     if (g_ui_state == ST_CAL || !nx_core_ready() || s_offer)
         return;   /* an open offer keeps the stored snapshot until it is answered */
 #if NX_FEAT_TIMERS
@@ -258,22 +295,7 @@ void nx_resume_task(uint32_t now)
         return;
     s_seen = want;
     s_written_t = now;
-    for (unsigned ch = 0; ch < 2u; ch++) {   /* only a program that is the slot's own */
-        struct nx_resume_gen *g = &want.g[ch];
-        if (!g->slot)
-            continue;
-        if (nx_src_is_set(g->slot)) {   /* a Terrain set: the item's running time */
-            struct nx_trun t;
-            nx_terrain_run(ch, &t);
-            g->crc = t.run_s;
-            continue;
-        }
-        if (nx_src_is_preset(g->slot))   /* part of the image: nothing to compare */
-            continue;
-        g->crc = nx_crc32(0, &g_ch[ch].prog, PROG_RECORD_BYTES);
-        if (slot_crc(g->slot) != g->crc)
-            memset(g, 0, sizeof *g);
-    }
+    stamp(&want);   /* only a program that is the slot's own */
     if (!want.g[0].slot && !want.g[1].slot) {
         if (s_stored && nx_kv_del(NX_KEY_RESUME) == NX_OK)
             s_stored = 0;
@@ -281,6 +303,22 @@ void nx_resume_task(uint32_t now)
     }
     if (nx_kv_put(NX_KEY_RESUME, &want, sizeof want) == NX_OK)
         s_stored = 1;
+}
+
+void nx_resume_pc(int entering)
+{
+    if (entering) {   /* before the switch unloads both generators */
+        nx_resume_capture(&s_pc);
+        stamp(&s_pc);
+        return;
+    }
+    s_offer = offerable(&s_pc);
+    s_rec = s_pc;
+    memset(&s_seen, 0, sizeof s_seen);   /* what plays after it is a change: written at once */
+#if NX_FEAT_TIMERS
+    s_auto = 0;
+#endif
+    memset(&s_pc, 0, sizeof s_pc);
 }
 
 void nx_resume_power_off(void)

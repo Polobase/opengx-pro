@@ -222,6 +222,21 @@ static void protocols(void)
     CHECK(g_ch[0].prog_slot == NX_SRC_SET && (g_ui_flags & UIF_LOOP_G1));
     nx_terrain_run(0, &t);
     CHECK(t.id == 1 && t.item == 0);
+
+    /* PC mode takes the generators; at its end the set is offered again, with its protocol */
+    run_s(2);
+    nx_terrain_run(0, &t);
+    uint32_t pc_at = t.run_s;
+    nxw_pb1 = 1;
+    run_s(5);
+    CHECK_EQ(g_ch[0].prog_slot, 0);
+    nxw_pb1 = 0;
+    run_s(1);
+    CHECK_EQ(nx_resume_offer(), 1);
+    CHECK_EQ(nx_resume_accept(), NX_OK);
+    CHECK(g_ch[0].prog_slot == NX_SRC_SET && (g_ui_flags & UIF_LOOP_G1));
+    nx_terrain_run(0, &t);
+    CHECK(t.id == 1 && t.item == 0 && t.run_s >= pc_at && t.run_s <= pc_at + 1u);
     stop(0);
     run_s(1);
 

@@ -31,10 +31,10 @@ which hold data taken from Spooky2's preset files (below).
 
 `make release` builds with the two built-in tables and without the original's splash artwork,
 test timing and changed switches, whatever your `local.mk` says. `tools/release_check.py` checks
-the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.0 is
-108,456 bytes; since the two text fonts went to 2 bits per pixel and the image is linked with
-link-time optimisation (2026-10-14) the default build is 103,384 bytes, 9,256 below the limit
-(`NX_LTO=0` builds without the optimisation: 105,632 bytes). The linker refuses an nx image above 112,640 bytes
+the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.1 is
+108,664 bytes, 3,976 below the limit; since the two text fonts went to 2 bits per pixel and the
+image is linked with link-time optimisation (2026-10-14) the default build is 103,722 bytes,
+8,918 below the limit (`NX_LTO=0` builds without the optimisation). The linker refuses an nx image above 112,640 bytes
 (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
 too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
 
@@ -96,10 +96,10 @@ the build and `tools/release_check.py` stop when one is missing.
 
 | Build | Image |
 |---|---|
-| default (the release image) | 103,384 bytes (0.9.0, with 4 bpp text fonts and no LTO: 108,456) |
-| `NX_PRESETS=0` | 101,848 bytes |
-| `NX_TERRAIN=0` | 97,904 bytes |
-| `NX_TERRAIN=0 NX_PRESETS=0` | 96,372 bytes |
+| default (the release image) | 103,722 bytes (0.9.1, with 4 bpp text fonts and no LTO: 108,664) |
+| `NX_PRESETS=0` | 102,038 bytes |
+| `NX_TERRAIN=0` | 98,342 bytes |
+| `NX_TERRAIN=0 NX_PRESETS=0` | 96,614 bytes |
 
 Neither feature has been checked on a real unit yet: [Known issues](./known-issues.md).
 
@@ -127,8 +127,8 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |
 
 History, the 48-pixel digits and the biofeedback scan are off by default to save space: the image
-of 0.9.0 leaves 4,184 bytes (a build of this source about 3.8 KB), the first two cost about 2 KB
-each and the scan about 4.5 KB. The linker stops when an image is too large.
+of 0.9.1 leaves 3,976 bytes (a build of this source 8,918), the first two cost about 2 KB each
+and the scan about 8 KB (`NX_FEAT_BFB=1`: 111,630 bytes). The linker stops when an image is too large.
 The splash artwork of the original needs your own copy of the vendor's image and is never in a
 release. A build with other switches than the defaults is your own build, not a release image.
 

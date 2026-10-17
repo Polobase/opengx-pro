@@ -3,7 +3,7 @@
 This page goes through the behaviour of the original display firmware (vendor v7789) and says,
 for each point, what OpenGX Pro does and where that can be checked: the file and function, and the
 host test or emulator scenario that covers it. It is the developer's record behind
-[the comparison in the user guide](guide/compare.md). State: 2026-10-13, version 0.9.0.
+[the comparison in the user guide](guide/compare.md). State: 2026-10-14, version 0.9.1.
 
 Names used here:
 
@@ -138,8 +138,8 @@ tolerance; only the boot sequence must not start earlier either.
 | With the nx key map (the same intentions, other keys) | `ch1_program`, `g2_switch`, `upload_run`, `pc_upload_exit`, `nx_keys` |
 | Classic only | `list_nav` (screens of the list), `serial_malformed` (nx differs on purpose, see `test_malformed_lines`), `pc_exit_key` (see `test_traffic`) |
 
-Result for nx on 2026-10-13, on a local release build (`make release`, update file SHA-256
-`dd36d34a…e2731b`): 10 of 10 and 5 of 5 pass. The commands are in
+Result for nx on 2026-10-14, on the code of 0.9.1 (`make release`): 10 of 10 and 5 of 5 pass.
+The same on 2026-10-13 for 0.9.0 (update file SHA-256 `dd36d34a…e2731b`). The commands are in
 [`CONTRIBUTING.md`](../CONTRIBUTING.md).
 
 **Gallery** (`tools/nx_gallery.py`). Every nx screen is drawn from fixtures and compared pixel
@@ -180,7 +180,7 @@ been repeated with the release image. Before a release the maintainer goes throu
   the shared code and in the scenarios.
 - **Generator commands the display does not understand.** `:w13`, `:w15` and `:w40` are sent by
   Spooky2 to the generator boards; their meaning is unknown. In PC mode the display only listens.
-- **Reply time on 0.9.0.** The published numbers are from a development build.
+- **Reply time on a release.** The published numbers are from a development build.
 - **Hardware values.** Some constants are defaults that were not measured on the unit
   (`docs/nx/drop0-checklist.md`): the backlight frequency and the timing pages of the display
   test.

@@ -2,7 +2,7 @@
  * store while a program plays, the offer after a power cut (the SPI flash kept, everything else
  * reset), START / STOP / the countdown on the offer's card, and what deletes the snapshot or
  * suppresses the offer: a clean power-off, both generators stopped, a slot changed by the PC,
- * the setting, PC mode. */
+ * the setting, PC mode. And the offer at the end of PC mode: what played when it began. */
 #include "harness.h"
 
 #include "link_internal.h"
@@ -266,20 +266,79 @@ void test_nx_resume(void)
     act(NXA_STOP, 0, 0, 0);
     nxw_run_ms(100);
 
-    /* PC mode: no write while the PC owns the generators, nothing to resume after it, and a boot
-     * into PC mode drops the offer */
+    /* PC mode: no write while the PC owns the generators; it unloads both (as the original), and
+     * when it ends what played when it began is offered, at that position */
     act(NXA_LOAD, 0, 4, 0);
     act(NXA_PLAY, 0, 0, 0);
     nxw_run_ms(3000);
     CHECK(stored(&r));
     uint32_t before = r.g[0].elapsed_ms;
+    nxw_run_ms(20000);
+    uint32_t pc_at = g_ch[0].elapsed;
     nxw_pb1 = 1;
     nxw_run_ms(65000);
     CHECK(stored(&r));
     CHECK_EQ(r.g[0].elapsed_ms, before);
+    CHECK_EQ(g_ch[0].prog_slot, 0);
+    CHECK_EQ(nx_resume_offer(), 0);
     nxw_pb1 = 0;
-    nxw_run_ms(3000);   /* PC mode unloaded both generators (as the original): the snapshot goes */
+    nxw_run_ms(1000);
+    CHECK_EQ(nx_resume_offer(), 1);
+    CHECK(nx_ui_top() == &nx_scr_dash);
+    CHECK_EQ(g_ch[0].prog_slot, 0);   /* nothing before the answer */
+    nxw_run_ms(3000);
+    CHECK(stored(&r));                /* kept while the card is open */
+    nxw_press(NX_KEY_START, 150);
+    CHECK_EQ(nx_resume_offer(), 0);
+    CHECK(g_ch[0].prog_slot == 4 && (g_ui_flags & UIF_RUN_G1) && !(g_ui_flags & UIF_LOOP_G1));
+    CHECK(g_ch[0].elapsed >= pc_at && g_ch[0].elapsed < pc_at + 1000u);
+
+    /* the PC uploaded into the slot meanwhile: not offered, and the snapshot goes */
+    nxw_pb1 = 1;
+    nxw_run_ms(2000);
+    store_program(4, 40000007u);
+    nxw_pb1 = 0;
+    nxw_run_ms(1000);
+    CHECK_EQ(nx_resume_offer(), 0);
+    nxw_run_ms(3000);
     CHECK(!stored(&r));
+
+    /* STOP on the card discards */
+    act(NXA_LOAD, 0, 4, 0);
+    act(NXA_PLAY, 0, 0, 0);
+    nxw_run_ms(3000);
+    nxw_pb1 = 1;
+    nxw_run_ms(2000);
+    nxw_pb1 = 0;
+    nxw_run_ms(1000);
+    CHECK_EQ(nx_resume_offer(), 1);
+    nxw_press(NX_KEY_STOP, 150);
+    CHECK_EQ(nx_resume_offer(), 0);
+    CHECK_EQ(g_ch[0].prog_slot, 0);
+    nxw_run_ms(3000);
+    CHECK(!stored(&r));
+
+    /* something loaded while the card is open: the offer goes, and what plays now is written at
+     * once (not the position from before PC mode) */
+    act(NXA_LOAD, 0, 4, 0);
+    act(NXA_PLAY, 0, 0, 0);
+    nxw_run_ms(3000);
+    nxw_pb1 = 1;
+    nxw_run_ms(2000);
+    nxw_pb1 = 0;
+    nxw_run_ms(1000);
+    CHECK_EQ(nx_resume_offer(), 1);
+    CHECK_EQ(act(NXA_LOAD, 1, 5, 0), NX_OK);
+    CHECK_EQ(act(NXA_PLAY, 1, 0, 0), NX_OK);
+    nxw_run_ms(100);
+    CHECK_EQ(nx_resume_offer(), 0);
+    nxw_run_ms(3000);
+    CHECK(stored(&r) && r.g[0].slot == 0 && r.g[1].slot == 5 && r.g[1].flags == NX_RES_RUN);
+    act(NXA_STOP, 1, 0, 0);
+    nxw_run_ms(3000);
+    CHECK(!stored(&r));
+
+    /* a boot into PC mode drops the offer of a power cut */
     act(NXA_LOAD, 0, 4, 0);
     act(NXA_PLAY, 0, 0, 0);
     nxw_run_ms(3000);
@@ -303,6 +362,14 @@ void test_nx_resume(void)
     CHECK_EQ(nx_resume_offer(), 0);
     nxw_run_until(8000);
     CHECK(!stored(&r));
+    act(NXA_LOAD, 0, 4, 0);   /* nor at the end of PC mode */
+    act(NXA_PLAY, 0, 0, 0);
+    nxw_run_ms(1000);
+    nxw_pb1 = 1;
+    nxw_run_ms(2000);
+    nxw_pb1 = 0;
+    nxw_run_ms(1000);
+    CHECK_EQ(nx_resume_offer(), 0);
     nx_settings_defaults(&g_nx_settings);
 #if NX_FEAT_TIMERS
     test_autostart();

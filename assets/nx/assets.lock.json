@@ -11,9 +11,9 @@
   },
   "max_bytes": 36864,
   "outputs": {
-    "src/nx/nx_assets.c": "a980923649e00a43570aca3e67801f0b3feae9067eb19aa0a37f026425075991",
-    "src/nx/nx_assets.h": "3d79448e4c012892d8d95fa163e26377b766e0e51fecb395121328127b4620be",
-    "src/nx/nx_str_ids.h": "0a1959770f4a753a06541f7beee636436e90f06d3a979dd3fd10da784af3b411",
+    "src/nx/nx_assets.c": "3d0d012825d7c4ad9b1f3e5579595031099dbba8bef2e2f555ea623a57b11565",
+    "src/nx/nx_assets.h": "ee85f7b5258a8c18f14d47981b05b88550438abe82970f44b697ce3b699827dc",
+    "src/nx/nx_str_ids.h": "2e5a8b7504a87ee3b7bbd1db8164d7490818e302a5cb99eb667ec2368f6a42c3",
     "tests/host/nx/nx_asset_vectors.h": "7d1d8141848d5fe0f858ccd1997d86f35e70257afd0d5b40a20c53e6541df111"
   },
   "sources": {
@@ -22,7 +22,7 @@
     "assets/nx/palettes.json": "520654765f85905f738e8280dbca75cfac78211cd83f9661a55c90eb13f85709",
     "assets/nx/qr.json": "1352bcb1887882ad7012dd9eae7737a4c03ccd6f6c462efc550ca2fc7280dcc2",
     "assets/nx/sources.json": "1643ce2243ccdd54234c3cd90f9d7c28f32a4afeef429497078b7fdd1bbceca1",
-    "assets/nx/strings/en.json": "b86b81e0174bba6f20891fdd37b6eedf5ab1414e2b3f82f611497d106bd79499",
+    "assets/nx/strings/en.json": "c5f0b9ec1299958f122d3f765269cb215df16cfd55c02b77d2b548909ef1b359",
     "assets/nx/third_party/Inter-Medium.ttf": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872",
     "assets/nx/third_party/Inter-Regular.ttf": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
     "assets/nx/third_party/InterDisplay-Medium.ttf": "99665c256585aeaab2d06950c2d7715cca8fd7883c2d0e7a421b8b287e1f17de",
@@ -69,15 +69,15 @@
     },
     "nx_str_off": {
       "bytes": 672,
-      "sha256": "e2921206b944808dcbcc227fd80224bd6824df803448e29d24d7d4a63c8891bf"
+      "sha256": "82d271cd8a3a29b4855290ea627ae6178263aa47c4c57746f6288f37170cc923"
     },
     "nx_str_pool": {
-      "bytes": 5135,
-      "sha256": "f9aa87a2814082999ae595058df0be70200d2c249e3989e2b8def47bccaf1141"
+      "bytes": 5139,
+      "sha256": "f996bcc732042bd87ef64dd54ed98f6b2f4e1089d31975603479cec13d2aae66"
     }
   },
   "tool": {
     "sha256": "19ffcb41587e87b15177b196c4dd6c2df5eca7de6b924c7c014b64b4af325a2e"
   },
-  "total_bytes": 17785
+  "total_bytes": 17789
 }

@@ -1,5 +1,6 @@
 /* Resume after a power cut (docs/nx/fw2-design.md, "Resume"): what each generator plays, kept in
- * the KV store and offered again at the next boot.
+ * the KV store and offered again at the next boot. And after PC mode, which unloads both
+ * generators: what played when it began is offered again when it ends.
  *
  *   - nx_resume_task writes the snapshot when a generator's slot, run or loop flag changes, and
  *     every NX_RESUME_EVERY_MS while one runs (so at most that much of a program repeats). Never
@@ -15,7 +16,11 @@
  *   - nx_resume_boot turns a stored snapshot into the offer, unless the setting is off or the
  *     boot-loop guard tripped; each slot must still hold the same program. The UI shows it after
  *     the boot gate and answers with nx_resume_accept (START, or its countdown) or
- *     nx_resume_discard (STOP). A PC session cancels it. */
+ *     nx_resume_discard (STOP). A PC session cancels it, and so does anything loaded meanwhile.
+ *   - nx_resume_pc(1) at the start of PC mode keeps what plays in RAM (nothing is written in PC
+ *     mode; the stored snapshot stays as it was); nx_resume_pc(0) at its end makes it the offer,
+ *     for each generator whose slot still holds the same program (the PC may have uploaded into
+ *     it), unless the setting is off. */
 #pragma once
 
 #include <stdint.h>
@@ -62,5 +67,6 @@ int nx_resume_accept(void);         /* loads, seeks, plays or pauses; NX_OK or t
 void nx_resume_discard(void);
 void nx_resume_task(uint32_t now);  /* main loop */
 void nx_resume_power_off(void);     /* clean power-off: nothing to resume */
+void nx_resume_pc(int entering);    /* nx_core_pcmode_task, around the shared switch */
 /* What the generators play now, without the CRCs (0): the part the change check compares. */
 void nx_resume_capture(struct nx_resume_rec *r);

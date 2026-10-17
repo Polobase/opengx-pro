@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
 import { webSerialSupported } from './lib/byteport'
-import { COFFEE_URL, REPO_URL } from './lib/links'
+import { COFFEE_URL, FEEDBACK_URL, REPO_URL } from './lib/links'
 import { cycleTheme, theme } from './lib/theme'
 import BrandMark from './components/BrandMark.vue'
 import BrowserHelp from './components/BrowserHelp.vue'
@@ -85,6 +85,12 @@ const supported = webSerialSupported()
       </header>
       <div class="wrap page">
         <BrowserHelp v-if="needsSerial && !supported" />
+        <p v-if="route.section === 'install' || route.section === 'restore'" class="note warn pro-only">
+          <b>Made for the GeneratorX Pro.</b> The original GeneratorX looks the same from the front, but it is different
+          inside. OpenGX Pro is neither made nor tested for it, and there is no known firmware file to go back to on it.
+          If you own one and want to try anyway, you do so at your own risk. Then please
+          <a :href="FEEDBACK_URL" target="_blank" rel="noopener">tell us how it went</a>, or help on
+          <a :href="REPO_URL" target="_blank" rel="noopener">GitHub</a>.</p>
         <KeepAlive>
           <ComparePanel v-if="route.section === 'compare'" />
           <ScreensPanel v-else-if="route.section === 'screens'" />

@@ -59,8 +59,8 @@ enum nx_str_id {
     NX_S_SET_MINUTES,   /* "\001 min" */
     NX_S_SET_SECONDS,   /* "\001 s" */
     NX_S_SET_AUTO_LOCK,   /* "Lock keys automatically" */
-    NX_S_SET_RESUME,   /* "Resume after power cut" */
-    NX_S_RESUME_ASK,   /* "Resume after power cut\?" */
+    NX_S_SET_RESUME,   /* "Offer to resume" */
+    NX_S_RESUME_ASK,   /* "Resume where it stopped\?" */
     NX_S_RESUME_KEYS,   /* "START: resume \210 STOP: discard" */
     NX_S_SET_LOCK_HOW,   /* "Hold G1+G2 to lock the keys" */
     NX_S_SET_UNLOCK_HOW,   /* "Hold START+STOP to unlock them" */

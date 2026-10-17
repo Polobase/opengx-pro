@@ -2,7 +2,7 @@
 
 OpenGX Pro is open firmware for the display board of the Spooky2 GeneratorX Pro. It replaces the
 firmware of the display only; the two generator boards and the bootloader stay as they are. This
-page lists what version 0.9.0 (beta) contains: the file that the site installs. OpenGX Pro is an
+page lists what version 0.9.1 (beta) contains: the file that the site installs. OpenGX Pro is an
 independent project, not affiliated with or endorsed by Spooky2.
 
 The pictures are drawn by the firmware's own screen code from sample data. The program names and
@@ -66,8 +66,9 @@ Settings > About, and the page "Support the project" with its QR code.
   the hits at half the step, and the refined hits play.
 - **Timers**: stop a generator after 5 to 240 minutes of running, power off when all programs
   have finished, start the last programs at power-on.
-- **Resume after a power cut**: the unit offers to continue what was playing, at most one minute
-  back.
+- **Resume after a power cut or PC mode**: after a power cut the unit offers to continue what
+  was playing, at most one minute back. When Spooky2 took the unit over (USB plugged in) and lets
+  it go again (USB unplugged), it offers to continue what played before, where it was.
 - **Key lock**: hold G1+G2 to lock, START+STOP to unlock. It can lock by itself while a program
   runs.
 - **Diagnostics and key test**: firmware version, uptime, last reset, both generator links, PC
@@ -87,7 +88,7 @@ frequency or a sweep by hand.
 
 ![Timers](../../tests/gallery/nx/settings_timers.png) ![Resume after a power cut](../../tests/gallery/nx/resume_offer.png)
 
-The timers page, and the offer after a power cut.
+The timers page, and the offer after a power cut or PC mode.
 
 Every key and screen is described in [Keys and screens](./keys.md).
 

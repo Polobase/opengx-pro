@@ -1,7 +1,7 @@
 # Safety and recovery
 
 This page says what installing OpenGX Pro can change in your unit and what it cannot, what stays,
-how you get back to the original firmware, and what the project does not promise. Version 0.9.0
+how you get back to the original firmware, and what the project does not promise. Version 0.9.1
 is a beta: read the last two sections before you install.
 
 ## What the installer can write
@@ -34,7 +34,7 @@ lower the read protection.
 No tool of the project sends an image above **112,640 bytes**. That is the largest size proven on
 a real unit: test images of 96, 104 and 110 KB each arrived byte for byte and ran (2026-09-25).
 The application area is slightly larger, but a bigger image has never been tried. The image of
-0.9.0 is 108,456 bytes.
+0.9.1 is 108,664 bytes.
 
 ## What the page checks before it writes
 
@@ -103,9 +103,9 @@ the presets too: the Contact protocols play at 20 V, the Remote protocols at 5 V
 
 ## What "beta" means here
 
-0.9.0 is the first public version. Its code is tested on a computer and on an emulated board.
-On a real unit only a part has been checked so far: installing, starting, and Spooky2 running
-programs on both generators in PC mode. The rest of the device checks are open; the list is in
+0.9.1 is the second public version, after 0.9.0. Its code is tested on a computer and on an
+emulated board. On a real unit only a part has been checked so far: installing, starting, and
+Spooky2 running programs on both generators in PC mode. The rest of the device checks are open; the list is in
 [Known issues](./known-issues.md).
 
 - Keep the vendor's updater file at hand, so you can go back at any time.

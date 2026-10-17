@@ -12,8 +12,8 @@ which was not analysed.
 |---|---|
 | USB device | WCH CH342 "USB Dual_Serial": two serial channels |
 | Settings | 115200 baud, 8 data bits, no parity, 1 stop bit, no flow control |
-| Channel → link | `…903` (e.g. `/dev/cu.wchusbserial…903`) = **link A** = generator A (G1) + display USART1 |
-| | `…901` = **link B** = generator B (G2) + display USART2 |
+| Channel → link | the unit's second USB channel = **link A** = generator A (G1) + display USART1 (on the unit measured `…903`, e.g. `/dev/cu.wchusbserial…903`) |
+| | the first = **link B** = generator B (G2) + display USART2 (`…901` there). The names differ from unit to unit and computer to computer |
 | PC mode | With USB connected (display input PB1 high) the display enters PC mode and gives the links to the PC (PB2 low). The PC then reaches the generator board **and** the display on the same link; the display listens to everything and answers only its own commands. |
 
 Each link is shared: commands for the generator board are answered by the generator, commands for
@@ -169,7 +169,7 @@ At power-up both generators always get the idle configuration of an empty progra
 
 ### Bootloader (programming mode: power off, hold Stop, press Power)
 
-Handled by the vendor bootloader; the flasher finds it on link A (`…903`): `AR` / `AN` return the hardware ID
+Handled by the vendor bootloader; the flasher finds it on link A (the channel that answers with the display's hardware ID): `AR` / `AN` return the hardware ID
 (`X`, `2`), `AD` starts the update (reply `D`), then 2060-byte packets `AB…` with CRC-16, each
 acknowledged with `C`. Use `tools/flash_gx_pro.py`.
 

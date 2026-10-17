@@ -126,10 +126,13 @@ void nx_core_pcmode_task(void)
         if (pb1) {
             g_nx_diag.pc_entries++;
             memset(&g_nx_pcmon, 0, sizeof g_nx_pcmon);   /* this session's values only */
+            nx_resume_pc(1);   /* what plays now, before the switch unloads it */
         }
         else
             g_nx_diag.pc_exits++;
         core_pcmode_update(pb1);
+        if (!pb1)
+            nx_resume_pc(0);   /* left: what played before is offered again */
     } else {
         s_pc_wait = 0;   /* PB1 went back before the queues were idle: the hold ends (it used to stay set
                           * until power-off: the runner held, every action busy) */

@@ -3,10 +3,16 @@
 OpenGX Pro is installed over USB, through the update mode the unit already has. A page of the
 project site does it from the browser: <https://polobase.github.io/opengx-pro/>. The same site
 puts the vendor's original firmware back. Read [Safety and recovery](./safety.md) first; version
-0.9.0 is a beta ([Known issues](./known-issues.md)).
+0.9.1 is a beta ([Known issues](./known-issues.md)).
 
 ## What you need
 
+- A Spooky2 GeneratorX Pro. The original GeneratorX looks the same from the front, but it
+  differs inside (Spooky2's change log of 2022-04-28: another frequency resolution), and OpenGX
+  Pro is neither made nor tested for it. Spooky2 publishes display firmware updates for the GX Pro
+  only, so on an original GeneratorX there is no known file for the way back. If you own one and
+  want to try anyway, you do so at your own risk; reports and help are welcome on
+  [GitHub](https://github.com/Polobase/opengx-pro/issues).
 - A desktop computer with Chrome, Edge, Opera or Brave. The page talks to the unit with Web Serial,
   which these browsers have. Firefox and Safari do not have it. An older Brave has it switched
   off: update Brave, or open `brave://flags`, search for "serial", set "Web Serial API" to
@@ -40,7 +46,7 @@ Your programs, their names and the calibration are not in the firmware. They sta
 
 ![The splash after the restart](../../tests/gallery/nx/splash_1100.png)
 
-The splash of OpenGX Pro 0.9.0.
+The splash of OpenGX Pro 0.9.1.
 
 ## What the page checks
 
@@ -49,8 +55,8 @@ The splash of OpenGX Pro 0.9.0.
   a different entry. A port that does not answer is refused too: the unit is not in update mode.
   After you have chosen once, the page finds the unit by itself.
 - **The file.** It must carry the firmware ID of the display board, and it must not be larger than
-  112,640 bytes, the largest size proven on a unit. The release file of 0.9.0 is 108,468 bytes and
-  is sent in 53 blocks of 2 KB.
+  112,640 bytes, the largest size proven on a unit. The release file of 0.9.1 is 108,676 bytes and
+  is sent in 54 blocks of 2 KB.
 - **Every block.** The unit confirms each block. A block that is not confirmed within 2 seconds is
   sent again. After 4 resends in one update the page stops and tells you to start again.
 
@@ -89,7 +95,7 @@ first, as above.
 | Command | What it flashes |
 |---|---|
 | `make release && make flash-release` | the release image, built on your computer |
-| `.venv/bin/python tools/flash_gx_pro.py -f opengx-pro-0.9.0.bin` | a release file you downloaded |
+| `.venv/bin/python tools/flash_gx_pro.py -f opengx-pro-0.9.1.bin` | a release file you downloaded |
 | `make APP=nx flash` | your own build of OpenGX Pro |
 | `make flash-original` | the original firmware, from your copy at `original/GxDisplayFW.bin` |
 

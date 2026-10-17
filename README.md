@@ -12,7 +12,7 @@ browser, go back to the original, read the guide.
 
 <img src="tests/gallery/nx/splash_1100.png" width="240" alt="Start screen"> <img src="tests/gallery/nx/dash_running.png" width="240" alt="Dashboard"> <img src="tests/gallery/nx/menu.png" width="240" alt="Menu">
 
-> **Beta (0.9.0).** More than 42,000 automated checks pass, and the firmware runs on a real unit
+> **Beta (0.9.1).** More than 42,000 automated checks pass, and the firmware runs on a real unit
 > with Spooky2 driving both generators. Most of the checklist on the device is still to be done:
 > see [Known issues](docs/guide/known-issues.md). Going back to the original takes a minute.
 
@@ -50,7 +50,7 @@ a desktop computer). By hand:
    units it stays dark), the unit waits
    for an update.
 2. `make release && make flash-release`, or flash a released file:
-   `.venv/bin/python tools/flash_gx_pro.py -f opengx-pro-0.9.0.bin`.
+   `.venv/bin/python tools/flash_gx_pro.py -f opengx-pro-0.9.1.bin`.
 3. Back to the original: `make flash-original` with your own copy of the vendor's update file
    (below), or the vendor's Windows updater.
 

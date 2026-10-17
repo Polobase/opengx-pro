@@ -274,7 +274,7 @@ Hot loops (fill, blend, glyph decode, span) can go into `.ramfunc` (≈1 KB RAM)
 | 0–300 ms | Backlight fades 0 → level |
 | 0–500 ms | Brand ring (the "O" of the wordmark, Ø 30 px, 5 px) sweeps 0→360°; only the new arc segment is drawn each frame (< 0.2 ms/frame) |
 | 200–600 ms | A sine wave traces left to right inside the ring |
-| 500–800 ms | Wordmark "OpenGX Pro" (its "O" is the ring with the sine) fades in, with the line "Open firmware for the GeneratorX Pro" (C1); the foot shows "v0.9.0" |
+| 500–800 ms | Wordmark "OpenGX Pro" (its "O" is the ring with the sine) fades in, with the line "Open firmware for the GeneratorX Pro" (C1); the foot shows "v0.9.1" |
 
 - If the core needs a longer boot window (factory port), the ring breathes (accent tint ±10 %) until released.
 - The ring and the sine are **procedural**; the letters of the wordmark come from the brand font. There are no Spooky2 trademarks: no ghost and no red "2".
@@ -582,7 +582,7 @@ Legend: ▶ play, ‖ pause, ■ stop, ⟳ loop, ✓ done, /!\ warning, ★ favo
 │                         OpenGX Pro         fades in          │
 │             Open firmware for the GeneratorX Pro   C1        │
 │                                                              │
-│ v0.9.0                                     any key: skip     │
+│ v0.9.1                                     any key: skip     │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -713,7 +713,7 @@ The Quick tab has two sections: RECENT (last 5 across sources, with generator an
 ```
 ┌──────────────────────────────────────────────────────────────┐
 │ ‹ Diagnostics                                   up 3d 04:12  │
-│  Firmware  0.9.0 · a1b2c3d · 2026-10-01                      │
+│  Firmware  0.9.1 · a1b2c3d · 2026-10-01                      │
 │  Reset     Power-on (previous: watchdog)                     │
 │  MCU       41.5 °C · VDD 3.29 V · HSE 8 MHz ok               │
 │  Panel     ST7789 var A · full frame 40 ms · bus 9 %         │

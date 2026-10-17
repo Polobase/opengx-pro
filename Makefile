@@ -262,13 +262,13 @@ flash-release:
 # Authenticated real-device conformance test, driven from here but run by the freqgen `spooky2`
 # tool, which holds the vendor session handshake (not reimplemented in this repo). CONFORMANCE_DIR
 # is its package folder in a checkout of github.com/Polobase/freqgen next to this repository. Usage:
-#   make conformance PORT=/dev/cu.wchusbserial...903 RECORD=build/conf-original.json
+#   make conformance PORT=<port of link A> RECORD=build/conf-original.json
 #   make conformance PORT=... COMPARE=build/conf-original.json RECORD=build/conf-ours.json
 CONFORMANCE_DIR ?= ../freqgen/packages/spooky2
 PORT ?=
 RECORD ?= build/conformance.json
 conformance:
-	@test -n "$(PORT)" || { echo "set PORT=/dev/cu.wchusbserial...903 (run: ls /dev/cu.wchusbserial*)"; exit 2; }
+	@test -n "$(PORT)" || { echo "set PORT to the unit's link-A port, usually the second of its two (macOS: ls /dev/cu.wchusbserial* /dev/cu.usbmodem*)"; exit 2; }
 	@test -f "$(CONFORMANCE_DIR)/dist/cli.js" || { echo "build the freqgen tool first: (cd $(CONFORMANCE_DIR) && npm run build)"; exit 2; }
 	@mkdir -p build
 	node "$(CONFORMANCE_DIR)/dist/cli.js" conformance --device genx-pro --port "$(PORT)" \

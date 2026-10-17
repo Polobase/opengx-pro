@@ -185,16 +185,17 @@ A card with a ring that fills; a full ring answers "yes" by itself (the set-end 
 
 | Card | When | Keys |
 |---|---|---|
-| "Resume after power cut?" (15 s) | after a power cut or a crash while a program played or was paused | START resume now, STOP discard; other keys do nothing; POWER as everywhere |
+| "Resume where it stopped?" (15 s) | after a power cut or a crash while a program played or was paused; at the end of PC mode, when one played or was paused as it began | START resume now, STOP discard; other keys do nothing; POWER as everywhere |
 | "Start the last programs?" (10 s) | auto-start on (menu > Timers), a normal power-on, nothing to resume | START start now, STOP cancel; other keys do nothing; POWER as everywhere |
 | "All programs finished · Powering off" (15 s) | "Power off when all finished" on, and every program has ended | any key cancels, a short POWER press too; POWER held switches off as everywhere |
 | "Set finished · safe to pause" (60 s) | a Terrain Contact session reaches its 0 Hz end step; the screen wakes and the backlight pulses 3 times (no buzzer) | any key closes it, a short POWER press too; it closes by itself after 60 s |
 
-The resume and auto-start cards show after the splash on the dashboard. The resume card continues
-at the last saved position (at most a minute back); paused programs stay paused; a chain or plan
-goes on. Nothing is offered after a clean power-off (POWER held), when both generators were
-stopped, after a PC session, or when the slot's program changed. Settings > Keys & lock > "Resume
-after power cut" switches it off. The auto-start card starts the last program of each generator
+The resume and auto-start cards show after the splash on the dashboard; the resume card also
+when PC mode ends. It continues at the last saved position (at most a minute back), or after PC
+mode where PC mode began; paused programs stay paused; a chain or plan goes on. Nothing is offered
+after a clean power-off (POWER held), when both generators were stopped, when the slot's program
+changed, or when something else was loaded meanwhile. Settings > Keys & lock > "Offer to resume"
+switches it off. The auto-start card starts the last program of each generator
 from step 1.
 
 ## Quick settings and settings

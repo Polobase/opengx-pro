@@ -88,7 +88,7 @@
 #define NX_BOOTLOOP_WINDOW_MS 30000u   /* a reset after this much uptime ends the streak */
 #define NX_UI_SLICE_US 2000u           /* UI render budget per main-loop pass */
 #define NX_FW_ID 0x4E580401u           /* "NX", platform 4.1: written into the superblock */
-#define NX_FW_VERSION "0.9.0"          /* the splash, Settings > About, Diagnostics; the release's name (make release) */
+#define NX_FW_VERSION "0.9.1"          /* the splash, Settings > About, Diagnostics; the release's name (make release) */
 #define NX_PRODUCT "OpenGX Pro"         /* Settings > About: the project (the splash draws its own wordmark) */
 #define NX_AUTHOR "Manuel Haller Polo"  /* Settings > About: the developer */
 

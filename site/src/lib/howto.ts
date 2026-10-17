@@ -116,7 +116,7 @@ export const topics: Topic[] = [
     steps: [
       { keys: ['DOWN'], shot: 'settings_timers', does: 'Menu, then Timers', see: 'Stop a generator after a set time, switch off when all is finished, start the last programs at power-on.' },
       { keys: ['G1', 'G2'], shot: 'dash_timer', does: 'Set “G1 stops after”', see: 'The top line of the dashboard counts the minutes that are left.' },
-      { keys: ['START', 'STOP'], shot: 'resume_offer', does: 'After a power cut', see: 'The unit offers to go on where it was. Start resumes, Stop discards. Without a key it resumes by itself.' },
+      { keys: ['START', 'STOP'], shot: 'resume_offer', does: 'After a power cut or PC mode', see: 'The unit offers to go on where it was, also when Spooky2 lets it go again. Start resumes, Stop discards. Without a key it resumes by itself.' },
       { keys: ['STOP'], shot: 'done_card', does: 'All programs finished', see: 'With “Power off when all finished” the unit counts down and switches off. Any key cancels.' },
     ],
   },

@@ -1,6 +1,6 @@
 # Known issues and what has not been checked yet
 
-OpenGX Pro 0.9.0 is a beta. Its code is tested on a computer and on an emulated board, but most
+OpenGX Pro 0.9.1 is a beta. Its code is tested on a computer and on an emulated board, but most
 of it has not yet been checked on a real unit. This page says what was checked and how, what is
 still open, and which limits are known. State: 2026-10-14.
 
@@ -8,6 +8,9 @@ still open, and which limits are known. State: 2026-10-14.
 that owners can try it and report. The file of 0.9.0 itself had not run on a real unit when it
 was published; what ran on a unit before were the development builds named below. Since then
 0.9.0 has been installed from the site on one unit.
+
+0.9.1 adds the offer to resume at the end of PC mode. It was published the same way: its new
+part has been checked on the computer and on the emulated board, not yet on a real unit.
 
 ## How it was tested
 
@@ -46,7 +49,7 @@ in the host tests and on the emulated board; on a unit they have not been checke
 | Programs without a PC | Frequencies and step time of a stored program on both generators, measured at the outputs; repeat; a program to its end |
 | Generator link | The rows of both links in Diagnostics (lines, errors, reply time), and that "not responding" does not show in normal use |
 | PC mode | The fields of the PC monitor against what Spooky2 shows; an upload from Spooky2 and unplugging USB; a longer run with several starts and stops; the reply check against the original with this version |
-| Power | Power off while both generators play; settings kept over a power cycle; resume after a power cut |
+| Power | Power off while both generators play; settings kept over a power cycle; resume after a power cut, and after PC mode |
 | Timers and auto-start | Stop after N minutes, power off when all finished, start the last programs at power-on |
 | Slot actions | Copy, move, erase and "play on both", and what Spooky2 then reads from the unit |
 | Chains and plans | Playing, the change of waveform and amplitude between two programs, resume inside a chain |
@@ -57,12 +60,13 @@ in the host tests and on the emulated board; on a unit they have not been checke
 | Original key behaviour | The four changes of that option |
 | Watchdog and crash recovery | A watchdog reset was seen with a test program on the unit; the watchdog and the crash recovery of this firmware were not |
 | New in 0.9.0 | The splash with the wordmark, Settings > About, and the QR code scanned with a phone |
+| New in 0.9.1 | The card at the end of PC mode: a program, a chain and the Terrain Protocol go on where they were; a slot that Spooky2 rewrote is not offered |
 | Going back through the site | Restoring the original from the vendor's updater file in the browser |
 | A stopped update | An update interrupted on purpose has not been tried ([Install](./install.md)) |
 
 The maintainer goes through [`docs/release-checklist.md`](../release-checklist.md) on a real
-unit with exactly the release file. For 0.9.0 this is still to be done; its results will be
-written here.
+unit with exactly the release file. For 0.9.0 and 0.9.1 this is still to be done; the results
+will be written here.
 
 ## Known limits
 
@@ -115,8 +119,9 @@ written here.
 
 - A chain plays each program once. A plan has no clock: you start the next day with START. A day
   whose chain repeats "until stopped" never completes.
-- Resume goes back at most one minute. It is not offered after a PC session or when the program
-  in the slot changed. The manual generator is not resumed and not auto-started.
+- After a power cut, resume goes back at most one minute. After PC mode it goes on where PC mode
+  began. It is not offered when the program in the slot changed (for example uploaded by Spooky2
+  in PC mode). The manual generator is not resumed and not auto-started.
 - Auto-start plays the last program of each generator from step 1. It does not restart a chain
   or a plan. A Terrain protocol goes on from its stored position; the built-in preset plays from
   its start.

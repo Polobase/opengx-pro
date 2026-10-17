@@ -33,7 +33,7 @@ export const gallery: ShotGroup[] = [
       { name: 'splash_1100', caption: 'Start screen' },
       { name: 'key_guide', caption: 'Key guide, first start' },
       { name: 'dash_starting', caption: 'Generators starting' },
-      { name: 'resume_offer', caption: 'Resume after a power cut' },
+      { name: 'resume_offer', caption: 'Resume after a power cut or PC mode' },
       { name: 'auto_offer', caption: 'Start the last programs' },
       { name: 'done_card', caption: 'All finished: power off' },
       { name: 'power_ring', caption: 'POWER held: switch off' },

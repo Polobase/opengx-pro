@@ -157,7 +157,7 @@ A card with a ring that fills. When the ring is full, the card answers "yes" by 
 
 | Card | When | Keys |
 |---|---|---|
-| "Resume after power cut?" (15 s) | After a power cut or a crash while a program played or was paused. | START resumes now, STOP discards. |
+| "Resume where it stopped?" (15 s) | After a power cut or a crash while a program played or was paused, and when PC mode ends after it took over a program that played or was paused. | START resumes now, STOP discards. |
 | "Start the last programs?" (10 s) | "Start last programs at boot" is on, a normal power-on, nothing to resume. | START starts now, STOP cancels. |
 | "All programs finished · Powering off" (15 s) | "Power off when all finished" is on and every program has ended. | Any key cancels. |
 
@@ -170,8 +170,8 @@ STOP closes. A hint line at the bottom says so.
   Auto-dim, Reduce motion.
 - **Display**: Theme (Dark, Light, High contrast), Brightness, Dim after, Screen off after, When
   idle (Screen off or Night view), Splash screen (Off, Short, Full).
-- **Keys & lock**: Key repeat (Slow, Normal, Fast), Lock keys automatically, Resume after power
-  cut, Original key behaviour, Show key guide.
+- **Keys & lock**: Key repeat (Slow, Normal, Fast), Lock keys automatically, Offer to resume
+  (after a power cut or PC mode), Original key behaviour, Show key guide.
 - **Motion**: Reduce motion, Scroll long names.
 - **About**: project, firmware version, developer, panel type, Support the project (a QR code and
   the address of the donation page), the licences of the font and the icons.

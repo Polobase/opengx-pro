@@ -33,7 +33,7 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
       </svg>
     </div>
     <div class="wrap hero-top">
-      <a class="pill" href="#/docs/known-issues"><b>Beta 0.9.0</b><span>free and open source</span><i aria-hidden="true">→</i></a>
+      <a class="pill" href="#/docs/known-issues"><b>Beta{{ latest ? ` ${latest.version}` : '' }}</b><span>free and open source</span><i aria-hidden="true">→</i></a>
       <h1>More from the screen of your <span class="grad">GeneratorX Pro</span></h1>
       <p class="hero-lead">OpenGX Pro is free software for the screen and keys of the Spooky2 GeneratorX Pro. It shows more,
         does more without a computer (the Terrain Protocol and “Radionics (Boost) Manifestation” are built in), and
@@ -104,9 +104,10 @@ const strip = gallery.flatMap((g) => g.shots).filter((_, i) => i % 3 === 0)
         <p>Chains play programs one after the other. A plan gives every day its chain.</p>
       </article>
       <article class="tile" v-reveal>
-        <img :src="screen('resume_offer')" alt="Offer to resume after a power cut" width="320" height="240" loading="lazy" />
+        <img :src="screen('resume_offer')" alt="Offer to resume after a power cut or PC mode" width="320" height="240" loading="lazy" />
         <h3>Power cut? It goes on</h3>
-        <p>The unit remembers where it was. Timers stop a program or switch the unit off when all is done.</p>
+        <p>The unit remembers where it was, also when Spooky2 took over for a while. Timers stop a program or switch the
+          unit off when all is done.</p>
       </article>
       <article class="tile" v-reveal="60">
         <img :src="screen('night_view')" alt="Night view" width="320" height="240" loading="lazy" />

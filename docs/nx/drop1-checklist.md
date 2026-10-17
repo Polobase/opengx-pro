@@ -10,7 +10,7 @@ Chains, Manual, Timers, Diagnostics, Settings). The keys and screens are in
 `docs/nx/key-model.md`; everything nx does compared with the original: `docs/nx/features.md`.
 
 Since 2026-10-13 every build, and the released image (`make release`), has the Terrain Protocol
-and the preset with sweeps from the committed tables in `src/nx/data/`: 108,456 bytes (106,538
+and the preset with sweeps from the committed tables in `src/nx/data/`: 108,664 bytes in 0.9.1, 108,456 in 0.9.0 (106,538
 bytes on 2026-10-06, when the tables were made at build time from `TERRAIN_DIR` / `PRESET_FILE`
 in an untracked `local.mk`). So §23, §24 and §28 need no preset files (§23 and §24 still use the
 test build with fast time). `make release` is built without the vendor splash. Off by default
@@ -40,7 +40,7 @@ preset.
 
 | Check | Result |
 |---|---|
-| Splash on black: the wordmark "OpenGX Pro" (its "O" is the ring with the sine), "Open firmware for the GeneratorX Pro", "v0.9.0" at the foot, "any key: skip"; any key skips it. (A build with `NX_VENDOR=1`: the original's Spooky2 ghost fades in, §9.) | |
+| Splash on black: the wordmark "OpenGX Pro" (its "O" is the ring with the sine), "Open firmware for the GeneratorX Pro", "v0.9.1" at the foot, "any key: skip"; any key skips it. (A build with `NX_VENDOR=1`: the original's Spooky2 ghost fades in, §9.) | |
 | First boot: the key guide after the splash; a key closes it and acts (e.g. G1 opens the program list) | |
 | Upright, not mirrored, colours right (G1 cyan, G2 amber) | |
 | Every text in English; a text too long for its place ends in "…" | |
@@ -71,7 +71,7 @@ Do §8 (both generators at once) first.
 | Check | Result |
 |---|---|
 | USB connected: PC monitor (names, frequencies, outputs, sync); START/STOP/LOOP do nothing; the screen stays lit | |
-| `make conformance PORT=/dev/cu.wchusbserial...903 COMPARE=build/conf-original.json RECORD=build/conf-nx-ui.json` (Spooky2 closed): all replies identical | |
+| `make conformance PORT=<link A> COMPARE=build/conf-original.json RECORD=build/conf-nx-ui.json` (Spooky2 closed): all replies identical | |
 | `.venv/bin/python tools/gx_serial_test.py run --save build/serial-nx.json`, then `compare build/serial-fw.json build/serial-nx.json`: identical | |
 | `.venv/bin/python tools/gx_latency.py --save build/latency-nx.json`, then `compare build/latency-nx.json build/latency-fw.json`: nx faster (≈ 3-5 ms) | |
 | Spooky2 session: upload a program to a slot, run it from Spooky2, a biofeedback scan: works as with the original | |
@@ -99,12 +99,12 @@ Do §8 (both generators at once) first.
 | Check | Result |
 |---|---|
 | G1 and G2 play (one paused), wait over a minute, then pull the power plug | |
-| Power on: after the splash "Resume after power cut?" with a filling ring; START: both continue within a minute of where they were (scope), the paused one stays paused | |
+| Power on: after the splash "Resume where it stopped?" with a filling ring; START: both continue within a minute of where they were (scope), the paused one stays paused | |
 | Again, but press nothing: after 15 s it resumes by itself | |
 | Again, STOP on the card: nothing is loaded; the next power-on offers nothing | |
 | POWER held (clean power-off) while playing, then on: no card | |
 | Spooky2 session (USB) while playing, unplug, power cycle: no card | |
-| Settings > Keys & lock > Resume after power cut off, pull the plug while playing: no card | |
+| Settings > Keys & lock > Offer to resume off, pull the plug while playing: no card | |
 
 ## 7. Restored screens and details
 
@@ -163,7 +163,7 @@ Only for an image built with `make APP=nx NX_VENDOR=1` (off by default since 202
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | menu > Diagnostics | Firmware "0.9.0 · ST7789 A" (or B), Uptime counting up and "boot N", Last reset "Power on", G1 link and G2 link with a green dot and a few ms, PC mode, SPI flash (an ID, KB free, 0 errors), Main loop, MCU; UP/DOWN scroll | |
+| 1 | menu > Diagnostics | Firmware "0.9.1 · ST7789 A" (or B), Uptime counting up and "boot N", Last reset "Power on", G1 link and G2 link with a green dot and a few ms, PC mode, SPI flash (an ID, KB free, 0 errors), Main loop, MCU; UP/DOWN scroll | |
 | 2 | MCU row (after 10 min switched on, room temperature noted) | the temperature near room temperature (the chip may read a few degrees above it), the supply about 3.3 V (3.2–3.4 V). Note both values and the room temperature | |
 | 3 | Watch the MCU row for a minute; START | it updates every second without jumping more than about 1 °C / 0.02 V; START reads it at once | |
 | 4 | LOOP | the key test: 8 key caps | |
@@ -213,7 +213,7 @@ Only for an image built with `make APP=nx NX_VENDOR=1` (off by default since 202
 | 5 | Power cycle again, START on the card | both start at once | |
 | 6 | Power on with USB connected | no card (PC monitor) | |
 | 7 | Hold UP, press POWER, release UP when the splash shows | no card (a key was held) | |
-| 8 | Play on G1, pull the plug (resume on) | the next power-on shows "Resume after power cut?", not the auto-start | |
+| 8 | Play on G1, pull the plug (resume on) | the next power-on shows "Resume where it stopped?", not the auto-start | |
 | 9 | Start last programs at boot: off, power cycle | no card | |
 
 ## 15. History
@@ -229,7 +229,7 @@ Only for an image built with `make APP=nx NX_LCD_OPTS=-DNX_FEAT_HIST=1` (off by 
 | 4 | A timer stop (§13) | "timer" | |
 | 5 | Play on G1, connect USB (PC mode), unplug | "PC mode" | |
 | 6 | A run of less than 5 s | not listed | |
-| 7 | Play on G1 for over a minute (Resume after power cut on), pull the plug, power on, answer the card | a "power cut" record for G1 with about the time it had played (up to a minute less: the last saved position), "+0:00" | |
+| 7 | Play on G1 for over a minute (Offer to resume on), pull the plug, power on, answer the card | a "power cut" record for G1 with about the time it had played (up to a minute less: the last saved position), "+0:00" | |
 | 8 | Play on G1 for 30 s, POWER held (clean power-off), power on | that run is listed as "stopped" | |
 | 9 | A chain of two programs (§17) | each program is a run of its own | |
 | 10 | Power cycle | the list and the totals are kept | |
@@ -342,7 +342,7 @@ of real time is about an hour on the Terrain screen.
 
 | # | Step | Expected | Result |
 |---|---|---|---|
-| 1 | `make APP=nx NX_TIME_X=60 BUILD=build/nx-x60 flash` | the splash says "v0.9.0 TEST: fast time" | |
+| 1 | `make APP=nx NX_TIME_X=60 BUILD=build/nx-x60 flash` | the splash says "v0.9.1 TEST: fast time" | |
 | 2 | menu > Chains | the list opens on the six Terrain rows (Terrain, Terrain-Mercury, Terrain-Nonviolent, each "· Remote" and "· Contact") with "Day 1/11" (Terrain-Nonviolent: "Day 1/10") | |
 | 3 | LOOP on "Terrain · Remote" | the Terrain screen: the day-1 set's name, "Day 1 of 11 · 24 h" (a half day: "Day 1.1 of 11 · 12 h"), "Ran 0:00:00 of 24:00:00", "Power 5 V · LOOP changes", the Spooky Remote hint and the water hint | |
 | 4 | LOOP five times | 2.5 V, 1 V, 0.5 V, 0.25 V, then 5 V again | |

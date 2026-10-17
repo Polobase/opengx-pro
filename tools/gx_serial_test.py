@@ -58,24 +58,26 @@ QUIET_AFTER_REPLY = 0.05     # keep reading briefly, so multi-line replies are c
 WRITE_SLOT = 30              # slot used by the --write round-trip
 
 
+def port_order(device):
+    """Sort key: the unit's first USB channel before its second ("…901" before "…903" on a Mac,
+    "COM9" before "COM10" on Windows: the trailing number as a number)."""
+    head = device.rstrip("0123456789")
+    tail = device[len(head):]
+    return (head, int(tail) if tail else -1)
+
+
 def find_links(requested):
-    """Return {'A': device, 'B': device}: A = ...903 (USART1/G1), B = ...901 (USART2/G2)."""
+    """Return {'A': device, 'B': device}: A = the unit's second USB channel (USART1/G1), B = the first
+    (USART2/G2). Port names differ from unit to unit and computer to computer; when the order guess
+    is wrong, name both: --port LINK_A --port LINK_B."""
     if requested:
         return requested
-    ports = [p for p in list_ports.comports() if p.vid == WCH_VID and "wchusbserial" in p.device]
-    links = {}
-    for p in ports:
-        if p.device.endswith("903"):
-            links["A"] = p.device
-        elif p.device.endswith("901"):
-            links["B"] = p.device
-    if len(links) < 2:
-        devs = sorted(p.device for p in ports)
-        if len(devs) == 2:                       # fall back to sorted order
-            links = {"A": devs[1], "B": devs[0]}
-    if "A" not in links or "B" not in links:
-        sys.exit("could not find both GX Pro serial channels; is it connected in PC mode?")
-    return links
+    ports = [p.device for p in list_ports.comports() if p.vid == WCH_VID]
+    # a Mac lists each channel twice when the WCH driver is installed: take that driver's entries
+    devs = sorted((d for d in ports if "wchusbserial" in d), key=port_order) or sorted(ports, key=port_order)
+    if len(devs) != 2:
+        sys.exit("could not find the two GX Pro serial channels; is it connected in PC mode?")
+    return {"A": devs[1], "B": devs[0]}
 
 
 class Device:
