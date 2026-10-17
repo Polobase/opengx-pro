@@ -352,6 +352,31 @@ int nx_uc_manual_play(unsigned ch)
 }
 #endif
 
+struct nx_bfb_cfg *nx_uc_bfb_cfg(void)
+{
+    return &g_nx_bfb_cfg;
+}
+
+int nx_uc_bfb_start(void)
+{
+    return nx_bfb_start();
+}
+
+void nx_uc_bfb_stop(void)
+{
+    nx_bfb_stop();
+}
+
+void nx_uc_bfb_pause(void)
+{
+    nx_bfb_pause(nx_ms());
+}
+
+const struct nx_bfb_view *nx_uc_bfb(void)
+{
+    return nx_bfb_view();
+}
+
 #if NX_FEAT_TERRAIN
 unsigned nx_uc_terrain_count(void)
 {

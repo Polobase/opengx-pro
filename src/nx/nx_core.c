@@ -13,6 +13,7 @@
 #include "nx_hw.h"
 #include "nx_resume.h"
 #include "nx_runner.h"
+#include "nx_bfb.h"
 #include "nx_src.h"
 #include "nx_time.h"
 #include "nx_txq.h"
@@ -48,7 +49,10 @@ int nx_core_act(const struct nx_action *a)
     case NXA_LOAD:   /* app.c list_keys START; another source (nx_src.h) is loaded the same way */
         if (!nx_src_is_slot(a->id) && nx_src_fill(a->id, (uint16_t)a->v, c) != NX_OK)
             return NX_EINVAL;
-        g_ch[0].step_sent = g_ch[1].step_sent = 0xFF;
+        c->step_sent = 0xFF;
+        if (g_ch[ch ^ 1u].prog_slot != NX_SRC_BFB)   /* the other link resends its step too (the original), unless a
+                                                      * scan drives it: its sweep's lines are its own */
+            g_ch[ch ^ 1u].step_sent = 0xFF;
         flags_clear(&g_ui_flags, UIF_RUN(ch));
         c->elapsed = 0;
         if (nx_src_is_slot(a->id))
@@ -81,6 +85,7 @@ int nx_core_act(const struct nx_action *a)
         g_ch[0].step_sent = g_ch[1].step_sent = 0xFF;
         g_ch[0].elapsed = g_ch[1].elapsed = 1;
         flags_clear(&g_ui_flags, UIF_RUN_G1 | UIF_RUN_G2);
+        nx_bfb_stop();   /* also a scan still in its session or load, which would play after it */
         break;
     case NXA_SEEK:   /* the runner sends the step at that time on its next pass */
         c->step_sent = 0xFF;
@@ -128,6 +133,9 @@ void nx_core_pcmode_task(void)
         core_pcmode_update(pb1);
         if (!pb1)
             nx_resume_pc(0);   /* left: what played before is offered again */
+    } else {
+        s_pc_wait = 0;   /* PB1 went back before the queues were idle: the hold ends (it used to stay set
+                          * until power-off: the runner held, every action busy) */
     }
     if (g_ui_state == ST_BOOT)
         g_ui_state = ST_HOME;

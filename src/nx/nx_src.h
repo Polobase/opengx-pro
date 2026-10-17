@@ -3,6 +3,7 @@
  *   1..30             a stored slot (program_load; the original's program list)
  *   NX_SRC_PRESET + n built-in preset n (nx_preset.c): steps with their own time, fixed or sweeps
  *   NX_SRC_MANUAL     the manual generator (nx_manual.c): one step without an end
+ *   NX_SRC_BFB        the biofeedback scan (nx_bfb.c): one step without an end while it scans
  *   NX_SRC_SET + n    built-in set n (nx_terrain.c): a frequency list with a dwell per step
  *
  * Loading a source that is not a slot fills g_ch[ch].prog as program_load does (waveform table,
@@ -18,6 +19,7 @@
 #define NX_SRC_PRESET 0x30u
 #define NX_SRC_PRESETS 15u
 #define NX_SRC_MANUAL 0x3Fu
+#define NX_SRC_BFB 0x2Fu
 #define NX_SRC_SET 0x40u
 #define NX_SRC_SETS 0x40u
 

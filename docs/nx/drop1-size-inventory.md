@@ -7,8 +7,12 @@ Terrain sets and the Radionics preset built in (then a personal build, with `TER
 Since 2026-10-13 that is the default build and the released image (`make release`): the two
 tables are committed in `src/nx/data/`, and `NX_TERRAIN` and `NX_PRESETS` are on by default. The
 image is 108,664 bytes in 0.9.1 (2026-10-14), 3,976 left of the 112,640 the bootloader is proven
-to take; in 0.9.0 it was 108,456. Measured on 0.9.0: without the two tables it is 102,876 bytes; with only `NX_TERRAIN=0` 104,084, with only `NX_PRESETS=0`
-107,248. The numbers below are those of 2026-10-06 and were not measured again.
+to take; in 0.9.0 it was 108,456. Since 2026-10-14 the two text fonts are 2 bpp and the image is
+linked with link-time optimisation (section 5; `NX_LTO=0` builds without it, which the per-module
+figures below need, and which no longer fits with the scan in), and since 2026-10-17 the
+biofeedback scan is built in: 112,080 bytes, 560 left (103,722 before it). Without the
+two tables it is 104,726 bytes; with only `NX_TERRAIN=0` 106,350, with only `NX_PRESETS=0` 110,174
+(without the scan: 96,614, 98,342 and 102,038; 0.9.1: 102,876, 104,084 and 107,248). The numbers below are those of 2026-10-06 and were not measured again.
 
 **Image: 106,538 B of 112,640 B (`NX_FLASH_LIMIT` = `FLASH_PROVEN`): 6,102 B left.**
 RAM: 24,008 B + 40 B crash record + 3,072 B stack of 36,864 B, 9,744 B left. RAM is not the
@@ -211,13 +215,15 @@ Not candidates unless nx may do less than the original firmware.
 
 | Font | Used for | Glyphs | Pixels | Tables | Total |
 |---|---|---:|---:|---:|---:|
-| `body16`: Inter Regular 16 px | names, list rows, values, titles, toasts | 100 | 3,744 | 825 | 4,569 |
-| `cap13`: Inter Medium 13 px | captions, labels, hints, the status bar | 101 | 3,119 | 834 | 3,953 |
+| `body16`: Inter Regular 16 px | names, list rows, values, titles, toasts | 100 | 3,744 (2,053 at 2 bpp) | 825 | 4,569 (2,878) |
+| `cap13`: Inter Medium 13 px | captions, labels, hints, the status bar | 101 | 3,119 (1,628 at 2 bpp) | 834 | 3,953 (2,462) |
 | `num28`: Inter Display Medium 28 px | the dashboard frequency, the PC monitor, the night view | 17 | 1,187 | 163 | 1,350 |
 | `num48`: Inter Display SemiBold 48 px | the dashboard frequency with `NX_FEAT_HERO48=1` only: **not linked** by default | 14 | 1,708 | 136 | (1,844) |
-| **Fonts in the image** | | | | | **9,872** |
+| **Fonts in the image** | | | | | **9,872** (6,690 since 2026-10-14) |
 
-All are 4-bit anti-aliased and run-length coded. The two text fonts carry every printable
+All were 4-bit anti-aliased and run-length coded; since 2026-10-14 the two text fonts are 2-bit
+(4 alpha levels, stored raw: at 2 bpp the run-length code never wins) and look the same on the
+panel. The two text fonts carry every printable
 ASCII character (95) plus 5 or 6 signs (· … – × ‹ › ▸ °), because a program name from Spooky2 can
 contain any of them; a glyph is 39 to 46 B on average. The digit fonts carry only what a number
 needs; a 28 px digit is about 80 B.
@@ -365,11 +371,12 @@ The preset's two wave tables (2 × 1,024 samples) are not stored: `nx_preset_sam
 
 | What | Saves | Mark | State |
 |---|---:|---|---|
+| The two text fonts at 2 bits per pixel instead of 4 (`"bpp": 2` in `assets/nx/fonts.json`): 4 alpha levels, no visible change in the 122 gallery shots | 3,182 | exact | **applied 2026-10-14** |
 | Unsigned instead of signed division in `nx_manual_chz`, `chz_at`, `set_key`, `nx_lcd_scroll`: the library's signed 64-bit division (536 B) is no longer linked | 512 | measured | tried against today's image, host tests pass, **not applied**; a patch of 4 files |
 | The same for the last 5 signed 32-bit divisions (`nx_bl_tick_1ms`, `nx_list_draw` ×3, `nx_diag_sensors`): `_divsi3` (468 B) goes | ≈ 450 | est. | not tried |
 | History's texts and icon: History is off, but its 11 texts (147 B), its hint line (30 B), its menu text (10 B) and its icon (61 B) are still in the tables | 248 | exact | needs the asset generator to follow the switches (they must come back with `NX_FEAT_HIST=1`) |
 | Texts and icons of the other features, when one of them is switched off (section 2) | up to ≈ 2,800 | exact | the same generator work; saves nothing while those features are on |
-| Link-time optimisation (`-flto`) | ? | – | tried: the link stops with an assembler error ("invalid offset, value too big"). Not looked into further |
+| Link-time optimisation (`-flto`) | 2,376 | measured | **applied 2026-10-14** for the nx image (`NX_LTO=0` switches it off). The assembler error was the reset handler's inline assembly: its `ldr =` literal had no pool in reach once LTO put everything into one section (`.ltorg` after the final branch fixes it); then LTO dropped `reset_c` and `nx_fault`, referenced from assembly only (`__attribute__((used))`). Checked: the image boots on the emulated board, and the whole gallery rendered from an LTO build is pixel-identical to the baselines |
 
 The library today: `libgcc` 2,076 B (`_divsi3` 468, `_divdi3` 464, `_udivmoddi4` 408, `_udivsi3`
 276, `_muldi3` 80, `_aeabi_ldivmod` 72, `_aeabi_uldivmod` 64, `_clzsi2` 60 and smaller ones) and

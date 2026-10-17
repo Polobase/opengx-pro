@@ -49,6 +49,8 @@ BLOCK_SIZE = 2048
 REPLY_TIMEOUT = 0.5  # handshake replies; FWUpd2 uses 20 ms, USB adapters on macOS can be slower
 ACK_TIMEOUT = 2.0  # per-packet "C" acknowledgement, same as FWUpd2
 MAX_RESENDS = 4
+WRITE_CHUNK = 64     # bytes per write, see write_paced()
+WRITE_GAP = 0.010    # seconds between writes: 6.4 bytes/ms, below the 11.5 bytes/ms of the line
 MAX_BLOCKS = 56   # 0x08004000..0x0801FFFF: the 112 KB application region in 2 KB blocks
 # The largest image the bootloader is proven to take on a unit (Makefile FLASH_PROVEN: the 110 KB
 # size test, 55 full blocks). FWUpd2 counts the 4 ID bytes too, so such a file is "56 blocks"; a
@@ -185,6 +187,17 @@ def pick_port(requested: str | None, expected_hw: int) -> str:
     return ports[int(choice) - 1].device
 
 
+def write_paced(ser: serial.Serial, data: bytes) -> None:
+    """Write in small pieces below the line rate. macOS's generic USB serial driver with the
+    unit's CH342 chip (ports named usbmodem..., not wchusbserial...) damages a 2 KB block handed
+    over at once: the bootloader answered every block with "E" (2026-10-14); 64 bytes every 10 ms
+    all arrived. About 0.4 s per block, 20 s for an image."""
+    for off in range(0, len(data), WRITE_CHUNK):
+        ser.write(data[off:off + WRITE_CHUNK])
+        ser.flush()
+        time.sleep(WRITE_GAP)
+
+
 def wait_for_ack(ser: serial.Serial) -> bool:
     deadline = time.monotonic() + ACK_TIMEOUT
     while (left := deadline - time.monotonic()) > 0:
@@ -221,8 +234,7 @@ def flash(ser: serial.Serial, packets: list[bytes], fw_id: bytes, fw_type: int) 
     show_progress(0, len(packets))
     while i < len(packets):
         ser.reset_input_buffer()
-        ser.write(packets[i])
-        ser.flush()
+        write_paced(ser, packets[i])
         if wait_for_ack(ser):
             i += 1
             show_progress(i, len(packets))

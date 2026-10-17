@@ -32,7 +32,10 @@ which hold data taken from Spooky2's preset files (below).
 `make release` builds with the two built-in tables and without the original's splash artwork,
 test timing and changed switches, whatever your `local.mk` says. `tools/release_check.py` checks
 the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.1 is
-108,664 bytes, 3,976 below the limit. The linker refuses an nx image above 112,640 bytes
+108,664 bytes, 3,976 below the limit; since the two text fonts went to 2 bits per pixel and the
+image is linked with link-time optimisation (2026-10-14) and the biofeedback scan is built in
+(2026-10-17) the default build is 112,080 bytes, 560 below the limit (`NX_LTO=0` no longer
+fits with the scan in). The linker refuses an nx image above 112,640 bytes
 (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
 too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
 
@@ -94,10 +97,10 @@ the build and `tools/release_check.py` stop when one is missing.
 
 | Build | Image |
 |---|---|
-| default (the release image) | 108,664 bytes |
-| `NX_PRESETS=0` | 107,248 bytes |
-| `NX_TERRAIN=0` | 104,084 bytes |
-| `NX_TERRAIN=0 NX_PRESETS=0` | 102,876 bytes |
+| default (the release image) | 112,080 bytes (0.9.1, without the scan, with 4 bpp text fonts and no LTO: 108,664) |
+| `NX_PRESETS=0` | 110,174 bytes |
+| `NX_TERRAIN=0` | 106,350 bytes |
+| `NX_TERRAIN=0 NX_PRESETS=0` | 104,726 bytes |
 
 Neither feature has been checked on a real unit yet: [Known issues](./known-issues.md).
 
@@ -124,7 +127,9 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |
 
 History and the 48-pixel digits are off by default to save space: the image of 0.9.1 leaves
-3,976 bytes, and each of the two costs about 2 KB. The linker stops when an image is too large.
+3,976 bytes, a build of this source 560 (the biofeedback scan is built in since
+2026-10-17), and each of the two costs about 2 KB. The linker stops
+when an image is too large.
 The splash artwork of the original needs your own copy of the vendor's image and is never in a
 release. A build with other switches than the defaults is your own build, not a release image.
 

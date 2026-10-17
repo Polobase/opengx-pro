@@ -101,7 +101,11 @@ first, as above.
 
 `make flash` without `APP=nx` builds and flashes the re-implementation of the original firmware,
 which needs your copy of the vendor's image. The tool looks for the port that answers with the
-right hardware ID, sends the same blocks as the page and refuses an image above 112,640 bytes.
+right hardware ID, sends the same blocks as the page and refuses an image above 112,640 bytes. It hands each block
+over in pieces of 64 bytes, 10 ms apart: on a Mac without WCH's driver for the unit's USB serial
+chip (ports named `usbmodem…`, not `wchusbserial…`) a block sent at once arrives damaged and the
+unit answers every block with an error; paced, every block is confirmed (2026-10-14, one unit).
+The page sends each block at once and has not been tried on such a Mac.
 
 ## If it stops half way
 

@@ -6,6 +6,7 @@
 #include <stdint.h>
 
 #include "nx_uicore.h"
+struct nx_bfb_view *nxg_bfb_view(void);   /* the scan's view, for the fixtures */
 
 extern volatile uint32_t g_nxg_ms;   /* the gallery's clock; nx_ms() returns it */
 extern unsigned g_nxg_shots;          /* shots taken so far: the id of the next one */

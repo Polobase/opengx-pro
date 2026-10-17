@@ -12,6 +12,7 @@
 #include "nx_config.h"
 #include "nx_core.h"
 #include "nx_runner.h"
+#include "nx_time.h"
 #include "nx_txq.h"
 #include "nx_world.h"
 #include "state.h"
@@ -355,6 +356,29 @@ void test_nx_runner(void)
     nx_runner_task();
     CHECK(nx_txq_idle(0) && nx_txq_idle(1));
     CHECK_EQ(g_ch[0].step_sent, 0);
+
+    /* a PC-mode change waits for a line in flight; PB1 back before the queue is idle ends the
+     * hold (it used to stay set until power-off: the runner held, every action busy) */
+    nxw_reset();
+    sim_on_ms(0);
+    g_ui_state = ST_HOME;
+    nxw_gen(0, NXW_NOACK, 0);   /* no :ok: the line stays in flight (no main-loop pass here, so no timeout) */
+    CHECK_EQ(nx_txq_submit(0, ":w11=1,1,\r\n", 11, 0), NX_OK);
+    CHECK(!nx_txq_idle(0));
+    nxw_pb1 = 1;
+    for (unsigned i = 0; i <= NX_PB1_DEBOUNCE_MS; i++)   /* the debounce */
+        nx_tick_1ms();
+    CHECK_EQ(nx_pb1(), 1);
+    nx_core_pcmode_task();
+    CHECK(nx_core_runner_held());
+    CHECK_EQ(g_ui_state, ST_HOME);
+    nxw_pb1 = 0;
+    for (unsigned i = 0; i <= NX_PB1_DEBOUNCE_MS; i++)
+        nx_tick_1ms();
+    CHECK_EQ(nx_pb1(), 0);
+    nx_core_pcmode_task();
+    CHECK(!nx_core_runner_held());
+    CHECK_EQ(g_ui_state, ST_HOME);
 
     /* actions: refused before the boot gate, in PC mode, in calibration mode; bad arguments */
     nxw_reset();

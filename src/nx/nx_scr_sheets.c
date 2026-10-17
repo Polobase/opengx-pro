@@ -207,8 +207,8 @@ const struct nx_scr nx_scr_confirm = {
     0, conf_key, conf_tick, conf_draw, NX_NONE, NX_SF_SHEET, 0, CONF_H, sizeof(struct confirm),
 };
 
-/* ---- menu (W4): DOWN on the dashboard; a grid of three columns, G1/G2 move along a row,
- * UP/DOWN change the row, START opens, STOP closes. It shows the screens that exist in this
+/* ---- menu (W4): DOWN on the dashboard; a grid of three columns, UP/DOWN go through every cell
+ * in order and wrap around, G1/G2 move along a row, START opens, STOP closes. It shows the screens that exist in this
  * build and opens on the item used last (at power-on: Settings). ---- */
 
 #define MENU_H 184
@@ -230,6 +230,7 @@ static const struct menu_item k_menu[] = {
 #if NX_FEAT_MANUAL
     { NX_I20_TUNE, NX_S_MENU_MANUAL, &nx_scr_manual, 0 },
 #endif
+    { NX_I20_BFB, NX_S_MENU_BFB, &nx_scr_bfb, 0 },
 #if NX_FEAT_TIMERS
     { NX_I20_TIMER, NX_S_MENU_TIMERS, &nx_scr_set, NX_SET_TIMERS },
 #endif
@@ -302,9 +303,8 @@ static int menu_key(void *st, const struct nx_kev *e)
         break;
     }
     case NX_KEY_UP:
-    case NX_KEY_DOWN:
-        row = e->keys == NX_KEY_DOWN ? (row + 1u) % rows : (row + rows - 1u) % rows;
-        m->sel = (uint8_t)(row * MENU_COLS + col < n ? row * MENU_COLS + col : n - 1u);
+    case NX_KEY_DOWN:   /* through every cell in order, around the end */
+        m->sel = (uint8_t)(e->keys == NX_KEY_DOWN ? (old + 1u) % n : (old + n - 1u) % n);
         break;
     case NX_KEY_START:
         if (e->type != NXK_PRESS)

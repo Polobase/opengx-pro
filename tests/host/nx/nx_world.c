@@ -17,6 +17,7 @@
 #include "nx_lcd.h"
 #include "nx_loop.h"
 #include "nx_chain.h"
+#include "nx_bfb.h"
 #include "nx_manual.h"
 #include "nx_preset.h"
 #include "nx_terrain.h"
@@ -187,6 +188,8 @@ void nxw_poll(void)
 
 /* ---- generators and transmit time ---- */
 
+const char *(*nxw_on_line)(unsigned ch, const char *line);
+
 void nxw_gen(unsigned ch, int mode, uint32_t ack_us)
 {
     gen_mode[ch] = mode;
@@ -206,6 +209,13 @@ static void on_tx(unsigned port, uint8_t c)
     if (c == '\n') {
         if (nxw_line_n[port] < 64u)
             nxw_line_end_us[port][nxw_line_n[port]++] = tx_done_us[port];
+        if (nxw_on_line) {
+            unsigned n = tx_line_len[port];
+            tx_line[port][n > 2u && tx_line[port][n - 2u] == '\r' ? n - 2u : n - 1u] = 0;
+            const char *r = nxw_on_line(port, tx_line[port]);
+            if (r)
+                nxw_rx_at(tx_done_us[port] + gen_ack_us[port], port, r);
+        }
         if (gen_mode[port] != NXW_NOACK && tx_line[port][0] == ':' && tx_line[port][1] == 'w')
             nxw_rx_at(tx_done_us[port] + gen_ack_us[port], port, ":ok\r\n");
         if (gen_mode[port] == NXW_ACK && tx_line[port][0] == ':' && tx_line[port][1] == 'a')   /* a wave table */
@@ -298,6 +308,7 @@ void nxw_reset(void)
     memset(tx_done_us, 0, sizeof tx_done_us);
     tx_line_len[0] = tx_line_len[1] = 0;
     nxw_line_n[0] = nxw_line_n[1] = 0;
+    nxw_on_line = 0;
     nxw_gen(0, NXW_ACK, 1000);
     nxw_gen(1, NXW_ACK, 1000);
     nxw_table_ack_us = 300000;
@@ -320,6 +331,7 @@ void nxw_reset(void)
     nx_chain_boot();
     nx_terrain_boot();
     nx_manual_boot();
+    nx_bfb_boot();
     nx_preset_boot();
     nx_resume_boot();    /* ... no offer, the module's state reset */
     nx_ui_init();

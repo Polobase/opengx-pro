@@ -1,28 +1,28 @@
 {
   "environment": {
     "freetype2": "2.14.3",
-    "fribidi": "1.0.17",
+    "fribidi": "1.0.16",
     "harfbuzz": "14.2.1",
     "layout": "raqm",
     "pillow": "12.3.0",
-    "python": "3.14.7",
+    "python": "3.14.3",
     "raqm": "0.10.5",
     "segno": "1.6.6"
   },
   "max_bytes": 36864,
   "outputs": {
-    "src/nx/nx_assets.c": "471e7c8d85a1a2865ffc9dd6d35793bd106901f32881f27b8c02bf0be1c57743",
-    "src/nx/nx_assets.h": "e800567efc144bf24b5d285260af85e61857ce1959a2d18724d3f87c95a5ed80",
-    "src/nx/nx_str_ids.h": "9d0880f9b849ee62b17a07112e766b5408670c4912e6a4e74dfeac71618f356a",
-    "tests/host/nx/nx_asset_vectors.h": "d25fccb4cb801771baa130723566bbe82b11dff583fdb4a6d8a5398b5d6ba0a3"
+    "src/nx/nx_assets.c": "3d0d012825d7c4ad9b1f3e5579595031099dbba8bef2e2f555ea623a57b11565",
+    "src/nx/nx_assets.h": "ee85f7b5258a8c18f14d47981b05b88550438abe82970f44b697ce3b699827dc",
+    "src/nx/nx_str_ids.h": "2e5a8b7504a87ee3b7bbd1db8164d7490818e302a5cb99eb667ec2368f6a42c3",
+    "tests/host/nx/nx_asset_vectors.h": "7d1d8141848d5fe0f858ccd1997d86f35e70257afd0d5b40a20c53e6541df111"
   },
   "sources": {
-    "assets/nx/fonts.json": "e90b927c225618d4af714c31893dd4b9e81fa306a4bafe99defb53bf50005681",
-    "assets/nx/icons.json": "870a891595503c17a6bdd162d60a159d63a65dd3df77230a1b8eaf5e13e52da8",
+    "assets/nx/fonts.json": "fc0a7390fd801eccd980299612e48cd31ca887ee034e0474b9b572d0df64de43",
+    "assets/nx/icons.json": "ecd621bed1fde75ad0ee83e49accc44ccb5b186b5efa104cc1d49a730aea2a6e",
     "assets/nx/palettes.json": "520654765f85905f738e8280dbca75cfac78211cd83f9661a55c90eb13f85709",
     "assets/nx/qr.json": "1352bcb1887882ad7012dd9eae7737a4c03ccd6f6c462efc550ca2fc7280dcc2",
     "assets/nx/sources.json": "1643ce2243ccdd54234c3cd90f9d7c28f32a4afeef429497078b7fdd1bbceca1",
-    "assets/nx/strings/en.json": "e4dde93fcf2c527736bd3e04dbedbe156a219631329ff4c2383f4f8dddf00535",
+    "assets/nx/strings/en.json": "c5f0b9ec1299958f122d3f765269cb215df16cfd55c02b77d2b548909ef1b359",
     "assets/nx/third_party/Inter-Medium.ttf": "97ad806f526e41546d46365bb3a393145f75b7b1568913db74549ad8b8dba872",
     "assets/nx/third_party/Inter-Regular.ttf": "40d692fce188e4471e2b3cba937be967878f631ad3ebbbdcd587687c7ebe0c82",
     "assets/nx/third_party/InterDisplay-Medium.ttf": "99665c256585aeaab2d06950c2d7715cca8fd7883c2d0e7a421b8b287e1f17de",
@@ -32,16 +32,16 @@
   },
   "tables": {
     "nx_font_body16": {
-      "bytes": 4569,
-      "sha256": "0589d09654ccf241a77a6503fbee5aecd9b0005105ed9b6dc50dc25926afac93"
+      "bytes": 2878,
+      "sha256": "7c8c4bd47f263d45cfb1c836715e4c8024b07abde3957084c6760dc7b950b1a3"
     },
     "nx_font_brand": {
       "bytes": 1023,
       "sha256": "4b3fcbf04ffec6c7342f83e3ce57bb4ffa76aeef2f8ef39e6a88709e72f5af19"
     },
     "nx_font_cap13": {
-      "bytes": 3953,
-      "sha256": "d94a36df67ab2af896fb2e733feedadb6f1ba0239dc14f43ac44cd7227a78e2f"
+      "bytes": 2462,
+      "sha256": "d4b10a03de82f1eb0c0c83703ecdd8af3cf7e392bac4f77ca9ce17e1dc2deeca"
     },
     "nx_font_num28": {
       "bytes": 1350,
@@ -52,8 +52,8 @@
       "sha256": "2c33aced119838668a126369b8909a91d9996579e62b5058c5c98eb19e908b68"
     },
     "nx_icons20": {
-      "bytes": 1413,
-      "sha256": "7d07b13db00bdc09e2a9da50959c5ad710aa70504091783dcf6d3c224a0b5f20"
+      "bytes": 1421,
+      "sha256": "6071610e146daf52d579fb8deccf51cff1c69a42da70f1dcce5480b8d00267dc"
     },
     "nx_icons32": {
       "bytes": 692,
@@ -68,16 +68,16 @@
       "sha256": "60e871ced8122deab75b13294574bef8f76faa789288f05500a55a641a1a207d"
     },
     "nx_str_off": {
-      "bytes": 620,
-      "sha256": "50cc1c3d33135cc3d722d7c384b78580361890fb5b4b2455345e0c4bf9bf5300"
+      "bytes": 672,
+      "sha256": "82d271cd8a3a29b4855290ea627ae6178263aa47c4c57746f6288f37170cc923"
     },
     "nx_str_pool": {
-      "bytes": 4690,
-      "sha256": "6c7b4db59ba6e9136134503f22a5be806629acdcd2f4979737661af229bab01a"
+      "bytes": 5139,
+      "sha256": "f996bcc732042bd87ef64dd54ed98f6b2f4e1089d31975603479cec13d2aae66"
     }
   },
   "tool": {
     "sha256": "19ffcb41587e87b15177b196c4dd6c2df5eca7de6b924c7c014b64b4af325a2e"
   },
-  "total_bytes": 20462
+  "total_bytes": 17789
 }

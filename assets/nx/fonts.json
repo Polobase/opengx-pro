@@ -1,9 +1,9 @@
 {
   "fonts": [
-    {"id": "F_CAP13", "symbol": "nx_font_cap13", "file": "Inter-Medium.ttf", "size": 13, "bpp": 4,
+    {"id": "F_CAP13", "symbol": "nx_font_cap13", "file": "Inter-Medium.ttf", "size": 13, "bpp": 2,
      "chars": "text", "extras": "·…–×▸°", "features": ["tnum", "ss04"], "line": "metrics",
      "substitutes": {"▸": {"from": "▶", "scale": 0.6}}},
-    {"id": "F_BODY16", "symbol": "nx_font_body16", "file": "Inter-Regular.ttf", "size": 16, "bpp": 4,
+    {"id": "F_BODY16", "symbol": "nx_font_body16", "file": "Inter-Regular.ttf", "size": 16, "bpp": 2,
      "chars": "text", "extras": "·…‹›×", "features": ["tnum", "ss04"], "line": "metrics"},
     {"id": "F_NUM28", "symbol": "nx_font_num28", "file": "InterDisplay-Medium.ttf", "size": 28, "bpp": 4,
      "chars": "0123456789.,:-+% ", "dense": "0123456789", "features": ["tnum"], "line": "tight"},

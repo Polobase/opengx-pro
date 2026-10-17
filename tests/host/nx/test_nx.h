@@ -36,3 +36,4 @@ void test_nx_chain(void);
 void test_nx_terrain(void);
 void test_nx_manual(void);
 void test_nx_preset(void);
+void test_nx_bfb(void);
