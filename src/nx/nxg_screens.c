@@ -229,6 +229,34 @@ static void bfb_scanning(void)   /* a scan on G1 at step 6 200 of 15 130 (190 kH
         v->trace[(uint32_t)v->hits[i].step * NX_BFB_TRACE / NX_BFB_STEPS] = (uint8_t)(v->hits[i].dev20 / 20u);
 }
 
+static void bfb_idle(void)   /* no scan yet: the settings */
+{
+    memset(nxg_bfb_view(), 0, sizeof(struct nx_bfb_view));
+}
+
+static void bfb_base(void)   /* the baseline under way, 120 of 203 pairs */
+{
+    struct nx_bfb_view *v = nxg_bfb_view();
+    memset(v, 0, sizeof *v);
+    v->state = NX_BFB_BASE;
+    v->prog = 120;
+    v->steps = NX_BFB_STEPS;
+}
+
+static void bfb_paused(void)   /* the scan of bfb_scanning, paused */
+{
+    bfb_scanning();
+    struct nx_bfb_view *v = nxg_bfb_view();
+    v->paused = 1;
+    v->pause_ms = nx_ms();
+}
+
+static void bfb_stopped(void)   /* the scan of bfb_scanning, stopped with STOP */
+{
+    bfb_scanning();
+    nxg_bfb_view()->state = NX_BFB_STOPPED;
+}
+
 static void guide_unseen(void)   /* a first boot: the key guide after the splash */
 {
     struct nx_uiset u;
@@ -462,6 +490,22 @@ static void settings(void)
     press(NX_KEY_LOOP, 80);   /* the hits so far */
     run(300);
     nxg_take("bfb_hits");
+    begin(NX_THEME_DARK, bfb_idle);
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    run(300);
+    nxg_take("bfb_settings");
+    begin(NX_THEME_DARK, bfb_base);
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    run(300);
+    nxg_take("bfb_baseline");
+    begin(NX_THEME_DARK, bfb_paused);
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    run(300);
+    nxg_take("bfb_paused");
+    begin(NX_THEME_DARK, bfb_stopped);
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    run(300);
+    nxg_take("bfb_stopped");
 #if NX_FEAT_MANUAL
     begin(NX_THEME_DARK, 0);
     nx_ui_push(&nx_scr_manual, 0x100u, NX_TR_NONE);
