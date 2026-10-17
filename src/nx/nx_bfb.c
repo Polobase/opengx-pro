@@ -638,20 +638,34 @@ void nx_bfb_task(uint32_t now)
                 * due (a program with a 1 s dwell there may never give a moment: SAVE_WAIT_MS, then it is late once) */
         if (!nx_runner_quiet(1000u) && now - s.t0 < SAVE_WAIT_MS)
             break;
-        if (v->nhits) {
+        if (v->nhits && g_ch[ch ^ 1u].prog_slot != v->slot) {   /* the other generator may have loaded the slot since */
             static const char k_name[] = NX_BFB_NAME " G1";
             char name[sizeof k_name];
+            struct nx_action load = { NXA_LOAD, (uint8_t)ch, v->slot, 0, 0 };
+            unsigned ok;
             memcpy(name, k_name, sizeof name);
             name[sizeof name - 2u] = (char)('1' + ch);
             hit_program(c);
             program_save(v->slot, ch);
+            ok = nx_core_act(&load) == NX_OK && c->prog.hdr[HDR_COUNT] == v->nhits
+                 && c->prog.hdr[HDR_AMPL] == g_nx_bfb_cfg.ampl_cv;
+            for (unsigned i = 0; ok && i < v->nhits; i++)   /* read back: a failed write must not play what was there */
+                ok = c->prog.freq[i] == v->hits[i].code;
+            if (!ok) {
+                unload(ch);
+                v->state = NX_BFB_STOPPED;
+                break;
+            }
             name_set(v->slot, name, sizeof name - 1u);
             names_save();
-            act(ch, NXA_LOAD, v->slot);
             /* looped; once when a refining pass is to follow its end (not after the last possible pass) */
             struct nx_action play = { NXA_PLAY, (uint8_t)ch, 0, g_nx_bfb_cfg.refine && s.grid * 2u <= GRID_MAX ? 0u : 1u, 0 };
             nx_core_act(&play);
             v->playing = 1;
+        } else if (v->nhits) {   /* the slot is the other generator's now: nothing written, the hits stay on the screen */
+            unload(ch);
+            v->state = NX_BFB_STOPPED;
+            break;
         } else {
             unload(ch);
         }

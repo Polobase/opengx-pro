@@ -335,6 +335,43 @@ static void golden(void)
     nxw_on_line = 0;
 }
 
+/* The other generator loads the scan's slot during the sweep (a chain reaching it): nothing is
+ * written over it, the scan ends with its hits on the screen */
+static void slot_taken(void)
+{
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    nxw_run_until(4600);
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u, 2, 0 };
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK(run_until_state(v, NX_BFB_SWEEP, 20000));
+    memset(&g_ch[1].prog, 0, sizeof g_ch[1].prog);
+    g_ch[1].prog.hdr[HDR_WAVE] = 1;
+    g_ch[1].prog.hdr[HDR_AMPL] = 100;
+    g_ch[1].prog.hdr[HDR_DWELL] = 60;
+    g_ch[1].prog.hdr[HDR_COUNT] = 1;
+    g_ch[1].prog.freq[0] = 10008u;
+    program_save(30, 1);
+    struct nx_action load = { NXA_LOAD, 1, 30, 0, 0 };
+    CHECK_EQ(nx_core_act(&load), NX_OK);
+    while (v->state == NX_BFB_SWEEP && sim_ms() < 700000u) {
+        nxw_clear();
+        run_ms(100, 2000);
+    }
+    run_ms(5000, 1000);
+    CHECK_EQ(v->state, NX_BFB_STOPPED);
+    CHECK(v->nhits >= 1u);
+    CHECK_EQ(g_ch[1].prog_slot, 30);
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    CHECK(g_ch[0].prog_slot != NX_SRC_BFB);
+    program_load(30, 0);   /* the slot as stored: still the other generator's program */
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_COUNT], 1);
+    CHECK_EQ(g_ch[0].prog.freq[0], 10008u);
+    nxw_on_line = 0;
+}
+
 /* The fast speed: the 0.05 % grid at 45 ms a step */
 static void fast(void)
 {
@@ -498,6 +535,22 @@ static void stopped(void)
     CHECK(has(1, ":w11=0,0,"));
     CHECK_EQ(g_ch[1].prog_slot, 0);   /* the one-step program is unloaded: the dashboard's START scans, not replays */
     CHECK(!nx_slot_used(29));
+    /* STOP_ALL (POWER short, power-off) during the session: the scan ends and plays nothing after */
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    nxw_run_until(4600);
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 180u, 0, 0 };
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    CHECK_EQ(v->state, NX_BFB_AUTH);
+    struct nx_action all = { NXA_STOP_ALL, 0, 0, 0, 0 };
+    CHECK_EQ(nx_core_act(&all), NX_OK);
+    CHECK_EQ(v->state, NX_BFB_STOPPED);
+    nxw_clear();
+    run_ms(2000, 1000);
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    CHECK_EQ(has(0, ":w11=1,1,"), 0);
+    CHECK(g_ch[0].prog_slot != NX_SRC_BFB);
     /* a generator that answers no read: the scan fails and stops */
     nxw_reset();
     nxw_on_line = gen;
@@ -522,6 +575,7 @@ void test_nx_bfb(void)
     walk();
     scan();
     golden();
+    slot_taken();
     fast();
     refined();
     stopped();

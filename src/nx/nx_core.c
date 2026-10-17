@@ -13,6 +13,7 @@
 #include "nx_hw.h"
 #include "nx_resume.h"
 #include "nx_runner.h"
+#include "nx_bfb.h"
 #include "nx_src.h"
 #include "nx_time.h"
 #include "nx_txq.h"
@@ -86,6 +87,9 @@ int nx_core_act(const struct nx_action *a)
         g_ch[0].step_sent = g_ch[1].step_sent = 0xFF;
         g_ch[0].elapsed = g_ch[1].elapsed = 1;
         flags_clear(&g_ui_flags, UIF_RUN_G1 | UIF_RUN_G2);
+#if NX_FEAT_BFB
+        nx_bfb_stop();   /* also a scan still in its session or load, which would play after it */
+#endif
         break;
     case NXA_SEEK:   /* the runner sends the step at that time on its next pass */
         c->step_sent = 0xFF;

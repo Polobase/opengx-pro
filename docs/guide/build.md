@@ -34,7 +34,7 @@ test timing and changed switches, whatever your `local.mk` says. `tools/release_
 the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.1 is
 108,664 bytes, 3,976 below the limit; since the two text fonts went to 2 bits per pixel and the
 image is linked with link-time optimisation (2026-10-14) and the biofeedback scan is built in
-(2026-10-17) the default build is 111,630 bytes, 1,010 below the limit (`NX_FEAT_BFB=0`: 103,722;
+(2026-10-17) the default build is 112,080 bytes, 560 below the limit (`NX_FEAT_BFB=0`: 103,722;
 `NX_LTO=0` no longer fits with the scan in). The linker refuses an nx image above 112,640 bytes
 (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
 too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
@@ -97,7 +97,7 @@ the build and `tools/release_check.py` stop when one is missing.
 
 | Build | Image |
 |---|---|
-| default (the release image) | 111,630 bytes (0.9.1, without the scan, with 4 bpp text fonts and no LTO: 108,664) |
+| default (the release image) | 112,080 bytes (0.9.1, without the scan, with 4 bpp text fonts and no LTO: 108,664) |
 | `NX_FEAT_BFB=0` | 103,722 bytes |
 | `NX_PRESETS=0` | 110,174 bytes |
 | `NX_TERRAIN=0` | 106,350 bytes |
@@ -123,13 +123,13 @@ its code and its menu cell. Set a switch on the command line, for example
 | `NX_FEAT_SUPPORT` | on | Settings > About > Support the project |
 | `NX_FEAT_HIST` | off | History: a list of what was played, and totals |
 | `NX_FEAT_HERO48` | off | The dashboard frequency in 48-pixel digits when it fits |
-| `NX_FEAT_BFB` | on | Biofeedback scan on the unit (menu > Bio scan, or START held on the dashboard). About 8 KB: 111,630 bytes with it, 103,722 without: `make APP=nx NX_LCD_OPTS=-DNX_FEAT_BFB=0 BUILD=build/nx-nobfb` leaves it out |
+| `NX_FEAT_BFB` | on | Biofeedback scan on the unit (menu > Bio scan, or START held on the dashboard). About 8 KB: 112,080 bytes with it, 103,722 without: `make APP=nx NX_LCD_OPTS=-DNX_FEAT_BFB=0 BUILD=build/nx-nobfb` leaves it out |
 | `NX_FEAT_TERRAIN`, `NX_FEAT_PRESET` | follow chains | The code of the Terrain Protocol and of the preset with sweeps |
 | `NX_TERRAIN`, `NX_PRESETS` (`make` variables) | on | Their two tables (above); `NX_TERRAIN=0` or `NX_PRESETS=0` leaves the rows out of menu > Chains |
 | `NX_VENDOR=1` (a `make` variable) | off | The splash artwork of the original, taken from your copy of the vendor's image |
 
 History and the 48-pixel digits are off by default to save space: the image of 0.9.1 leaves
-3,976 bytes, a build of this source 1,010 (the biofeedback scan is built in since 2026-10-17;
+3,976 bytes, a build of this source 560 (the biofeedback scan is built in since 2026-10-17;
 `NX_FEAT_BFB=0` leaves it out, 8,918 left), and each of the two costs about 2 KB. The linker stops
 when an image is too large.
 The splash artwork of the original needs your own copy of the vendor's image and is never in a
