@@ -28,7 +28,7 @@ Spooky2's preset files ([`docs/nx/THIRD_PARTY.md`](docs/nx/THIRD_PARTY.md)).
   a waveform view; themes, brightness, a night view.
 - **Without a PC:** the 30 stored programs as before, plus a manual generator with sweeps, chains
   and multi-day plans, timers, resume after a power cut, copy / move / erase of program slots, a
-  key lock, diagnostics; with a build switch, Spooky2's biofeedback scan. Built in: the Terrain
+  key lock, diagnostics, Spooky2's biofeedback scan on the unit. Built in: the Terrain
   Protocol and the preset "Radionics (Boost)
   Manifestation" with its sweeps, with the frequencies, times and names of Spooky2's presets.
 - **With Spooky2:** the same serial replies in the same order, answered in about 2 ms instead of

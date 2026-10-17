@@ -27,7 +27,7 @@ The generator in focus is large; the other one is the strip at the bottom.
 | Key | What it does |
 |---|---|
 | START | Play, pause, play on. After the end: play again. Without a program: open the program list. |
-| START, held | The biofeedback scan, on the generator shown (only in a build with `NX_FEAT_BFB`). |
+| START, held | The biofeedback scan, on the generator shown. |
 | STOP, short | Stop the generator in focus: back to step 1, outputs off. |
 | STOP, held 1 s, then released | Stop both generators. A ring shows from 0.5 s. |
 | LOOP, short | While running: repeat on or off. Stopped or paused: play with repeat. |
@@ -116,7 +116,7 @@ UP and DOWN choose a row. G1 and G2 change the value, and repeat while held. LOO
 row moves the underlined digit that G1 and G2 change. START plays on the chosen generator, or
 stops it if it plays there. STOP goes back. Changes apply at once, also while it plays.
 
-**Biofeedback scan** (menu > Bio scan, or START held on the dashboard; only in a build with `NX_FEAT_BFB`). Rows: Run on,
+**Biofeedback scan** (menu > Bio scan, or START held on the dashboard). Rows: Run on,
 Speed, Refine, Amplitude, Per hit, Save as program (the list scrolls). UP and DOWN choose a row,
 G1 and G2 change the value (on Run on, G1 picks G1 and G2 picks G2). Speed: Standard is Spooky2's sweep, every 0.025 % at 70 ms a
 step, about 18 minutes; Balanced takes every other frequency, about 9 minutes; Fast also shortens
