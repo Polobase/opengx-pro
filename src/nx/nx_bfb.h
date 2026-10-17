@@ -1,4 +1,4 @@
-/* Biofeedback scan on the device (menu > Biofeedback, NX_FEAT_BFB): Spooky2's GX biofeedback
+/* Biofeedback scan on the device (menu > Bio scan, or START held on the dashboard): Spooky2's GX biofeedback
  * scan, run by the display on one generator without a PC, its hits stored as a program and
  * played.
  *

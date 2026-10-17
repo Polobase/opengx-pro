@@ -352,7 +352,6 @@ int nx_uc_manual_play(unsigned ch)
 }
 #endif
 
-#if NX_FEAT_BFB
 struct nx_bfb_cfg *nx_uc_bfb_cfg(void)
 {
     return &g_nx_bfb_cfg;
@@ -377,7 +376,6 @@ const struct nx_bfb_view *nx_uc_bfb(void)
 {
     return nx_bfb_view();
 }
-#endif
 
 #if NX_FEAT_TERRAIN
 unsigned nx_uc_terrain_count(void)

@@ -32,7 +32,7 @@ jobs:
         run: make release
       - name: Every feature switch off, without the built-in tables, and the two that are off by default, on
         run: |
-          for f in DIAG SLOTS CHAINS MANUAL TIMERS SUPPORT BFB; do
+          for f in DIAG SLOTS CHAINS MANUAL TIMERS SUPPORT; do
             make APP=nx NX_LCD_OPTS=-DNX_FEAT_$f=0 BUILD=build/nx-off-$f
           done
           make APP=nx NX_TERRAIN=0 BUILD=build/nx-noterrain

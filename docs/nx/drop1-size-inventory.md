@@ -10,7 +10,7 @@ image is 108,664 bytes in 0.9.1 (2026-10-14), 3,976 left of the 112,640 the boot
 to take; in 0.9.0 it was 108,456. Since 2026-10-14 the two text fonts are 2 bpp and the image is
 linked with link-time optimisation (section 5; `NX_LTO=0` builds without it, which the per-module
 figures below need, and which no longer fits with the scan in), and since 2026-10-17 the
-biofeedback scan is built in: 112,080 bytes, 560 left (`NX_FEAT_BFB=0`: 103,722). Without the
+biofeedback scan is built in: 112,080 bytes, 560 left (103,722 before it). Without the
 two tables it is 104,726 bytes; with only `NX_TERRAIN=0` 106,350, with only `NX_PRESETS=0` 110,174
 (without the scan: 96,614, 98,342 and 102,038; 0.9.1: 102,876, 104,084 and 107,248). The numbers below are those of 2026-10-06 and were not measured again.
 

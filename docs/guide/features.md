@@ -59,8 +59,7 @@ Settings > About, and the page "Support the project" with its QR code.
 - **Manual generator**: a fixed frequency from 0.01 Hz to 40 MHz, or a sweep (linear or
   logarithmic; once, again, or back and forth), with one of nine waveforms and an amplitude from
   0 to 20 V in steps of 0.1 V, on G1 or G2. Out 2 follows Out 1 inverted.
-- **Biofeedback scan** (in the image since 2026-10-17; the build switch `NX_FEAT_BFB=0` leaves
-  it out, see [Build from source](build.md)): Spooky2's scan on the unit alone, 41 kHz to 1.8 MHz in about
+- **Biofeedback scan** (in the image since 2026-10-17): Spooky2's scan on the unit alone, 41 kHz to 1.8 MHz in about
   18 minutes (9 or 6 at a coarser, quicker setting), with the scan graph, the time elapsed and the time left as it runs, the 10 strongest responses saved
   as a program and played; with Refine on, each end of that program brings a quick pass around
   the hits at half the step, and the refined hits play.

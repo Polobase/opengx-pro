@@ -15,7 +15,7 @@ Everything else is ordinary: small changes, the checks below, a clear commit mes
   flasher all refuse more.
 - The firmware writes its own data only in `0x080000`–`0x1FFFFF` of the SPI flash and never in PC
   mode. The one exception is copying, moving and erasing a program slot on the device, and the
-  biofeedback scan's hits program (`NX_FEAT_BFB`), which write the slots and the name table the
+  biofeedback scan's hits program, which write the slots and the name table the
   way an upload from the PC does.
 
 **Vendor material**

@@ -1,4 +1,4 @@
-/* The biofeedback scan (menu > Bio scan, or START held on the dashboard; NX_FEAT_BFB, nx_bfb.h): three pages above the status
+/* The biofeedback scan (menu > Bio scan, or START held on the dashboard; nx_bfb.h): three pages above the status
  * lines: the settings as a list, the scan graph (the last readings' deviation scrolling by, and
  * the whole sweep's below it with the hits marked; a hit's peak still in the last readings is
  * marked there too), the hits as a list. The sweep brings the
@@ -15,7 +15,6 @@
  * (NXE_BFB_REFINE, nx_ui.c): on the hits, with "Pass N", until the pass's sweep replaces them. */
 #include "nx_config.h"
 
-#if NX_FEAT_BFB
 #include <string.h>
 
 #include "nx_comp.h"
@@ -462,4 +461,3 @@ const struct nx_scr nx_scr_bfb = {
     bfb_enter, bfb_key, bfb_tick, bfb_draw, NX_S_HINT_BFB, NX_SF_AWAKE, NX_KEY_UP | NX_KEY_DOWN | NX_KEY_G1 | NX_KEY_G2,
     0, sizeof(struct bfbs),
 };
-#endif

@@ -650,14 +650,12 @@ static void events(uint32_t now)
             s_alert_due = 1;
             break;
 #endif
-#if NX_FEAT_BFB
         case NXE_BFB_REFINE:   /* the scan screen over the dashboard of that generator */
             nx_ui_set_focus((uint8_t)ch);
             nx_ui_reset(&nx_scr_dash, 0, NX_TR_NONE);
             nx_ui_push(&nx_scr_bfb, 0, NX_TR_PUSH);
             attention(now);
             break;
-#endif
 #if NX_FEAT_PRESET
         case NXE_NO_TABLE:
             nx_ui_toast_s(NX_I20_WARNING, NX_PAL_ERROR, NX_S_ERR_NO_RESPONSE, nx_str(ch ? NX_S_GEN_G2 : NX_S_GEN_G1), 0);

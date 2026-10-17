@@ -70,7 +70,7 @@ extern const struct nx_scr nx_scr_plan_edit;                   /* NX_FEAT_PLANS 
 extern const struct nx_scr nx_scr_terrain;                     /* NX_FEAT_TERRAIN: argument id | generator << 8 */
 extern const struct nx_scr nx_scr_manual;                      /* NX_FEAT_MANUAL: argument 0x100 | generator, or 0: the focus */
 extern const struct nx_scr nx_scr_support;                     /* NX_FEAT_SUPPORT */
-extern const struct nx_scr nx_scr_bfb;                         /* NX_FEAT_BFB */
+extern const struct nx_scr nx_scr_bfb;
 void nx_scr_terrain_started(unsigned ch, unsigned id);         /* the dashboard of ch and the toast */
 #define NX_SET_TIMERS 5u   /* nx_scr_set's argument for the Timers page (menu, NX_FEAT_TIMERS) */
 

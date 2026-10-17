@@ -21,7 +21,6 @@
 #include "storage.h"
 #include "test_nx.h"
 
-#if NX_FEAT_BFB
 #define PEAK1 5000u   /* sweep steps whose reading stands out */
 #define PEAK2 9000u
 
@@ -566,11 +565,9 @@ static void stopped(void)
     CHECK_EQ(g_ch[0].prog_slot, 0);
     nxw_on_line = 0;
 }
-#endif
 
 void test_nx_bfb(void)
 {
-#if NX_FEAT_BFB
     pure();
     walk();
     scan();
@@ -580,5 +577,4 @@ void test_nx_bfb(void)
     refined();
     stopped();
     held();
-#endif
 }

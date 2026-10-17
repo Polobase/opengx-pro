@@ -47,8 +47,8 @@ Open items:
 2. **Settling time:** repeat captures with smaller "Delay for GX Inputs" values in Spooky2 and
    compare how stable r11/r12 are per step; this shows how fast a scan can go without losing
    measurement quality.
-3. **Built-in scan in the firmware:** done on 2026-10-14 as a build switch, built in by default
-   since 2026-10-17 (`NX_FEAT_BFB=0` leaves it out; [`docs/nx/features.md`](docs/nx/features.md)
+3. **Built-in scan in the firmware:** done on 2026-10-14 as a build switch, part of the firmware
+   since 2026-10-17 ([`docs/nx/features.md`](docs/nx/features.md)
    §9.18; cancelled before, on
    2026-09-24, with the nx Drops 3 and 4). Open: whether the generator answers `:r11` in
    standalone mode, with or without the vendor handshake, and a scan on a unit against Spooky2's.

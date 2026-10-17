@@ -96,7 +96,7 @@ struct nx_tview {
 struct nx_manual *nx_uc_manual(void);
 void nx_uc_manual_changed(void);
 int nx_uc_manual_play(unsigned ch);
-/* The biofeedback scan (NX_FEAT_BFB, nx_bfb.h): its settings (changed in place), the start on
+/* The biofeedback scan (nx_bfb.h): its settings (changed in place), the start on
  * their generator (NX_OK or the refusal), the stop, and what it is doing. */
 struct nx_bfb_cfg *nx_uc_bfb_cfg(void);
 int nx_uc_bfb_start(void);

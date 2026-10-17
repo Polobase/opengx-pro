@@ -42,7 +42,6 @@ void nx_bfb_auth_token(const char *chal, const char *resp, char *tok)
     tok[9] = 0;
 }
 
-#if NX_FEAT_BFB
 #define CHALLENGE "271543986"   /* any permutation of 1..9; this one is from a Spooky2 capture */
 #define BASE_FAILS 5u          /* baseline reads without a reply in a row: the generator does not answer */
 #define SAVE_WAIT_MS 3000u     /* the slot write waits this long for a quiet moment of the other generator, then goes */
@@ -673,18 +672,3 @@ void nx_bfb_task(uint32_t now)
         break;
     }
 }
-#else
-void nx_bfb_boot(void)
-{
-}
-
-void nx_bfb_task(uint32_t now)
-{
-    (void)now;
-}
-
-void nx_bfb_finished(unsigned ch)
-{
-    (void)ch;
-}
-#endif

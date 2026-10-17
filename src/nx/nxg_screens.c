@@ -205,7 +205,6 @@ static void terrain_on(void)   /* G1 plays Terrain · Remote (protocol 1), day 6
 }
 #endif
 
-#if NX_FEAT_BFB
 static void bfb_scanning(void)   /* a scan on G1 at step 6 200 of 15 130 (190 kHz), three hits, two missed reads */
 {
     struct nx_bfb_view *v = nxg_bfb_view();
@@ -229,7 +228,6 @@ static void bfb_scanning(void)   /* a scan on G1 at step 6 200 of 15 130 (190 kH
     for (unsigned i = 0; i < 3u; i++)
         v->trace[(uint32_t)v->hits[i].step * NX_BFB_TRACE / NX_BFB_STEPS] = (uint8_t)(v->hits[i].dev20 / 20u);
 }
-#endif
 
 static void guide_unseen(void)   /* a first boot: the key guide after the splash */
 {
@@ -457,7 +455,6 @@ static void settings(void)
     run(300);
     nxg_take("plan_edit");
 #endif
-#if NX_FEAT_BFB
     begin(NX_THEME_DARK, bfb_scanning);
     nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
     run(300);
@@ -465,7 +462,6 @@ static void settings(void)
     press(NX_KEY_LOOP, 80);   /* the hits so far */
     run(300);
     nxg_take("bfb_hits");
-#endif
 #if NX_FEAT_MANUAL
     begin(NX_THEME_DARK, 0);
     nx_ui_push(&nx_scr_manual, 0x100u, NX_TR_NONE);

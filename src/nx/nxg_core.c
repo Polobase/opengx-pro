@@ -342,7 +342,6 @@ int nx_uc_manual_play(unsigned ch)
 }
 #endif
 
-#if NX_FEAT_BFB
 static struct nx_bfb_cfg s_bfb_cfg = { 0, 30, 2000u, 180u, 0, 0 };
 static struct nx_bfb_view s_bfb_view;
 
@@ -374,7 +373,6 @@ struct nx_bfb_view *nxg_bfb_view(void)   /* the fixtures' hand on it */
 {
     return &s_bfb_view;
 }
-#endif
 
 #if NX_FEAT_TERRAIN
 /* The six protocols as the built-in table has them (src/nx/data/nx_terrain_data.c): names, days,
