@@ -43,6 +43,14 @@ struct nx_action {
 
 void nx_core_reset(void);
 int nx_core_act(const struct nx_action *a);   /* NX_OK, NX_REFUSED_PC, NX_BUSY, NX_EINVAL */
+/* The amplitude of ch's program one step up (up) or down, live (Quick settings, 2026-11-14): 0.5 V
+ * steps, 0.1 V up to 1 V, from 0.1 V to what the output gives at the program's offset (20 V, 10 V
+ * at an offset: Spooky2's rule). Running, :w28 and :w29 go out at once (as the biofeedback scan's
+ * ramp sends them); otherwise with the next start. It holds on ch until STOP: every program loaded
+ * there meanwhile (a chain's next one, the next Terrain set, the preset's next pass) plays at it.
+ * The manual generator keeps it as its setting. NX_OK; NX_EINVAL: nothing loaded. */
+int nx_core_ampl(unsigned ch, int up);
+extern uint16_t g_nx_ampl[2];   /* 0.01 V; 0: the programs' own */
 
 /* Boot gate: nothing is sent or answered before NX_GEN_READY_MS, a factory-port command or the
  * calibration boot (the original's splash loop). Latches. */

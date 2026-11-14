@@ -10,6 +10,7 @@
 #include "link_internal.h"
 #include "nx_bl.h"
 #include "nx_config.h"
+#include "nx_core.h"
 #include "nx_diag.h"
 #include "nx_keys.h"
 #include "nx_panel.h"
@@ -253,6 +254,17 @@ static void test_lock(void)
     press(NX_KEY_START, 150);
     CHECK_EQ(g_ch[0].prog_slot, 4);
 
+    /* G2 70 ms after G1 is still the chord: locked, and G1 did not open the program list */
+    nxw_keys = NX_KEY_G1;
+    nxw_run_ms(70);
+    nxw_keys = NX_KEY_G1 | NX_KEY_G2;
+    nxw_run_ms(1700);
+    nxw_keys = 0;
+    nxw_run_ms(250);
+    CHECK(nx_ui_locked());
+    CHECK(nx_ui_top() == &nx_scr_dash);
+    press(NX_KEY_START | NX_KEY_STOP, 1700);
+    CHECK(!nx_ui_locked());
     /* G1+G2 held 1.5 s: locked; START does nothing, the lock card shows */
     press(NX_KEY_G1 | NX_KEY_G2, 1700);
     CHECK(nx_ui_locked());
@@ -472,7 +484,8 @@ static void test_screen_power(void)
 static void test_settings_saved(void)
 {
     boot();
-    press(NX_KEY_UP, 150);    /* quick settings: brightness row */
+    press(NX_KEY_UP, 150);    /* quick settings: the amplitude row, */
+    press(NX_KEY_DOWN, 150);  /* then brightness */
     press(NX_KEY_G2, 150);    /* 70 % -> 80 % */
     CHECK_EQ(g_uiset.bright, 8);
     CHECK_EQ(nx_bl_user(), nx_uiset_level(&g_uiset));
@@ -493,6 +506,121 @@ static void test_settings_saved(void)
     CHECK_EQ(g_uiset.bright, 8);
     CHECK(nx_ui_top() == &nx_scr_dash);
     memset(g_nx_settings.ui, 0, sizeof g_nx_settings.ui);
+}
+
+/* Quick settings are kept when POWER held switches off while the sheet is still open; G2 held
+ * on a switch flips it once. */
+static void test_quick_power_off(void)
+{
+    boot();
+    press(NX_KEY_UP, 150);    /* quick settings: the amplitude row, */
+    press(NX_KEY_DOWN, 150);  /* then brightness */
+    press(NX_KEY_G2, 150);    /* 70 % -> 80 % */
+    press(NX_KEY_DOWN, 150);
+    press(NX_KEY_G2, 900);    /* night mode: on once, not on every repeat */
+    nxw_power_off_armed = 1;
+    if (setjmp(nxw_power_off_jmp) == 0) {
+        nxw_keys = NX_KEY_POWER;
+        nxw_run_ms(3000);
+        CHECK(0);   /* not reached */
+    }
+    nxw_keys = 0;
+    struct nx_settings s;
+    CHECK_EQ(nx_settings_load(&s), NX_OK);
+    CHECK_EQ(s.ui[2], 8);
+    CHECK_EQ(s.ui[5], 1);
+    memset(g_nx_settings.ui, 0, sizeof g_nx_settings.ui);
+}
+
+static int sent(unsigned ch, const char *line)
+{
+    for (unsigned i = 0; i < nlines[ch]; i++)
+        if (strcmp(lines[ch][i], line) == 0)
+            return 1;
+    return 0;
+}
+
+/* Quick settings, its first row: the amplitude of the generator in focus, live; it holds on that
+ * generator until STOP, for the next program loaded there too (2026-11-14). */
+static void test_quick_ampl(void)
+{
+    boot();
+    store_program(5, 1, 1);
+    struct nx_action a = { NXA_LOAD, 0, 4, 0, 0 };
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    a.type = NXA_PLAY;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    nxw_run_ms(500);
+    CHECK(g_ui_flags & UIF_RUN_G1);
+    press(NX_KEY_UP, 150);
+    CHECK(nx_ui_top() == &nx_scr_quick);
+    nxw_clear();
+    press(NX_KEY_G1, 150);   /* 20 V -> 19.5 V: the two lines, no others, the outputs stay on */
+    nxw_run_ms(100);
+    grab();
+    CHECK(nlines[0] == 2u && strcmp(lines[0][0], ":w28=1950,") == 0 && strcmp(lines[0][1], ":w29=1950,") == 0);
+    CHECK_EQ(nlines[1], 0);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 1950);
+    nxw_run_ms(1000);
+    CHECK_EQ(g_vm.g[0].ampl_cv, 1950);   /* the dashboard follows */
+    press(NX_KEY_G2, 150);
+    press(NX_KEY_G2, 150);   /* not past 20 V */
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 2000);
+    /* the steps: 0.5 V, from 1 V down 0.1 V, not under 0.1 V; a value off the grid goes onto it */
+    for (int i = 0; i < 38; i++)
+        nx_core_ampl(0, 0);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 100);
+    nx_core_ampl(0, 0);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 90);
+    nx_core_ampl(0, 1);
+    nx_core_ampl(0, 1);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 150);
+    for (int i = 0; i < 20; i++)
+        nx_core_ampl(0, 0);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 10);
+    g_ch[0].prog.hdr[HDR_AMPL] = 727;
+    nx_core_ampl(0, 1);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 750);
+    nx_core_ampl(0, 0);
+    nx_core_ampl(0, 0);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 650);
+    /* the next program loaded on G1 plays at it (a chain's next one does this load) */
+    a.type = NXA_LOAD;
+    a.id = 5;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 650);
+    /* an offset leaves half: at most 10 V */
+    g_ch[0].prog.hdr[HDR_OFFS] = 20;
+    nx_core_ampl(0, 1);
+    for (int i = 0; i < 30; i++)
+        nx_core_ampl(0, 1);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 1000);
+    /* paused: the lines go out with the next start, in its idle configuration */
+    a.type = NXA_PLAY;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    nxw_run_ms(300);
+    a.type = NXA_PAUSE;
+    a.v = 1;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    nxw_run_ms(300);
+    nx_core_ampl(0, 0);
+    nxw_run_ms(100);
+    nxw_clear();
+    a.type = NXA_PLAY;
+    a.v = 0;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    nxw_run_ms(300);
+    grab();
+    CHECK(sent(0, ":w28=950,") && sent(0, ":w29=950,") && sent(0, ":w11=1,1,"));
+    /* STOP: the programs' own again */
+    a.type = NXA_STOP;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    a.type = NXA_LOAD;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    CHECK_EQ(g_ch[0].prog.hdr[HDR_AMPL], 2000);
+    /* G2 without a program: nothing to change */
+    CHECK_EQ(nx_core_ampl(1, 1), NX_EINVAL);
+    press(NX_KEY_STOP, 150);
 }
 
 /* The first boot: the key guide after the splash; the first key closes it and acts on the
@@ -610,6 +738,18 @@ static void test_original_keys(void)
     CHECK_EQ(g_ui_flags & (UIF_RUN_G1 | UIF_RUN_G2), 0);
     CHECK_EQ(nx_bl_level(), nx_bl_user());
     CHECK(g_vm.g[0].state == NXG_READY && g_vm.g[0].stopped);   /* "STOPPED", as the original */
+    /* the keys locked: POWER short stops nothing (held, it still switches off) */
+    press(NX_KEY_START, 150);
+    press(NX_KEY_G1 | NX_KEY_G2, 1700);
+    CHECK(nx_ui_locked());
+    press(NX_KEY_POWER, 150);
+    nxw_run_ms(700);
+    CHECK(g_ui_flags & UIF_RUN_G1);
+    press(NX_KEY_START | NX_KEY_STOP, 1700);
+    CHECK(!nx_ui_locked());
+    press(NX_KEY_POWER, 150);          /* unlocked: both stop again */
+    nxw_run_ms(700);
+    CHECK_EQ(g_ui_flags & (UIF_RUN_G1 | UIF_RUN_G2), 0);
     g_uiset.origkeys = 0;
     nx_ui_apply();
     press(NX_KEY_POWER, 150);          /* today's keys: screen off */
@@ -647,4 +787,6 @@ void test_nx_ui(void)
     test_detail_target();
     test_screen_power();
     test_settings_saved();
+    test_quick_ampl();
+    test_quick_power_off();
 }

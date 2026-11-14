@@ -20,6 +20,7 @@ static struct {
     struct nx_chain_pos p;
     uint8_t slot;       /* the slot the chain loaded */
     uint8_t next_due;   /* its program ended: load the next one */
+    uint8_t day, n;     /* a plan's day and days when its chain started: unchanged at the end, the day counts */
 } s_run[2];
 static uint8_t s_save_due;
 
@@ -84,8 +85,11 @@ int nx_plan_play(unsigned ch, unsigned id)
     if (p->day >= p->n)
         return NX_EINVAL;   /* empty or complete */
     int rc = nx_chain_play(ch, p->chain[p->day]);
-    if (rc == NX_OK)
+    if (rc == NX_OK) {
         s_run[ch].p.plan = (uint8_t)id;
+        s_run[ch].day = p->day;
+        s_run[ch].n = p->n;
+    }
     return rc;
 }
 #endif
@@ -115,6 +119,12 @@ void nx_chain_resume(unsigned ch, const struct nx_chain_pos *p)
     s_run[ch].p = *p;
     s_run[ch].slot = g_ch[ch].prog_slot;
     s_run[ch].next_due = 0;
+#if NX_FEAT_PLANS
+    if (p->plan) {   /* the plan's day now is the one it plays */
+        s_run[ch].day = g_nx_plans.p[p->plan - 1u].day;
+        s_run[ch].n = g_nx_plans.p[p->plan - 1u].n;
+    }
+#endif
 }
 
 static void advance(unsigned ch)
@@ -128,9 +138,13 @@ static void advance(unsigned ch)
         if (c->repeat && p->pass >= c->repeat) {
             p->id = 0;   /* done */
 #if NX_FEAT_PLANS
-            if (p->plan && g_nx_plans.p[p->plan - 1u].day < g_nx_plans.p[p->plan - 1u].n) {
-                g_nx_plans.p[p->plan - 1u].day++;   /* the day is done */
-                s_save_due |= 2u;
+            if (p->plan) {   /* the day is done, unless the other generator has done it already or the
+                              * plan was set back or got a day more or less meanwhile */
+                struct nx_plan *pl = &g_nx_plans.p[p->plan - 1u];
+                if (pl->day == s_run[ch].day && pl->n == s_run[ch].n && pl->day < pl->n) {
+                    pl->day++;
+                    s_save_due |= 2u;
+                }
             }
 #endif
             return;

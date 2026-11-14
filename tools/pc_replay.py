@@ -258,10 +258,11 @@ def replay(args) -> int:
 # ---- standalone: the built-in preset against the capture ----
 
 REGS = (11, 12, 14, 17, 20, 21, 28, 29, 32, 33)
-# after the boot gate (4.44 s): DOWN opens the menu (on Settings after power-on), UP and G1 go to
-# Chains, START opens it (on the first Terrain row), six DOWN pass the six Terrain rows to the
+# after the boot gate (4.44 s): DOWN opens the menu (on Settings, its last cell, after power-on),
+# two DOWN go round the end to Programs and on to Chains (UP and DOWN walk the cells in order since
+# 2026-10-15), START opens it (on the first Terrain row), six DOWN pass the six Terrain rows to the
 # preset's row, START plays it
-KEYS = "DOWN,UP,G1,START,DOWN,DOWN,DOWN,DOWN,DOWN,DOWN,START"
+KEYS = "DOWN,DOWN,DOWN,START,DOWN,DOWN,DOWN,DOWN,DOWN,DOWN,START"
 KEY_T0_MS, KEY_STEP_MS = 6000.0, 700.0
 
 

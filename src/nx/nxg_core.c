@@ -123,6 +123,14 @@ int nx_uc_act(const struct nx_action *a)
     return NX_OK;
 }
 
+int nx_uc_ampl(unsigned ch, int up)
+{
+    (void)ch;
+    (void)up;
+    g_nxg.acts++;
+    return NX_OK;
+}
+
 unsigned nx_uc_name(unsigned slot, char *out)
 {
     const char *s = slot < 32u ? g_nxg.names[slot] : slot == NX_UC_PRESET ? "Radionics (Boost) Manifestation"

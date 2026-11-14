@@ -9,6 +9,7 @@
 #include "nx_core.h"
 #include "nx_runner.h"
 #include "nx_src.h"
+#include "nx_timer.h"
 #include "nx_txq.h"
 #include "nx_ui.h"
 #include "nx_vm.h"
@@ -97,6 +98,7 @@ static struct bfb {
     uint8_t refine_due;     /* the hits' program ended by itself: the next pass begins */
     struct det d;
     struct nx_bfb_view v;
+    struct nx_bfb_cfg c;    /* the settings the scan started with, for its passes too (Refine is read live) */
 } s;
 
 void nx_bfb_boot(void)
@@ -150,7 +152,7 @@ void nx_bfb_rx(unsigned ch, uint8_t c)
 
 static uint32_t ramp_cv(unsigned i)   /* amplitude step i of NX_BFB_RAMP_STEPS, 0 = the first */
 {
-    uint32_t t = g_nx_bfb_cfg.ampl_cv, cv = (2u * (i + 1u) * t + NX_BFB_RAMP_STEPS) / (2u * NX_BFB_RAMP_STEPS);
+    uint32_t t = s.c.ampl_cv, cv = (2u * (i + 1u) * t + NX_BFB_RAMP_STEPS) / (2u * NX_BFB_RAMP_STEPS);
     return cv > t ? t : cv;
 }
 
@@ -172,12 +174,12 @@ static void act(unsigned ch, uint8_t type, uint16_t id)
     nx_core_act(&a);
 }
 
-static void unload(unsigned ch)   /* a scan over without a hits program: the generator stops and its one-step
-                                   * program goes (the dashboard's START would replay it at the ramp's amplitude) */
+static void unload(unsigned ch)   /* a scan over without a hits program: the generator stops and what it has
+                                   * loaded goes (the one-step program, which the dashboard's START would replay at
+                                   * the ramp's amplitude, or a slot whose write did not read back) */
 {
     act(ch, NXA_STOP, 0);
-    if (g_ch[ch].prog_slot == NX_SRC_BFB)
-        g_ch[ch].prog_slot = 0;
+    g_ch[ch].prog_slot = 0;
 }
 
 int nx_bfb_start(void)
@@ -196,6 +198,7 @@ int nx_bfb_start(void)
     if (g_ch[c->ch].prog_slot)   /* whatever it plays stops first: its idle configuration */
         act(c->ch, NXA_STOP, 0);
     memset(&s, 0, sizeof s);
+    s.c = *c;
     s.v.ch = c->ch;
     s.v.slot = c->slot;
     s.v.steps = NX_BFB_SPEED_STEPS(c->speed);
@@ -265,8 +268,21 @@ static void refine_begin(void)   /* the hits' program ended by itself: the next 
 
 void nx_bfb_finished(unsigned ch)
 {
-    if (s.v.playing && g_nx_bfb_cfg.refine && ch == s.v.ch && s.grid * 2u <= GRID_MAX)
+    if (s.v.playing && g_nx_bfb_cfg.refine && ch == s.v.ch && s.grid * 2u <= GRID_MAX) {
         s.refine_due = 1;
+        nx_timer_goes_on();   /* the pass follows: not "all finished" */
+    }
+}
+
+void nx_bfb_loaded(unsigned ch)
+{
+    if (ch == s.v.ch)
+        s.v.playing = 0;
+}
+
+struct nx_bfb_cfg *nx_bfb_cfg_now(void)
+{
+    return s.v.state != NX_BFB_IDLE && s.v.state < NX_BFB_DONE ? &s.c : &g_nx_bfb_cfg;
 }
 
 #ifdef HOST_TEST
@@ -454,9 +470,9 @@ static void hit_program(struct channel *c)
     memset(p, 0, sizeof *p);
     memset(c->params, 0, sizeof c->params);
     p->hdr[HDR_WAVE] = 11;
-    p->hdr[HDR_AMPL] = g_nx_bfb_cfg.ampl_cv;
+    p->hdr[HDR_AMPL] = s.c.ampl_cv;
     p->hdr[HDR_OFFS] = 120;
-    p->hdr[HDR_DWELL] = g_nx_bfb_cfg.dwell_s;
+    p->hdr[HDR_DWELL] = s.c.dwell_s;
     p->hdr[HDR_COUNT] = s.v.nhits;
     for (unsigned i = 0; i < s.v.nhits; i++)
         p->freq[i] = s.v.hits[i].code;
@@ -506,7 +522,7 @@ static void sweep(unsigned ch, struct channel *c, uint32_t now)
         s.sub = 6;
         /* fall through */
     default:   /* the step's time */
-        if (now - s.t0 >= NX_BFB_SPEED_MS(g_nx_bfb_cfg.speed))
+        if (now - s.t0 >= NX_BFB_SPEED_MS(s.c.speed))
             s.sub = 0;
         break;
     }
@@ -521,8 +537,8 @@ void nx_bfb_task(uint32_t now)
         if (s.refine_due) {
             refine_begin();
             nx_ui_post(NXE_BFB_REFINE, (uint8_t)ch, 0);
-        } else if (g_ui_state == ST_PC || c->prog_slot != v->slot || (!(g_ui_flags & UIF_RUN(ch)) && c->elapsed <= 1u)) {
-            v->playing = 0;   /* stopped, replaced, or over with no pass to follow */
+        } else if (!(g_ui_flags & UIF_RUN(ch)) && c->elapsed <= 1u) {
+            v->playing = 0;   /* stopped, over with no pass to follow, or PC mode (a load: nx_bfb_loaded) */
         }
     }
     if (v->state == NX_BFB_IDLE || v->state >= NX_BFB_DONE)
@@ -596,7 +612,7 @@ void nx_bfb_task(uint32_t now)
         break;
     case NX_BFB_BASE:
         if (s.sub == 0u) {   /* a pair per step time, as Spooky2 paces them: the level settles before the window is seeded */
-            if (now - s.t0 < NX_BFB_SPEED_MS(g_nx_bfb_cfg.speed))
+            if (now - s.t0 < NX_BFB_SPEED_MS(s.c.speed))
                 break;
             s.t0 = now;
         }
@@ -647,7 +663,7 @@ void nx_bfb_task(uint32_t now)
             hit_program(c);
             program_save(v->slot, ch);
             ok = nx_core_act(&load) == NX_OK && c->prog.hdr[HDR_COUNT] == v->nhits
-                 && c->prog.hdr[HDR_AMPL] == g_nx_bfb_cfg.ampl_cv;
+                 && c->prog.hdr[HDR_AMPL] == s.c.ampl_cv;
             for (unsigned i = 0; ok && i < v->nhits; i++)   /* read back: a failed write must not play what was there */
                 ok = c->prog.freq[i] == v->hits[i].code;
             if (!ok) {
@@ -665,8 +681,9 @@ void nx_bfb_task(uint32_t now)
             unload(ch);
             v->state = NX_BFB_STOPPED;
             break;
-        } else {
+        } else {   /* no hits: the scan, or its refining, is over by itself (Timers: power off when all finished) */
             unload(ch);
+            nx_timer_finished(ch);
         }
         v->state = NX_BFB_DONE;
         break;

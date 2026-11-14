@@ -34,8 +34,8 @@ test timing and changed switches, whatever your `local.mk` says. `tools/release_
 the finished image again: compiler flags, linked files, size and encoding. The image of 0.9.1 is
 108,664 bytes, 3,976 below the limit; since the two text fonts went to 2 bits per pixel and the
 image is linked with link-time optimisation (2026-10-14) and the biofeedback scan is built in
-(2026-10-17) the default build is 112,080 bytes, 560 below the limit (`NX_LTO=0` no longer
-fits with the scan in). The linker refuses an nx image above 112,640 bytes
+(2026-10-17) the default build was 112,080 bytes; with the fixes and the amplitude row of
+2026-11-14 it is 112,504 bytes, 136 below the limit (`NX_LTO=0` no longer fits with the scan in). The linker refuses an nx image above 112,640 bytes
 (`NX_FLASH_LIMIT` in `ld/nx.ld`), the largest size proven on a unit; the flash tools refuse it
 too. The version is `NX_FW_VERSION` in `src/nx/nx_config.h`.
 
@@ -97,7 +97,7 @@ the build and `tools/release_check.py` stop when one is missing.
 
 | Build | Image |
 |---|---|
-| default (the release image) | 112,080 bytes (0.9.1, without the scan, with 4 bpp text fonts and no LTO: 108,664) |
+| default (the release image) | 112,504 bytes (2026-11-14; 2026-10-17: 112,080; 0.9.1, without the scan, with 4 bpp text fonts and no LTO: 108,664) |
 | `NX_PRESETS=0` | 110,174 bytes |
 | `NX_TERRAIN=0` | 106,350 bytes |
 | `NX_TERRAIN=0 NX_PRESETS=0` | 104,726 bytes |
@@ -108,8 +108,10 @@ Neither feature has been checked on a real unit yet: [Known issues](./known-issu
 
 Each feature beyond the original has a switch in `src/nx/nx_config.h`. Switching one off removes
 its code and its menu cell. Set a switch on the command line, for example
-`make APP=nx NX_LCD_OPTS=-DNX_FEAT_HIST=1` or
-`make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`.
+`make APP=nx NX_LCD_OPTS="-DNX_FEAT_HIST=1 -DNX_FEAT_DIAG=0"` or
+`make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`. Since the biofeedback scan
+is built in, History and the 48-pixel digits each fit only with another feature off, Diagnostics
+for example (112,148 and 112,100 bytes; on its own History is 460 bytes over the limit).
 
 | Switch | Default | Feature |
 |---|---|---|

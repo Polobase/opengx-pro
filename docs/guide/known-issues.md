@@ -75,8 +75,9 @@ will be written here.
 - The manual generator and the Terrain sets play the generator boards' standard waveform tables
   (sine, square, sawtooth and so on) without a PC. The original firmware never does that; it only
   plays the tables of stored programs. Whether the boards play them this way has not been checked.
-- Before the manual generator plays a sine for the first time after power-on, after a PC session
-  or after the built-in preset, the firmware sends the standard sine table to the generator board,
+- Before the manual generator, a Terrain set or the biofeedback scan's hits play a sine for the
+  first time after power-on, after a PC session or after the built-in preset, the firmware sends
+  the standard sine table to the generator board,
   because a preset can leave another shape there. The start is about half a second later that
   once. Whether the boards accept a table from the display has not been checked. If they do not,
   the firmware waits 2 seconds once and plays what the table holds.
@@ -108,6 +109,9 @@ will be written here.
 - One preset is built in, no other. To play it the display must send two waveform tables to the
   generator board. If a board does not answer a table within 2 seconds, the preset stops with the
   message that the generator does not respond.
+- With 0.9.1 the preset played only on Out 2 of a unit; Out 1 gave no signal. The firmware chose
+  Out 1's waveform table before it sent the table, and Spooky2 chooses it again after. Since
+  2026-11-14 it does so too; whether that brings Out 1 back has to be checked on a unit.
 - A step of the preset lasts 11.00 s; with Spooky2 the same step takes 11.02 to 11.09 s. One
   generator setting differs from a Spooky2 session (`:w15` is 0,0, with Spooky2 1,1). If the
   output differs from a Spooky2 run, this is the first thing to look at.

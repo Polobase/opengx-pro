@@ -6,7 +6,8 @@
  * REPEAT (keys in the repeat mask: 400 ms, then every 110 ms, every 50 ms from 1.5 s) and
  * CHORD (a second key within 80 ms of the first; the chord then owns HOLD, LONG and RELEASE of
  * its keys, reported with the chord's key mask). Keys in the chord-delay mask report PRESS
- * 60 ms late so that a chord can still form (G1+G2); a shorter tap reports PRESS at release.
+ * 80 ms late, the whole chord window, so that a chord can still form (G1+G2) and no PRESS goes
+ * out before it; a shorter tap reports PRESS at release.
  * POWER held NX_KEY_POWER_OFF_MS sets the power-off request, whatever else is going on: the
  * core, not the UI, decides to power off. A key already down at the very first sample fed after
  * nx_keys_reset() (POWER is usually still down at power-on, since POWER is the key that turns the
@@ -25,7 +26,7 @@
 #define NX_KEY_REPEAT_FAST_MS 50u
 #define NX_KEY_REPEAT_ACCEL_MS 1500u
 #define NX_KEY_CHORD_MS 80u
-#define NX_KEY_CHORD_DELAY_MS 60u
+#define NX_KEY_CHORD_DELAY_MS NX_KEY_CHORD_MS   /* not shorter: a PRESS before a late chord key */
 #define NX_KEY_POWER_OFF_MS 800u
 #define NX_KEY_QUEUE 16u
 

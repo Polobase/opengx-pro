@@ -94,10 +94,15 @@ static uint32_t current_step(unsigned ch, const struct channel *c)
 
 static uint8_t s_cfg_due;   /* bit ch: a program was loaded and its idle configuration has not gone out */
 
+void nx_runner_cfg(unsigned ch)
+{
+    s_cfg_due = (uint8_t)(s_cfg_due | (1u << (ch & 1u)));
+}
+
 void nx_runner_loaded(unsigned ch)
 {
     ch &= 1u;
-    s_cfg_due = (uint8_t)(s_cfg_due | (1u << ch));
+    nx_runner_cfg(ch);
 #if NX_FEAT_PRESET
     nx_preset_loaded(ch);
 #endif

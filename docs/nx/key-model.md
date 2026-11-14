@@ -26,7 +26,7 @@ For users who want the original's keys. When on:
 
 | Key | Default | Original key behaviour on |
 |---|---|---|
-| POWER short | screen off / on | on the dashboard, when a program is loaded and not in PC mode: stop both generators ("Both generators stopped"); elsewhere nothing. The screen goes off only from quick settings > Screen off |
+| POWER short | screen off / on | on the dashboard, when a program is loaded, not in PC mode and the keys are not locked: stop both generators ("Both generators stopped"); elsewhere nothing. The screen goes off only from quick settings > Screen off |
 | START on the dashboard | pause and play keep the repeat setting | pause and play clear it |
 | LOOP short while running | repeat on/off | pause with repeat on |
 | Held UP/DOWN (lists), G1/G2 (calibration) | the "Key repeat" setting: first repeat after 600 / 400 / 300 ms, then every 180 / 110 / 70 ms (every 50 ms once held 1.5 s) | first repeat after 280 ms, then every 26 ms |
@@ -201,9 +201,9 @@ from step 1.
 ## Quick settings and settings
 
 Quick settings (a sheet over the dashboard) and the settings pages (Display, Keys & lock, Motion,
-About): UP/DOWN move, G1/G2 change a value, START opens a page or switches, STOP closes. A hint
-line at the bottom says so. "Reset all settings" (the last row of Settings) asks first: hold START
-1 s to reset, STOP cancels.
+About): UP/DOWN move, G1/G2 change a value (held: again and again) or a switch (once per press),
+START opens a page or switches, STOP closes. A hint line at the bottom says so. "Reset all
+settings" (the last row of Settings) asks first: hold START 1 s to reset, STOP cancels.
 
 Settings > About shows the rows Project ("OpenGX Pro"), Firmware (the version), Developer, Panel
 and "Support the project", then the licence lines (font, icons, no warranty, not made by the

@@ -158,6 +158,11 @@ int nx_uc_act(const struct nx_action *a)
     return nx_core_act(a);
 }
 
+int nx_uc_ampl(unsigned ch, int up)
+{
+    return nx_core_ampl(ch, up);
+}
+
 unsigned nx_uc_name(unsigned slot, char *out)
 {
     unsigned n = 0;
@@ -354,7 +359,7 @@ int nx_uc_manual_play(unsigned ch)
 
 struct nx_bfb_cfg *nx_uc_bfb_cfg(void)
 {
-    return &g_nx_bfb_cfg;
+    return nx_bfb_cfg_now();
 }
 
 int nx_uc_bfb_start(void)

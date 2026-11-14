@@ -507,7 +507,7 @@ Minimum text size is 13 px.
 - **Debounce:** 2 equal samples (20 ms).
 - **Events:** `PRESS`, `RELEASE(dur)`, `HOLD` (500 ms), `LONG` (1,500 ms), `REPEAT(n)`, `CHORD(mask)`.
   - `REPEAT`: first at 400 ms, then every 110 ms, speeding up to 50 ms after 1.5 s.
-  - `CHORD`: a second key within 80 ms. G1/G2 presses are delayed 60 ms to detect the chord, which is not noticeable.
+  - `CHORD`: a second key within 80 ms. G1/G2 presses are delayed 80 ms, the whole chord window, to detect the chord, which is not noticeable (a shorter delay lets G1 act before a late G2 joins it, and the lock fails).
 - **Act-on rule:** a key acts on **press**, unless it has a HOLD meaning in the current context. Then it acts on **release** (< 500 ms) or on **HOLD**.
 - **Letter jump** (lists ≥ 40 entries): holding UP/DOWN for ≥ 1.2 s moves by initial letter (bubble shows the letter). Releasing stops.
 - **POWER:** from 200 ms the power ring overlay is shown. At 800 ms the core powers off (the core stays the authority). This works even when keys are locked.

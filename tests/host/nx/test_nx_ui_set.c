@@ -90,6 +90,8 @@ static void test_pages(void)
     press(NX_KEY_START, 100);
     CHECK_EQ(g_uiset.motion, 1);
     CHECK(nx_anim_reduced());
+    press(NX_KEY_G2, 900);      /* G2 held on a switch: it flips once, not on every repeat */
+    CHECK_EQ(g_uiset.motion, 0);
     press(NX_KEY_STOP, 100);
     press(NX_KEY_STOP, 100);
     CHECK(nx_ui_top() == &nx_scr_dash);

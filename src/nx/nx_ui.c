@@ -8,7 +8,8 @@
  * the night view the first key only wakes; dimmed, the key acts and the brightness comes back. Attention (a program finished, a generator stopped answering, PC mode
  * changed) wakes the screen.
  * Key lock (ui.md §5.5): G1+G2 held 1.5 s locks, START+STOP held 1.5 s unlocks; while locked,
- * a key shows the lock card for 2 s; POWER still switches the screen and powers off. */
+ * a key shows the lock card for 2 s; POWER still switches the screen and powers off (with the
+ * original's keys its short press stops nothing while locked). */
 #include "nx_ui.h"
 
 #include <string.h>
@@ -72,6 +73,7 @@ static uint8_t s_ev_head, s_ev_tail;
 static uint32_t s_vm_t;
 static uint8_t s_finished[2];    /* FINISHED latch per generator */
 static uint16_t s_passes[2];
+static uint8_t s_pass_slot[2];   /* the program s_passes counts (a load the core makes itself starts it again) */
 
 static uint8_t s_pw, s_night_on;   /* s_night_on: the night view's palette */
 static uint32_t s_pw_t, s_input_t;
@@ -112,6 +114,10 @@ static uint32_t s_unlock_draw;
 #ifdef HOST_TEST
 struct nx_action g_ui_actlog[16];   /* the host tests read what the UI asked the core for */
 unsigned g_ui_actn;
+unsigned nx_ui_t_card(void)   /* the card shown (CARD_*) */
+{
+    return s_card;
+}
 #endif
 
 /* ---- small helpers ---- */
@@ -690,6 +696,10 @@ static void build_vm(void)
             s_finished[ch] = 0;
         if (s_finished[ch] && g->state == NXG_READY)
             g->state = NXG_FINISHED;
+        if (g->slot != s_pass_slot[ch]) {   /* another program: a chain's next, the scan's hits */
+            s_pass_slot[ch] = g->slot;
+            s_passes[ch] = 0;
+        }
         g->passes = s_passes[ch];
     }
 }
@@ -750,8 +760,8 @@ static int global_key(const struct nx_kev *e, uint32_t now)
             s_power_t0 = 0;
             nx_ui_hold_hide();
             if (e->n < NX_KEY_HOLD_MS && !raw) {
-                if (g_uiset.origkeys) {   /* the original: on a generator's screen, stop both */
-                    if (s_depth == 1u && nx_ui_top() == &nx_scr_dash && !g_vm.s.pc
+                if (g_uiset.origkeys) {   /* the original: on a generator's screen, stop both (not locked) */
+                    if (!s_locked && s_depth == 1u && nx_ui_top() == &nx_scr_dash && !g_vm.s.pc
                         && (g_vm.g[0].state != NXG_NONE || g_vm.g[1].state != NXG_NONE)
                         && nx_ui_act(NXA_STOP_ALL, 0, 0, 0) == NX_OK)
                         nx_ui_toast_s(NX_I20_STOP, NX_PAL_TEXT2, NX_S_TOAST_BOTH_STOPPED, 0, 0);

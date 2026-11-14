@@ -79,7 +79,9 @@ first Terrain row; DOWN goes on to the preset, the chains and the plans.
 | STOP | Back. | Save and back. | Save and back. |
 
 A plan plays the chain of its current day. When that chain has run to its end, the plan moves on
-one day; START on the plan plays the next day. A stopped day does not count.
+one day; START on the plan plays the next day. A stopped day does not count. A day played on G1
+and G2 counts once. A day during which the plan is set back to day 1, or gets a day added or
+removed, does not count.
 
 ## Terrain Protocol and the built-in preset
 
@@ -125,7 +127,11 @@ still finds it; a very narrow one can be missed. Refine on: when the hits' progr
 (not looped), the scan screen comes back on the hits, marked "Pass 2", and sweeps a narrow
 window around each hit at half the step, 10 steps each side, about 20 seconds; the new hits
 replace the old ones in the program, which plays again, and so on until a pass finds no hits or
-you stop or replace the program. START
+you stop or replace the program (loading any program on that generator ends it, the same one
+again too, for example a chain that starts with it). A pass that finds no hits counts as the end
+of a program for Timers > Power off when all finished. The line "Refines when the program ends"
+shows only while the hits play once. A scan and its passes keep the settings it started with:
+what you change while the hits play is for the next scan. START
 starts the scan on the chosen generator (from the graph or hits page it first shows the settings,
 so a stray press restarts nothing). While the sweep runs, START pauses it: no step goes out,
 the generator holds the frequency reached with the outputs on (so going on needs no ramp), the
@@ -164,10 +170,19 @@ A card with a ring that fills. When the ring is full, the card answers "yes" by 
 ## Quick settings and settings
 
 UP and DOWN move, G1 and G2 change a value, START opens a page, flips a switch or runs an action,
-STOP closes. A hint line at the bottom says so.
+STOP closes. A hint line at the bottom says so. G1 or G2 held steps a value again and again; a
+switch changes once per press. A change is kept even when POWER held switches off before the
+sheet or the page is closed.
 
-- **Quick settings** (UP on the dashboard): Brightness, Night mode, Lock keys, Screen off,
-  Auto-dim, Reduce motion.
+- **Quick settings** (UP on the dashboard): Amplitude, Brightness, Night mode, Lock keys, Screen
+  off, Auto-dim, Reduce motion.
+- **Amplitude** is the voltage of the generator shown on the dashboard ("G1 20.0 V"). G1 lowers
+  it and G2 raises it, in steps of 0.5 V (0.1 V below 1 V), from 0.1 V up to 20 V, or 10 V for a
+  program with an offset such as the built-in preset. A playing generator changes at once; a
+  paused or stopped one at its next START. The voltage holds on that generator until you press
+  STOP: the next programs of a chain or a plan, the next Terrain set and every pass of the preset
+  play at it. After STOP each program plays at its own voltage again. For the manual generator
+  it is its Amplitude setting. A power cut forgets it.
 - **Display**: Theme (Dark, Light, High contrast), Brightness, Dim after, Screen off after, When
   idle (Screen off or Night view), Splash screen (Off, Short, Full).
 - **Keys & lock**: Key repeat (Slow, Normal, Fast), Lock keys automatically, Offer to resume
@@ -181,10 +196,12 @@ STOP closes. A hint line at the bottom says so.
 
 ## Key lock
 
-Hold G1+G2 for 1.5 s to lock the keys. A lock shows in the status bar, and any key shows the card
+Hold G1+G2 for 1.5 s to lock the keys. The second key may come up to 0.08 s after the first; G1
+or G2 alone acts after that time. A lock shows in the status bar, and any key shows the card
 "Keys locked · Hold START+STOP to unlock". Hold START+STOP for 1.5 s to unlock. POWER keeps
-working: short for the screen, held to switch off. With "Lock keys automatically" the keys lock
-10 seconds after the last key while a generator runs. Quick settings > Lock keys locks at once.
+working: short for the screen, held to switch off. With "Original key behaviour" POWER short does
+nothing while the keys are locked. With "Lock keys automatically" the keys lock 10 seconds after
+the last key while a generator runs. Quick settings > Lock keys locks at once.
 
 ## PC mode and calibration
 
@@ -203,7 +220,7 @@ Settings > Keys & lock > "Original key behaviour" is off by default. Switched on
 
 | Key | Default | With "Original key behaviour" |
 |---|---|---|
-| POWER, short | Screen off and on. | On the dashboard with a program loaded: stop both generators. Elsewhere nothing. The screen goes off only from Quick settings > Screen off. |
+| POWER, short | Screen off and on. | On the dashboard with a program loaded: stop both generators, unless the keys are locked. Elsewhere nothing. The screen goes off only from Quick settings > Screen off. |
 | START on the dashboard | Pause and play keep repeat. | Pause and play clear repeat. |
 | LOOP, short, while running | Repeat on or off. | Pause with repeat on. |
 | UP or DOWN held in a list | The "Key repeat" setting. | First repeat after 0.28 s, then every 26 ms. |

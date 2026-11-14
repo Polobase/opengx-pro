@@ -3,8 +3,9 @@
  * "Reset all settings" (hold-START confirmation), and the pages themselves. One screen, the page is its argument, so a page opens
  * on top of the root.
  *
- * Keys: UP/DOWN select; G1/G2 change a value or a switch (-/+); START opens a page, flips a switch,
- * steps a value, runs an action; STOP back (a changed setting is saved on the way out). */
+ * Keys: UP/DOWN select; G1/G2 change a value (-/+, repeating while held) or flip a switch (once
+ * per press); START opens a page, flips a switch, steps a value, runs an action; STOP back (a
+ * changed setting is saved on the way out). */
 #include <string.h>
 
 #include "nx_comp.h"
@@ -345,8 +346,8 @@ static int set_key(void *st, const struct nx_kev *e)
 #endif
         break;
     case NX_KEY_G1:
-    case NX_KEY_G2:
-        if (kind_of(id) != NX_ROW_VALUE && kind_of(id) != NX_ROW_TOGGLE && id != R_BRIGHT)
+    case NX_KEY_G2:   /* a value steps on every repeat, a switch flips once per press */
+        if (kind_of(id) == NX_ROW_TOGGLE ? e->type != NXK_PRESS : kind_of(id) != NX_ROW_VALUE && id != R_BRIGHT)
             return 1;
         break;
     default:
