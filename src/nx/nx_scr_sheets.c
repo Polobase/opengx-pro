@@ -3,7 +3,10 @@
  * Keys: UP/DOWN select; G1/G2 change a value or a switch (-/+); START flips a switch, steps a
  * value, runs an action; STOP closes. A change is marked for saving at once (nx_ui_settings_dirty):
  * it is written once the sheet is closed, or at the power-off if it is still open. A held G key
- * steps a value again and again, a switch only once. */
+ * steps a value again and again, a switch only once.
+ * Its first row is the amplitude of the generator in focus, live (nx_core_ampl, 2026-11-14). */
+#include <string.h>
+
 #include "nx_comp.h"
 #include "nx_config.h"
 #include "nx_uifmt.h"
@@ -17,7 +20,7 @@
 #define QROW_H 26
 _Static_assert(QUICK_Y0 + TITLE_H + 6 * QROW_H <= NX_HINT_Y, "quick settings end above the hint bar");
 
-enum { Q_BRIGHT, Q_NIGHT, Q_LOCK, Q_OFF, Q_DIM, Q_MOTION, Q_N };
+enum { Q_AMPL, Q_BRIGHT, Q_NIGHT, Q_LOCK, Q_OFF, Q_DIM, Q_MOTION, Q_N };
 
 struct quick {
     struct nx_list l;
@@ -29,6 +32,19 @@ static void quick_row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel
     (void)sel_ms;
     char v[16];
     switch (i) {
+    case Q_AMPL: {   /* "G1  10.0 V"; nothing loaded: "G1  -" */
+        const struct nx_gen_vm *g = &g_vm_draw.g[nx_ui_focus()];
+        strcpy(v, nx_str(nx_ui_focus() ? NX_S_GEN_G2 : NX_S_GEN_G1));
+        char *e = v + strlen(v);
+        *e++ = ' ';
+        *e++ = ' ';
+        if (g->slot)
+            nx_fmt_cv(e, g->ampl_cv);
+        else
+            strcpy(e, "-");
+        nx_form_row(gc, r, nx_str(NX_S_MANUAL_AMPL), v, NX_ROW_VALUE, 0, sel);
+        break;
+    }
     case Q_BRIGHT:
         nx_fmt_pct(v, g_uiset.bright * 10u);
         nx_form_bar(gc, r, nx_str(NX_S_QUICK_BRIGHTNESS), (uint16_t)(g_uiset.bright * 6553u), v, sel);
@@ -56,7 +72,7 @@ static void quick_enter(void *st, uint32_t arg)
 {
     (void)arg;
     struct quick *q = st;
-    nx_list_init(&q->l, QUICK_Y0 + TITLE_H, QROW_H, Q_N, Q_N, 0, nx_ms());
+    nx_list_init(&q->l, QUICK_Y0 + TITLE_H, QROW_H, 6, Q_N, 0, nx_ms());   /* six in view */
 }
 
 static void quick_draw(nx_gc *gc, const void *st)
@@ -90,6 +106,10 @@ static int quick_key(void *st, const struct nx_kev *e)
     }
     int start = e->keys == NX_KEY_START && e->type == NXK_PRESS;
     switch (q->l.sel) {
+    case Q_AMPL:   /* not a setting of the screen: nothing to save here */
+        if (d)
+            nx_uc_ampl(nx_ui_focus(), d > 0);   /* the row follows the VM (quick_tick) */
+        return 1;
     case Q_BRIGHT:
         if (d && (int)g_uiset.bright + d >= 1 && (int)g_uiset.bright + d <= 10)
             g_uiset.bright = (uint8_t)(g_uiset.bright + d);
@@ -128,7 +148,11 @@ static int quick_key(void *st, const struct nx_kev *e)
 
 static void quick_tick(void *st, uint32_t now)
 {
-    nx_list_tick(&((struct quick *)st)->l, now);
+    struct quick *q = st;
+    const struct nx_gen_vm *g = &g_vm.g[nx_ui_focus()], *s = &g_vm_seen.g[nx_ui_focus()];
+    if (g->ampl_cv != s->ampl_cv || g->slot != s->slot)   /* this row's key, a chain's next program */
+        nx_inval(nx_list_row(&q->l, Q_AMPL));
+    nx_list_tick(&q->l, now);
 }
 
 const struct nx_scr nx_scr_quick = {

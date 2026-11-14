@@ -31,6 +31,7 @@
 void nx_runner_task(void);
 void nx_runner_tick_1ms(void);   /* SysTick: elapsed++ of every running channel */
 void nx_runner_loaded(unsigned ch);   /* NXA_LOAD: ch's idle configuration goes out before its first step */
+void nx_runner_cfg(unsigned ch);      /* the same without a load: its waveform or amplitude changed */
 
 /* Where channel ch stands, from the same millisecond arithmetic that plays the steps (the UI's
  * step counter, progress bar and time left; docs/nx/design/ui.md §6.4 item 6). A stopped or fresh

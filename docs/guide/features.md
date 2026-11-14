@@ -24,7 +24,8 @@ as a strip at the bottom.
 - **States**: no program, ready, running, paused, stopped, finished ("Program complete") and
   "not responding" when a generator board stops answering.
 - **Menu** (DOWN): Programs, Chains, Manual, Timers, Diagnostics, Settings.
-- **Quick settings** (UP): brightness, night mode, lock keys, screen off, auto-dim, reduce motion.
+- **Quick settings** (UP): the voltage of the generator shown, live; brightness, night mode, lock
+  keys, screen off, auto-dim, reduce motion.
 - **Themes**: Dark, Light and High contrast. Brightness from 10 to 100 %.
 - **Dim and screen off**: the screen dims after a settable time without a key and switches off
   later. Instead of a dark screen you can choose a night view with both generators at a glance.

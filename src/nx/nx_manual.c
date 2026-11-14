@@ -89,9 +89,13 @@ void nx_manual_changed(void)
             continue;
         uint64_t wave = c->prog.hdr[HDR_WAVE], ampl = c->prog.hdr[HDR_AMPL];
         nx_manual_fill(&c->prog);
-        if (!(g_ui_flags & UIF_RUN(ch)) || s_reapply[ch])
-            continue;   /* the next play sends it all */
-        if (wave != c->prog.hdr[HDR_WAVE] || ampl != c->prog.hdr[HDR_AMPL]) {
+        int changed = wave != c->prog.hdr[HDR_WAVE] || ampl != c->prog.hdr[HDR_AMPL];
+        if (!(g_ui_flags & UIF_RUN(ch)) || s_reapply[ch]) {   /* paused, stopped, or its idle */
+            if (changed)                                       /* configuration on its way: */
+                nx_runner_cfg(ch);   /* the next play sends it again (until 2026-11-14 only the step) */
+            continue;
+        }
+        if (changed) {
             struct nx_action a = { NXA_PAUSE, (uint8_t)ch, 0, 0, 0 };   /* the idle configuration */
             if (nx_core_act(&a) == NX_OK)
                 s_reapply[ch] = 1;

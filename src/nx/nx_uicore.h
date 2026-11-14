@@ -24,6 +24,7 @@
 void nx_uc_vm(struct nx_vm *vm);
 /* A generator action (nx_core_act): NX_OK, NX_REFUSED_PC, NX_BUSY or NX_EINVAL. */
 int nx_uc_act(const struct nx_action *a);
+int nx_uc_ampl(unsigned ch, int up);   /* nx_core_ampl: Quick settings' amplitude row */
 /* Name of slot 0..31, or of another source (nx_src.h), into out (NUL-terminated, at most
  * NX_UC_NAME_MAX bytes; control bytes and bytes the fonts do not have become '?'); returns the
  * length. */

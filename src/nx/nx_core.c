@@ -11,6 +11,7 @@
 #include "nx_config.h"
 #include "nx_diag.h"
 #include "nx_hw.h"
+#include "nx_manual.h"
 #include "nx_resume.h"
 #include "nx_runner.h"
 #include "nx_bfb.h"
@@ -25,10 +26,17 @@
 static uint8_t s_ready;       /* boot gate passed */
 static uint8_t s_pc_wait;     /* a PC-mode entry/exit waits for the queues */
 static uint8_t s_power_req;   /* NXA_POWER_OFF */
+uint16_t g_nx_ampl[2];
+
+static unsigned ampl_max(const struct program *p)   /* an offset leaves half of the -10..+10 V */
+{
+    return p->hdr[HDR_OFFS] == 120u ? 2000u : 1000u;
+}
 
 void nx_core_reset(void)
 {
     s_ready = s_pc_wait = s_power_req = 0;
+    g_nx_ampl[0] = g_nx_ampl[1] = 0;
 }
 
 int nx_core_act(const struct nx_action *a)
@@ -57,6 +65,8 @@ int nx_core_act(const struct nx_action *a)
         c->elapsed = 0;
         if (nx_src_is_slot(a->id))
             program_load(a->id, ch);
+        if (g_nx_ampl[ch])   /* the voltage set live holds until STOP */
+            c->prog.hdr[HDR_AMPL] = g_nx_ampl[ch] < ampl_max(&c->prog) ? g_nx_ampl[ch] : ampl_max(&c->prog);
         c->prog_slot = (uint8_t)a->id;
         nx_runner_loaded(ch);
         nx_bfb_loaded(ch);
@@ -78,11 +88,13 @@ int nx_core_act(const struct nx_action *a)
             flags_clear(&g_ui_flags, UIF_LOOP(ch));
         break;
     case NXA_STOP:
+        g_nx_ampl[ch] = 0;
         c->step_sent = 0xFF;
         c->elapsed = 1;
         flags_clear(&g_ui_flags, UIF_RUN(ch) | UIF_LOOP(ch));
         break;
     case NXA_STOP_ALL:   /* the original's short POWER press on a channel screen */
+        g_nx_ampl[0] = g_nx_ampl[1] = 0;
         g_ch[0].step_sent = g_ch[1].step_sent = 0xFF;
         g_ch[0].elapsed = g_ch[1].elapsed = 1;
         flags_clear(&g_ui_flags, UIF_RUN_G1 | UIF_RUN_G2);
@@ -238,4 +250,31 @@ void nx_core_power_off(void)
         nx_ui_goodbye_step(NX_GOODBYE_MS - t);
     }
     power_off_signal();
+}
+
+int nx_core_ampl(unsigned ch, int up)
+{
+    struct channel *c = &g_ch[ch & 1u];
+    if (!c->prog_slot)
+        return NX_EINVAL;
+    unsigned v = (unsigned)c->prog.hdr[HDR_AMPL], st = v > 100u || (up && v == 100u) ? 50u : 10u;
+    v = up ? (v / st + 1u) * st : v > st ? (v - 1u) / st * st : 0u;   /* onto the grid */
+    unsigned max = ampl_max(&c->prog);
+    v = v < 10u ? 10u : v > max ? max : v;
+    c->prog.hdr[HDR_AMPL] = v;
+    g_nx_ampl[ch & 1u] = (uint16_t)v;
+#if NX_FEAT_MANUAL
+    if (c->prog_slot == NX_SRC_MANUAL) {   /* its setting, saved; the program it fills is the same */
+        g_nx_manual.ampl_dv = (uint16_t)(v / 10u);
+        nx_manual_changed();
+    }
+#endif
+    if (g_ui_flags & UIF_RUN(ch & 1u)) {
+        char buf[NX_TXQ_LINE_MAX];
+        nx_txq_submit(ch & 1u, buf, link_fmt_w_u64(buf, 28, v), NX_TXQ_COALESCE);   /* a held key: the */
+        nx_txq_submit(ch & 1u, buf, link_fmt_w_u64(buf, 29, v), NX_TXQ_COALESCE);   /* latest one wins */
+    } else {
+        nx_runner_cfg(ch);
+    }
+    return NX_OK;
 }

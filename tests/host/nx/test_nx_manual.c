@@ -128,10 +128,52 @@ static void playing(void)
 }
 #endif
 
+/* A change while paused or stopped goes out with the next start; a second change while the
+ * first one's idle configuration is on its way is not lost (both until 2026-11-14: only the step
+ * went out, the generator kept the old amplitude). The voltage from Quick settings is the manual
+ * generator's own setting. */
+static void changes(void)
+{
+    nxw_reset();
+    nxw_run_until(4600);
+    struct nx_manual *m = &g_nx_manual;
+    *m = (struct nx_manual){ NX_MANUAL_VER, NX_MAN_FIXED, 2, 0, NX_SW_LOOP, 0, 50, 100000u, 10000u, 110000u, 10u };
+    CHECK_EQ(nx_manual_play(0), NX_OK);
+    run_ms(2000);
+    struct nx_action a = { NXA_PAUSE, 0, 0, 0, 0 };
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    run_ms(300);
+    m->ampl_dv = 120;
+    nx_manual_changed();
+    run_ms(300);
+    nxw_clear();
+    a.type = NXA_PLAY;
+    CHECK_EQ(nx_core_act(&a), NX_OK);
+    run_ms(300);
+    CHECK(has(0, ":w28=1200,") && has(0, ":w11=1,1,"));
+    /* running: two changes 10 ms apart, the second inside the first one's idle configuration */
+    m->ampl_dv = 60;
+    nx_manual_changed();
+    run_ms(10);
+    m->ampl_dv = 70;
+    nx_manual_changed();
+    nxw_clear();
+    run_ms(500);
+    CHECK(has(0, ":w28=700,") && has(0, ":w11=1,1,"));
+    CHECK(g_ui_flags & UIF_RUN_G1);
+    /* Quick settings: live, and kept as the manual generator's amplitude */
+    nxw_clear();
+    CHECK_EQ(nx_core_ampl(0, 1), NX_OK);
+    run_ms(100);
+    CHECK(has(0, ":w28=750,") && !has(0, ":w11=0,0,"));
+    CHECK_EQ(m->ampl_dv, 75);
+}
+
 void test_nx_manual(void)
 {
 #if NX_FEAT_MANUAL
     sweeps();
     playing();
+    changes();
 #endif
 }

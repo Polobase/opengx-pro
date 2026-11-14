@@ -158,6 +158,11 @@ int nx_uc_act(const struct nx_action *a)
     return nx_core_act(a);
 }
 
+int nx_uc_ampl(unsigned ch, int up)
+{
+    return nx_core_ampl(ch, up);
+}
+
 unsigned nx_uc_name(unsigned slot, char *out)
 {
     unsigned n = 0;

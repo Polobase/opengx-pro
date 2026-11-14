@@ -174,8 +174,15 @@ STOP closes. A hint line at the bottom says so. G1 or G2 held steps a value agai
 switch changes once per press. A change is kept even when POWER held switches off before the
 sheet or the page is closed.
 
-- **Quick settings** (UP on the dashboard): Brightness, Night mode, Lock keys, Screen off,
-  Auto-dim, Reduce motion.
+- **Quick settings** (UP on the dashboard): Amplitude, Brightness, Night mode, Lock keys, Screen
+  off, Auto-dim, Reduce motion.
+- **Amplitude** is the voltage of the generator shown on the dashboard ("G1 20.0 V"). G1 lowers
+  it and G2 raises it, in steps of 0.5 V (0.1 V below 1 V), from 0.1 V up to 20 V, or 10 V for a
+  program with an offset such as the built-in preset. A playing generator changes at once; a
+  paused or stopped one at its next START. The voltage holds on that generator until you press
+  STOP: the next programs of a chain or a plan, the next Terrain set and every pass of the preset
+  play at it. After STOP each program plays at its own voltage again. For the manual generator
+  it is its Amplitude setting. A power cut forgets it.
 - **Display**: Theme (Dark, Light, High contrast), Brightness, Dim after, Screen off after, When
   idle (Screen off or Night view), Splash screen (Off, Short, Full).
 - **Keys & lock**: Key repeat (Slow, Normal, Fast), Lock keys automatically, Offer to resume
