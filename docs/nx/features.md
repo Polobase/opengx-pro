@@ -427,7 +427,7 @@ display is new: Spooky2 sees nothing of this.
 | What | 2 plans of up to 14 days, a chain per day |
 | List | below the chains in menu > Chains: "Plan 1" with "5 days · day 3", "complete · LOOP to restart" or "empty · LOOP to edit" |
 | Playing | START plays the current day's chain on the chosen generator (toast "Plan 1: day 3"); the status bar shows "Day 3/11". An empty or complete plan, or an empty day chain, opens the editor instead |
-| Next day | when the day's chain has run its repeats to the end, the plan moves to the next day. A stopped chain does not count. Nothing starts by itself: START on the plan plays the next day |
+| Next day | when the day's chain has run its repeats to the end, the plan moves to the next day. A stopped chain does not count. A day played on both generators counts once (fixed on 2026-11-14: before, each generator moved the plan on a day, so a day was skipped). A day during which the editor sets the plan back to day 1 or adds or removes a day does not count (before, the plan moved on from the changed day). Nothing starts by itself: START on the plan plays the next day |
 | Editor | "Plan 1 · day 3/5": rows "Day 3  Chain 1  3 programs", the current day highlighted, then "Add a day". G1/G2 the day's chain, START adds a day (a copy of the selected one), START held removes it, LOOP sets the plan back to day 1, STOP saves and goes back |
 | Resume | the snapshot keeps the plan with the chain position |
 | Stored | KV key 0x0006 |

@@ -230,6 +230,31 @@ void test_nx_chain(void)
     run_s(20);
     CHECK_EQ(g_nx_plans.p[0].day, 3);
     CHECK_EQ(nx_plan_play(0, 1), NX_EINVAL);    /* complete */
+
+    /* a day played on both generators counts once; a day during which the plan is set back to
+     * day 1 or loses a day does not count */
+    pl->day = 0;
+    CHECK_EQ(nx_plan_play(0, 1), NX_OK);        /* day 1: chain 1, about 18 s */
+    run_s(2);
+    CHECK_EQ(nx_plan_play(1, 1), NX_OK);        /* the same day on G2 */
+    run_s(22);
+    CHECK(!(g_ui_flags & (UIF_RUN_G1 | UIF_RUN_G2)));
+    CHECK_EQ(pl->day, 1);                       /* not 2: day 2 is still to play */
+    pl->day = 2;
+    CHECK_EQ(nx_plan_play(0, 1), NX_OK);        /* day 3: chain 1 */
+    run_s(5);
+    pl->day = 0;                                /* the editor's LOOP: back to day 1 */
+    run_s(15);
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    CHECK_EQ(pl->day, 0);
+    pl->day = 1;
+    CHECK_EQ(nx_plan_play(0, 1), NX_OK);        /* day 2: chain 2 (4, 6) twice, about 24 s */
+    run_s(5);
+    pl->chain[1] = pl->chain[2];                /* the editor removes day 2 (START held on it) */
+    pl->n = 2;
+    run_s(22);
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    CHECK_EQ(pl->day, 1);                       /* the new day 2 has not played */
     memset(&g_nx_plans, 0, sizeof g_nx_plans);
 #endif
 

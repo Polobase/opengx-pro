@@ -38,8 +38,10 @@ extern struct nx_chains_rec g_nx_chains;
 
 /* Multi-day plans (NX_FEAT_PLANS): a chain per day. Playing a plan plays the chain of its current
  * day; when that chain has run its repeats to the end, the plan moves to the next day (kept in the
- * KV store, NX_KEY_PLANS). A day's chain that is stopped does not count. After the last day the
- * plan is complete (day = n) until its editor starts it again at day 1. */
+ * KV store, NX_KEY_PLANS). A day's chain that is stopped does not count, nor one whose day the
+ * other generator has completed meanwhile, nor one during which the editor set the plan back to
+ * day 1 or added or removed a day. After the last day the plan is complete (day = n) until its
+ * editor starts it again at day 1. */
 #define NX_KEY_PLANS 0x0006u
 #define NX_PLANS 2u
 #define NX_PLAN_DAYS 14u

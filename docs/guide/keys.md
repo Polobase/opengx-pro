@@ -79,7 +79,9 @@ first Terrain row; DOWN goes on to the preset, the chains and the plans.
 | STOP | Back. | Save and back. | Save and back. |
 
 A plan plays the chain of its current day. When that chain has run to its end, the plan moves on
-one day; START on the plan plays the next day. A stopped day does not count.
+one day; START on the plan plays the next day. A stopped day does not count. A day played on G1
+and G2 counts once. A day during which the plan is set back to day 1, or gets a day added or
+removed, does not count.
 
 ## Terrain Protocol and the built-in preset
 
