@@ -159,10 +159,12 @@ void nx_preset_boot(void)
     s_plain[0] = s_plain[1] = 0;
 }
 
-/* The manual generator or a Terrain set that plays the sine (table 11): it gets the standard one. */
+/* A program that plays the sine (table 11) gets the standard one: the manual generator, a Terrain
+ * set, the biofeedback scan, and the slot of its hits (Spooky2's slots play their own tables,
+ * 41-70; until 2026-11-14 the hits played 11 times too high after the preset). */
 static int wants_sine(unsigned ch)
 {
-    return g_ch[ch].prog_slot > PROGRAM_SLOTS && g_ch[ch].prog.hdr[HDR_WAVE] == 11u;
+    return g_ch[ch].prog.hdr[HDR_WAVE] == 11u;
 }
 
 void nx_preset_loaded(unsigned ch)
@@ -188,6 +190,8 @@ int nx_preset_setup(unsigned ch)
         s->st = PS_READY;
         return 1;
     }
+    if (!p && s->st >= PS_LINES)   /* the sine, unknown again (a PC session) after a stop: its */
+        s->st = PS_TABLES;         /* upload, not a preset's Out lines (until 2026-11-14: no output) */
     if (s->st == PS_TABLES) {
         s->touts = nx_txq_stats(ch)->timeouts;
         s->tab = 0;
@@ -196,7 +200,9 @@ int nx_preset_setup(unsigned ch)
         if (!p) {   /* the standard sine: it plays in any case, and is not sent again */
             s_plain[ch] = 1;
             s->st = PS_READY;
-            return 1;
+            line(ch, 20, 11);   /* both outputs choose table 11 again: the idle configuration */
+            line(ch, 21, 11);   /* chose it before the upload; the step follows these lines */
+            return 0;
         }
         if (nx_txq_stats(ch)->timeouts != s->touts) {   /* the generator did not take it */
             struct nx_action a = { NXA_STOP, (uint8_t)ch, 0, 0, 0 };
@@ -208,9 +214,11 @@ int nx_preset_setup(unsigned ch)
             s->tab = 1;
         }
     } else if (s->st == PS_LINES) {   /* as Spooky2 has them: Out2 inverted by its table, */
-        nx_txq_submit(ch, ":w17=0,0,\r\n", 11, 0);   /* not by the generator */
-        line(ch, 21, p->wave2);
-        line(ch, 33, p->offs2);
+        nx_txq_submit(ch, ":w17=0,0,\r\n", 11, 0);   /* not by the generator. Each output */
+        line(ch, 20, p->wave1);   /* chooses its table after the upload, as Spooky2's capture */
+        line(ch, 32, p->offs1);   /* has it: Out1's table was chosen only before it (in the idle */
+        line(ch, 21, p->wave2);   /* configuration) until 2026-11-14, and Out1 stayed silent */
+        line(ch, 33, p->offs2);   /* on a unit while Out2 played */
         s->st = PS_SENT;
     }
     return 0;

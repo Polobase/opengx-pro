@@ -39,7 +39,7 @@ static void store_program(unsigned slot)
 {
     struct program p;
     memset(&p, 0, sizeof p);
-    p.hdr[HDR_WAVE] = 11;
+    p.hdr[HDR_WAVE] = 40u + slot;   /* as Spooky2 stores slot n: its own table */
     p.hdr[HDR_AMPL] = 2000;
     p.hdr[HDR_OFFS] = 120;
     p.hdr[HDR_DWELL] = 30;

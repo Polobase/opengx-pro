@@ -163,8 +163,11 @@ static void playing(void)
         CHECK(strcmp(s_lines[i], k_idle[i]) == 0);
     CHECK(strncmp(s_lines[10], ":a11=512,529,", 13) == 0);
     CHECK(strncmp(s_lines[11], ":a25=511,494,", 13) == 0);
-    CHECK(strcmp(s_lines[12], ":w17=0,0,") == 0 && strcmp(s_lines[13], ":w21=25,") == 0 && strcmp(s_lines[14], ":w33=220,") == 0);
-    CHECK(strcmp(s_lines[15], ":w24=19,") == 0 && strcmp(s_lines[16], ":w11=1,1,") == 0 && strcmp(s_lines[17], ":w12=0,0,") == 0);
+    /* each output chooses its table after the upload, as in Spooky2's capture */
+    static const char *const k_out[5] = { ":w17=0,0,", ":w20=11,", ":w32=20,", ":w21=25,", ":w33=220," };
+    for (unsigned i = 0; i < 5u; i++)
+        CHECK(strcmp(s_lines[12 + i], k_out[i]) == 0);
+    CHECK(strcmp(s_lines[17], ":w24=19,") == 0 && strcmp(s_lines[18], ":w11=1,1,") == 0 && strcmp(s_lines[19], ":w12=0,0,") == 0);
     /* the tables are Spooky2's, byte for byte: 11 sine cycles at half scale, and its inverse */
     CHECK_EQ(nxw_line(0, 10, s_got, sizeof s_got), 4101);
     CHECK(strcmp(s_got, table_line(11, 11, 0)) == 0);
@@ -178,7 +181,7 @@ static void playing(void)
     CHECK_EQ(nxw_line_n[1], 10);        /* G2: its idle configuration again, as after every load */
 
     /* the sweep 110 -> 1210 Hz in 10 s: a :w24 line about every 125 ms, the frequency / 11 */
-    for (int j = 18; j < (int)s_n; j++)
+    for (int j = 20; j < (int)s_n; j++)
         CHECK(strncmp(s_lines[j], ":w24=", 5) == 0);
     uint32_t el = g_ch[0].elapsed;
     nxw_clear();
@@ -234,7 +237,8 @@ static void playing(void)
     CHECK_EQ(vm.g[0].next, 110006);   /* looping: the first step again */
 
     /* a pause in the sweep: the idle configuration (outputs off; it sets Out2 to Out1's table and
-     * offset). Play again: the Out2 lines, then the step where the sweep is now; no tables. */
+     * offset). Play again: the lines of both outputs, then the step where the sweep is now; no
+     * tables. */
     nxw_clear();
     CHECK_EQ(act(NXA_PAUSE, 0, 0, 1), NX_OK);
     run_ms(200);
@@ -248,11 +252,12 @@ static void playing(void)
     CHECK_EQ(act(NXA_PLAY, 0, 0, 1), NX_OK);
     run_ms(100);
     snap(0);
-    CHECK(s_n >= 6u && find(":a", 0) < 0);
-    CHECK(strcmp(s_lines[0], ":w17=0,0,") == 0 && strcmp(s_lines[1], ":w21=25,") == 0 && strcmp(s_lines[2], ":w33=220,") == 0);
-    CHECK(strncmp(s_lines[3], ":w24=", 5) == 0 && strcmp(s_lines[3], ":w24=209,") != 0 && strcmp(s_lines[4], ":w11=1,1,") == 0);
+    CHECK(s_n >= 8u && find(":a", 0) < 0);
+    for (unsigned i = 0; i < 5u; i++)
+        CHECK(strcmp(s_lines[i], k_out[i]) == 0);
+    CHECK(strncmp(s_lines[5], ":w24=", 5) == 0 && strcmp(s_lines[5], ":w24=209,") != 0 && strcmp(s_lines[6], ":w11=1,1,") == 0);
     double want = 2200.0 - 330.0 * (el - 14000u) / 1000.0;
-    CHECK(fabs(hz(s_lines[3]) * 11.0 - want) < 15.0);
+    CHECK(fabs(hz(s_lines[5]) * 11.0 - want) < 15.0);
     CHECK(g_ch[0].elapsed - el < 100u);   /* the clock waited for the Out2 lines */
 
     /* a load on the other generator sends G1's step again (as the original does): its sweep goes on */
@@ -292,7 +297,7 @@ static void playing(void)
     CHECK_EQ(act(NXA_PLAY, 0, 0, 1), NX_OK);
     run_ms(1700);
     snap(0);
-    CHECK(find(":a11=", 0) == 10 && find(":a25=", 0) == 11 && find(":w24=19,", 12) == 15);
+    CHECK(find(":a11=", 0) == 10 && find(":a25=", 0) == 11 && find(":w24=19,", 12) == 17);
 
     /* the other preset on G2: 3 cycles per table, once: it ends as a program does */
     nxw_clear();
@@ -302,7 +307,7 @@ static void playing(void)
     CHECK(find(":a11=", 0) == 0 && find(":a25=", 0) == 1);
     CHECK_EQ(nxw_line(1, 0, s_got, sizeof s_got), 4101);
     CHECK(strcmp(s_got, table_line(11, 3, 0)) == 0);
-    CHECK(find(":w24=4113333330,", 2) == 5);
+    CHECK(find(":w24=4113333330,", 2) == 7);
     run_ms(2000);
     snap(1);
     CHECK(find(":w24=109,", 6) > 0);    /* 300 Hz / 3 */
@@ -330,14 +335,16 @@ static void plain_sine(void)
     run_ms(300);
     snap(0);
     CHECK(find(":a", 0) < 0 && find(":w20=12,", 0) > 0 && find(":w11=1,1,", 0) > 0);
-    /* the sine after power-on: the standard sine into table 11, then the step; the clock waits */
+    /* the sine after power-on: the standard sine into table 11, both outputs choose it again,
+     * then the step; the clock waits */
     m->wave = 1;
     nxw_clear();
     CHECK_EQ(nx_manual_play(0), NX_OK);
     run_ms(1200);
     snap(0);
     CHECK(find(":w20=11,", 0) == 4 && find(":a11=512,515,518,", 0) == 10 && find(":a25=", 0) < 0);
-    CHECK(find(":w24=1000006,", 11) == 11 && find(":w11=1,1,", 11) == 12);
+    CHECK(strcmp(s_lines[11], ":w20=11,") == 0 && strcmp(s_lines[12], ":w21=11,") == 0);
+    CHECK(find(":w24=1000006,", 11) == 13 && find(":w11=1,1,", 11) == 14);
     CHECK_EQ(nxw_line(0, 10, s_got, sizeof s_got), 3930);
     CHECK(strcmp(s_got, table_line(11, 0, 0)) == 0);
     CHECK(g_ch[0].elapsed > 0u && g_ch[0].elapsed < 600u);
@@ -352,7 +359,7 @@ static void plain_sine(void)
     CHECK_EQ(nx_manual_play(1), NX_OK);
     run_ms(1200);
     snap(1);
-    CHECK(find(":a11=", 0) == 10 && find(":w11=1,1,", 11) == 12);
+    CHECK(find(":a11=", 0) == 10 && find(":w20=11,", 11) == 11 && find(":w11=1,1,", 11) == 14);
 
     /* a preset on G1 puts its 11 cycles into table 11; the manual sine after it gets the standard
      * sine back, the preset after that its own again */
@@ -364,7 +371,7 @@ static void plain_sine(void)
     CHECK_EQ(nx_manual_play(0), NX_OK);
     run_ms(1200);
     snap(0);
-    CHECK(find(":a11=512,515,518,", 0) == 10 && find(":w11=1,1,", 11) == 12);
+    CHECK(find(":a11=512,515,518,", 0) == 10 && find(":w11=1,1,", 11) == 14);
     nxw_clear();
     CHECK_EQ(act(NXA_LOAD, 0, NX_SRC_PRESET, 0), NX_OK);
     CHECK_EQ(act(NXA_PLAY, 0, 0, 1), NX_OK);
@@ -398,7 +405,7 @@ static void plain_sine(void)
     CHECK_EQ(nx_manual_play(0), NX_OK);
     run_ms(3000);
     snap(0);
-    CHECK(find(":a11=", 0) == 10 && find(":w11=1,1,", 11) == 12);
+    CHECK(find(":a11=", 0) == 10 && find(":w20=11,", 11) == 11 && find(":w11=1,1,", 11) == 14);
     CHECK(g_ui_flags & UIF_RUN_G1);
     nxw_clear();
     CHECK_EQ(nx_manual_play(0), NX_OK);
@@ -406,10 +413,11 @@ static void plain_sine(void)
     snap(0);
     CHECK(find(":a", 0) < 0 && find(":w11=1,1,", 0) > 0);
 
-    /* a stored slot plays its own table: nothing is added to its lines */
+    /* a stored slot plays its own table (Spooky2's: 41-70): nothing is added to its lines */
     nxw_reset();
     nxw_run_until(4600);
-    g_ch[0].prog.hdr[HDR_WAVE] = 11;    /* even one that names table 11 */
+    g_ch[0].prog.hdr[HDR_WAVE] = 43;
+    g_ch[0].prog.hdr[HDR_COUNT] = 1;
     g_ch[0].prog.freq[0] = 7278;
     g_ch[0].prog_slot = 3;
     nxw_clear();
@@ -417,6 +425,42 @@ static void plain_sine(void)
     run_ms(300);
     snap(0);
     CHECK(find(":a", 0) < 0 && find(":w11=1,1,", 0) >= 0);
+    /* one that names table 11 (the biofeedback scan's hits): the standard sine first, as after
+     * the preset, which leaves its 11 cycles there */
+    CHECK_EQ(act(NXA_STOP, 0, 0, 0), NX_OK);
+    CHECK_EQ(act(NXA_LOAD, 0, NX_SRC_PRESET, 0), NX_OK);
+    CHECK_EQ(act(NXA_PLAY, 0, 0, 1), NX_OK);
+    run_ms(2500);
+    CHECK_EQ(act(NXA_STOP, 0, 0, 0), NX_OK);
+    run_ms(300);
+    g_ch[0].prog.hdr[HDR_WAVE] = 11;
+    g_ch[0].prog.hdr[HDR_AMPL] = 1000;
+    g_ch[0].prog.hdr[HDR_OFFS] = 120;
+    g_ch[0].prog.hdr[HDR_DWELL] = 30;
+    g_ch[0].prog.hdr[HDR_COUNT] = 1;
+    g_ch[0].prog.freq[0] = 7278;
+    g_ch[0].prog_slot = 30;
+    nxw_clear();
+    CHECK_EQ(act(NXA_PLAY, 0, 0, 0), NX_OK);
+    run_ms(1200);
+    snap(0);
+    CHECK(find(":a11=512,515,518,", 0) == 0 && find(":w20=11,", 1) == 1 && find(":w21=11,", 1) == 2);
+    CHECK(find(":w24=7278,", 1) == 3 && find(":w11=1,1,", 1) == 4);
+    /* stopped, then a PC session: the sine is not known again; START uploads it (until
+     * 2026-11-14 the preset's Out lines were due instead, and the outputs stayed off) */
+    CHECK_EQ(act(NXA_STOP, 0, 0, 0), NX_OK);
+    run_ms(300);
+    nxw_pb1 = 1;
+    run_ms(300);
+    CHECK_EQ(g_ui_state, ST_PC);
+    nxw_pb1 = 0;
+    run_ms(300);
+    nxw_clear();
+    CHECK_EQ(act(NXA_PLAY, 0, 0, 0), NX_OK);
+    run_ms(1200);
+    snap(0);
+    CHECK(find(":a11=512,515,518,", 0) >= 0 && find(":w11=1,1,", 0) > 0 && find(":w21=25,", 0) < 0);
+    CHECK(g_ui_flags & UIF_RUN_G1);
 #endif
 }
 
