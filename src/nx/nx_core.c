@@ -59,6 +59,7 @@ int nx_core_act(const struct nx_action *a)
             program_load(a->id, ch);
         c->prog_slot = (uint8_t)a->id;
         nx_runner_loaded(ch);
+        nx_bfb_loaded(ch);
         break;
     case NXA_PLAY:   /* app.c channel_keys START / LOOP on a stopped channel */
         c->step_sent = 0xFF;

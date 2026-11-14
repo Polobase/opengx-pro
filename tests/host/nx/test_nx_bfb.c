@@ -9,6 +9,7 @@
 
 #include "link_internal.h"
 #include "nx_bfb.h"
+#include "nx_chain.h"
 #include "nx_config.h"
 #include "nx_core.h"
 #include "nx_slots.h"
@@ -16,6 +17,8 @@
 #include "nx_settings.h"
 #include "nx_ui_int.h"
 #include "nx_uiset.h"
+#include "nx_panel.h"
+#include "nx_txq.h"
 #include "nx_world.h"
 #include "state.h"
 #include "storage.h"
@@ -67,7 +70,7 @@ static uint32_t reading_at(unsigned step)   /* flat, a bump of 40 at PEAK1, a pl
 
 static const char *gen(unsigned ch, const char *line)
 {
-    if (ch == g_nx_bfb_cfg.ch && strncmp(line, ":w24=", 5) == 0) {   /* the scan's steps (the other generator's own lines do not count) */
+    if (ch == nx_bfb_view()->ch && strncmp(line, ":w24=", 5) == 0) {   /* the scan's steps (the other generator's own lines do not count) */
         s_f8 = t_code_f8(strtoull(line + 5, 0, 10));
         if (s_r11_n >= NX_BFB_BASELINE)   /* the sweep: its lines after the baseline */
             s_w24++;
@@ -566,8 +569,243 @@ static void stopped(void)
     nxw_on_line = 0;
 }
 
+/* A scan on the world to its end, with these settings: the fast sweep, one hit, playing */
+static const struct nx_bfb_view *scan_to_end(struct nx_bfb_cfg cfg)
+{
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    s_target = 0;
+    nxw_run_until(4600);
+    g_nx_bfb_cfg = cfg;
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK(run_until_state(v, NX_BFB_DONE, 400000));   /* the fast sweep: PEAK1, one hit */
+    CHECK_EQ(v->nhits, 1);
+    return v;
+}
+
+static unsigned band_ink(int x0, int y0, int x1, int y1)   /* pixels unlike the margin's in a band */
+{
+    unsigned n = 0;
+    uint16_t bg = nxp_at(4, y0);
+    for (int y = y0; y < y1; y++)
+        for (int x = x0; x < x1; x++)
+            n += nxp_at(x, y) != bg;
+    return n;
+}
+
+/* The Refine line ("Refines when the program ends") only while a pass is to follow: not for hits
+ * that loop (Refine switched on after they were saved) */
+static void refine_line(void)
+{
+    const struct nx_bfb_view *v = scan_to_end((struct nx_bfb_cfg){ 0, 30, 2000u, 30u, 2, 0 });
+    CHECK(v->playing && (g_ui_flags & UIF_LOOP_G1));
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    g_nx_bfb_cfg.refine = 1;
+    run_ms(400, 1000);
+    CHECK(nx_ui_top() == &nx_scr_bfb);
+    CHECK(band_ink(16, 172, 300, 184) == 0u);   /* the line under the status: empty */
+    struct nx_action once = { NXA_LOOP, 0, 0, 0, 0 };   /* repeat off: the pass follows its end, the line shows */
+    CHECK_EQ(nx_core_act(&once), NX_OK);
+    nx_ui_pop(NX_TR_NONE);   /* the screen again (the dashboard's LOOP: another screen) */
+    nx_ui_push(&nx_scr_bfb, 0, NX_TR_NONE);
+    run_ms(400, 1000);
+    CHECK(band_ink(16, 172, 300, 184) > 20u);
+    nxw_on_line = 0;
+}
+
+/* A refining pass runs with the settings its scan started with: what is changed on the screen
+ * while the hits play (another generator, amplitude, time per hit) is for the next scan; the
+ * screen shows the pass's generator */
+static void pass_settings(void)
+{
+    const struct nx_bfb_view *v = scan_to_end((struct nx_bfb_cfg){ 0, 30, 2000u, 30u, 2, 1 });
+    s_target = t_code_f8(v->hits[0].code);
+    g_nx_bfb_cfg.ch = 1;
+    g_nx_bfb_cfg.ampl_cv = 1000u;
+    g_nx_bfb_cfg.dwell_s = 60u;
+    run_ms(29000, 1000);
+    CHECK(run_until_state(v, NX_BFB_AUTH, 5000));   /* the pass, on G1 */
+    CHECK_EQ(v->ch, 0);
+    nxw_clear();
+    CHECK(run_until_state(v, NX_BFB_BASE, 12000));
+    CHECK(has(0, ":w28=6,") && has(0, ":w28=12,") && !has(0, ":w28=3,"));   /* the ramp to the scan's 20 V, not
+                                                                              * to the 10 V set since */
+    CHECK(run_until_state(v, NX_BFB_SWEEP, 20000));   /* the "finished" toast has gone */
+    run_ms(300, 1000);
+    CHECK(nx_ui_top() == &nx_scr_bfb);
+    uint16_t gap = nxp_at(276, 11);   /* between the two badges of the title */
+    CHECK(nxp_at(248, 11) != gap && nxp_at(282, 11) == gap);   /* "Run on": G1's badge filled */
+    CHECK(run_until_state(v, NX_BFB_DONE, 30000));
+    uint64_t hdr[5];
+    storage_slot_read(30, 0, hdr, sizeof hdr);
+    CHECK(hdr[HDR_AMPL] == 2000u && hdr[HDR_DWELL] == 30u);
+    CHECK_EQ(g_nx_bfb_cfg.ch, 1);   /* the next scan's settings stay as set */
+    CHECK_EQ(g_nx_bfb_cfg.ampl_cv, 1000u);
+    nxw_on_line = 0;
+    s_target = 0;
+}
+
+#if NX_FEAT_TIMERS
+unsigned nx_ui_t_card(void);
+/* Power off when all finished, with Refine on: no power-off card when the hits end and a pass
+ * begins; the pass that finds no hits ends it all, and the unit powers off */
+static void refine_power_off(void)
+{
+    const struct nx_bfb_view *v = scan_to_end((struct nx_bfb_cfg){ 0, 30, 2000u, 30u, 2, 1 });
+    g_nx_settings.off_when_done = 1;
+    unsigned card = 0;
+    for (unsigned ms = 0; ms < 40000u && v->state != NX_BFB_RAMP; ms++) {   /* the hits end, the pass begins */
+        nxw_step(1000);
+        card |= nx_ui_t_card() == 2u;
+    }
+    CHECK_EQ(v->pass, 2);
+    CHECK_EQ(card, 0);
+    CHECK(run_until_state(v, NX_BFB_DONE, 40000));
+    CHECK_EQ(v->nhits, 0);   /* flat readings: no hits */
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    volatile int off = 0;
+    nxw_power_off_armed = 1;
+    if (setjmp(nxw_power_off_jmp) == 0)
+        run_ms(20000, 1000);
+    else
+        off = 1;
+    nxw_power_off_armed = 0;
+    CHECK(off);
+    g_nx_settings.off_when_done = 0;
+    nxw_on_line = 0;
+}
+#endif
+
+/* G1 looped a program three times; the scan's hits loop from their first pass on */
+static void pass_count(void)
+{
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    s_target = 0;
+    nxw_run_until(4600);
+    memset(&g_ch[0].prog, 0, sizeof g_ch[0].prog);
+    g_ch[0].prog.hdr[HDR_WAVE] = 1;
+    g_ch[0].prog.hdr[HDR_AMPL] = 100;
+    g_ch[0].prog.hdr[HDR_DWELL] = 1;
+    g_ch[0].prog.hdr[HDR_COUNT] = 1;
+    g_ch[0].prog.freq[0] = 10008u;
+    program_save(5, 0);
+    CHECK_EQ(nx_ui_act(NXA_LOAD, 0, 5, 0), NX_OK);
+    CHECK_EQ(nx_ui_act(NXA_PLAY, 0, 0, 1), NX_OK);
+    run_ms(3500, 1000);
+    CHECK(g_vm.g[0].passes >= 2u);
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 12, 1500u, 60u, 2, 0 };
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK(run_until_state(v, NX_BFB_DONE, 400000));
+    run_ms(200, 1000);
+    CHECK(g_vm.g[0].loop);
+    CHECK_EQ(g_vm.g[0].passes, 0);
+    nxw_on_line = 0;
+}
+
+/* The slot written does not read back (here: the flash loses its supply at the erase): nothing
+ * plays and nothing stays loaded that START could replay */
+static void readback_failed(void)
+{
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    s_target = 0;
+    nxw_run_until(4600);
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 30u, 2, 0 };
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK(run_until_state(v, NX_BFB_SAVE, 400000));
+    flash_cut_at(0, FLASH_CUT_CLEAN);
+    run_ms(100, 1000);
+    CHECK(flash_cut_happened());
+    flash_power_on();
+    CHECK_EQ(v->state, NX_BFB_STOPPED);
+    CHECK(v->nhits >= 1u);
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    CHECK_EQ(g_ch[0].prog_slot, 0);
+    nxw_on_line = 0;
+}
+
+/* STOP on the screen while a PC-mode change waits for the queues (PB1 up and down again within a
+ * line): the core refuses the scan's STOP, the one-step program goes all the same, and the runner
+ * ends what is left as a finished program: outputs off, nothing running without a program */
+static void stop_held(void)
+{
+    nxw_reset();
+    nxw_on_line = gen;
+    s_w24 = s_r11_n = s_mute = 0;
+    s_target = 0;
+    nxw_run_until(4600);
+    g_nx_bfb_cfg = (struct nx_bfb_cfg){ 0, 30, 2000u, 30u, 2, 0 };
+    CHECK_EQ(nx_bfb_start(), NX_OK);
+    const struct nx_bfb_view *v = nx_bfb_view();
+    CHECK(run_until_state(v, NX_BFB_SWEEP, 20000));
+    nxw_gen(0, NXW_ACK, 30000);   /* a slow generator: a line waits 30 ms, longer than PB1's debounce */
+    run_ms(500, 1000);
+    for (unsigned i = 0; i < 4000u && nx_txq_idle(0); i++)
+        nxw_step(50);
+    nxw_pb1 = 1;   /* just after a line went out */
+    for (unsigned i = 0; i < 400u && !nx_core_runner_held(); i++)
+        nxw_step(50);
+    CHECK(nx_core_runner_held());
+    nxw_clear();
+    nx_bfb_stop();
+    nxw_pb1 = 0;
+    run_ms(500, 1000);
+    nxw_gen(0, NXW_ACK, 1000);
+    CHECK(g_ui_state != ST_PC);
+    CHECK_EQ(v->state, NX_BFB_STOPPED);
+    CHECK(!(g_ui_flags & UIF_RUN_G1));
+    CHECK_EQ(g_ch[0].prog_slot, 0);
+    CHECK(has(0, ":w11=0,0,"));
+    nxw_on_line = 0;
+}
+
+#if NX_FEAT_CHAINS
+/* A chain started on the hits' generator that begins with their slot: the slot's end goes on to
+ * the chain's next program, no refining pass cuts it off */
+static void chain_on_hits(void)
+{
+    const struct nx_bfb_view *v = scan_to_end((struct nx_bfb_cfg){ 0, 30, 2000u, 30u, 2, 1 });
+    memset(&g_ch[1].prog, 0, sizeof g_ch[1].prog);   /* program 4, made on G2's buffer */
+    g_ch[1].prog.hdr[HDR_WAVE] = 1;
+    g_ch[1].prog.hdr[HDR_AMPL] = 100;
+    g_ch[1].prog.hdr[HDR_DWELL] = 60;
+    g_ch[1].prog.hdr[HDR_COUNT] = 1;
+    g_ch[1].prog.freq[0] = 10008u;
+    program_save(4, 1);
+    g_nx_chains.c[0] = (struct nx_chain){ 2, 1, { 30, 4 } };
+    CHECK_EQ(nx_chain_play(0, 1), NX_OK);
+    run_ms(35000, 1000);   /* slot 30: one hit for 30 s */
+    struct nx_chain_pos p;
+    nx_chain_pos(0, &p);
+    CHECK_EQ(g_ch[0].prog_slot, 4);
+    CHECK(g_ui_flags & UIF_RUN_G1);
+    CHECK_EQ(p.id, 1);
+    CHECK_EQ(v->pass, 1);
+    CHECK_EQ(v->state, NX_BFB_DONE);
+    nxw_on_line = 0;
+}
+#endif
+
 void test_nx_bfb(void)
 {
+    refine_line();
+    pass_settings();
+#if NX_FEAT_TIMERS
+    refine_power_off();
+#endif
+    pass_count();
+    readback_failed();
+    stop_held();
+#if NX_FEAT_CHAINS
+    chain_on_hits();
+#endif
     pure();
     walk();
     scan();

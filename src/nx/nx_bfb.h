@@ -39,13 +39,19 @@
  * the generator holds the frequency reached with the outputs on (so going on needs no ramp), the
  * pace excludes the pause; START again goes on.
  *
+ * A scan, and its refining passes, run with the settings it started with (struct nx_bfb_cfg as
+ * START found it): what the screen changes meanwhile is for the next scan; only Refine is read
+ * when it is needed, so switching it off ends the refining.
+ *
  * Refine (cfg.refine): when the hits' program ends by itself (not looped), the scan runs again
  * on the hits alone, Spooky2's "Continue Refining Hits" (Spooky.exe, decoded in the Hunt & Kill
  * port): the step halves each pass (to f / 2^24, a pass at that step the last) and each hit is
  * swept from 10 steps below it to 10 above,
  * overlapping windows as one, after the same session, ramp and baseline (at the first window);
  * the new hits replace the old, the program in the slot is written again and plays, and the
- * next pass follows its end, until a pass finds no hits or the program is stopped or replaced.
+ * next pass follows its end, until a pass finds no hits or the program is stopped or replaced
+ * (any load on that generator, the same slot again too: a chain starting with it, "play on both").
+ * A pass without hits ends it as a program ends by itself (Timers: power off when all finished).
  * The scan screen comes up for a pass (NXE_BFB_REFINE); the view keeps the hits and the graph
  * of the pass before until its sweep begins. */
 #pragma once
@@ -139,9 +145,12 @@ void nx_bfb_stop(void);                 /* ends a scan: the generator's idle con
 void nx_bfb_pause(uint32_t now);        /* the sweep: paused, or on again */
 void nx_bfb_task(uint32_t now);         /* main loop, after the runner */
 void nx_bfb_finished(unsigned ch);      /* runner: ch's program ended by itself (a refining pass may follow) */
+void nx_bfb_loaded(unsigned ch);        /* core: a program was loaded on ch: the hits' program, if it was there, is
+                                         * an ordinary one now (a chain, the same slot again: no refining pass) */
 void nx_bfb_rx(unsigned ch, uint8_t c); /* LINK_RX_TAP: the generator's :rNN=<v>. replies (interrupt) */
 int nx_bfb_fill(struct program *p);     /* the one-step program the scan starts with */
 const struct nx_bfb_view *nx_bfb_view(void);
+struct nx_bfb_cfg *nx_bfb_cfg_now(void);   /* the settings to show: a running scan's own, else g_nx_bfb_cfg */
 
 /* Pure, host-tested. The vendor's token for the generator's 9-digit response to a 9-digit
  * challenge (digits 1..9); tok gets 9 digits and a NUL. */

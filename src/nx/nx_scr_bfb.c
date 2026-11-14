@@ -254,7 +254,8 @@ static void status(nx_gc *gc)
         nx_str_format(buf, sizeof buf, NX_S_BFB_PASS, args, 1);
         nx_text_r(gc, &nx_font_cap13, NX_LCD_W - NX_M, STATUS_Y0 + 2, buf, nx_col(gc, NX_PAL_TEXT2));
     }
-    if (v->state == NX_BFB_DONE && v->playing && nx_uc_bfb_cfg()->refine) {   /* the next pass follows the program */
+    if (v->state == NX_BFB_DONE && v->playing && nx_uc_bfb_cfg()->refine && !g_vm.g[v->ch].loop) {   /* the next
+                                                                         * pass follows the program (played once) */
         nx_fmt_u(a[0], v->pass + 1u);
         nx_str_format(buf, sizeof buf, NX_S_BFB_REFINES, args, 1);
         nx_text(gc, &nx_font_cap13, NX_M + 4, STATUS_Y0 + 19, buf, nx_col(gc, NX_PAL_TEXT2));

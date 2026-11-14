@@ -354,7 +354,7 @@ int nx_uc_manual_play(unsigned ch)
 
 struct nx_bfb_cfg *nx_uc_bfb_cfg(void)
 {
-    return &g_nx_bfb_cfg;
+    return nx_bfb_cfg_now();
 }
 
 int nx_uc_bfb_start(void)

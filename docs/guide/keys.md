@@ -127,7 +127,11 @@ still finds it; a very narrow one can be missed. Refine on: when the hits' progr
 (not looped), the scan screen comes back on the hits, marked "Pass 2", and sweeps a narrow
 window around each hit at half the step, 10 steps each side, about 20 seconds; the new hits
 replace the old ones in the program, which plays again, and so on until a pass finds no hits or
-you stop or replace the program. START
+you stop or replace the program (loading any program on that generator ends it, the same one
+again too, for example a chain that starts with it). A pass that finds no hits counts as the end
+of a program for Timers > Power off when all finished. The line "Refines when the program ends"
+shows only while the hits play once. A scan and its passes keep the settings it started with:
+what you change while the hits play is for the next scan. START
 starts the scan on the chosen generator (from the graph or hits page it first shows the settings,
 so a stray press restarts nothing). While the sweep runs, START pauses it: no step goes out,
 the generator holds the frequency reached with the outputs on (so going on needs no ramp), the

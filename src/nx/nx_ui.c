@@ -73,6 +73,7 @@ static uint8_t s_ev_head, s_ev_tail;
 static uint32_t s_vm_t;
 static uint8_t s_finished[2];    /* FINISHED latch per generator */
 static uint16_t s_passes[2];
+static uint8_t s_pass_slot[2];   /* the program s_passes counts (a load the core makes itself starts it again) */
 
 static uint8_t s_pw, s_night_on;   /* s_night_on: the night view's palette */
 static uint32_t s_pw_t, s_input_t;
@@ -113,6 +114,10 @@ static uint32_t s_unlock_draw;
 #ifdef HOST_TEST
 struct nx_action g_ui_actlog[16];   /* the host tests read what the UI asked the core for */
 unsigned g_ui_actn;
+unsigned nx_ui_t_card(void)   /* the card shown (CARD_*) */
+{
+    return s_card;
+}
 #endif
 
 /* ---- small helpers ---- */
@@ -691,6 +696,10 @@ static void build_vm(void)
             s_finished[ch] = 0;
         if (s_finished[ch] && g->state == NXG_READY)
             g->state = NXG_FINISHED;
+        if (g->slot != s_pass_slot[ch]) {   /* another program: a chain's next, the scan's hits */
+            s_pass_slot[ch] = g->slot;
+            s_passes[ch] = 0;
+        }
         g->passes = s_passes[ch];
     }
 }
