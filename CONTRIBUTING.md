@@ -14,15 +14,18 @@ Everything else is ordinary: small changes, the checks below, a clear commit mes
   bootloader is proven to take on a unit; `make flash`, `tools/flash_gx_pro.py` and the browser
   flasher all refuse more.
 - The firmware writes its own data only in `0x080000`–`0x1FFFFF` of the SPI flash and never in PC
-  mode. The one exception is copying, moving and erasing a program slot on the device, which
-  writes the slots and the name table the way an upload from the PC does.
+  mode. The one exception is copying, moving and erasing a program slot on the device, and the
+  biofeedback scan's hits program, which write the slots and the name table the
+  way an upload from the PC does.
 
 **Vendor material**
 
 - No vendor material in git, in a pull request, in a release file or on the site: no firmware
   image, no fonts or bitmaps of the original firmware, no Spooky2 preset files or databases, no
   serial captures, no vendor documents. Everyone uses their own copy (`original/`, never
-  committed).
+  committed). Sensor readings you recorded on your own unit, of yourself, are yours:
+  `tests/host/nx/bfb_huntkill_fixture.c` holds the `:r11` values of one scan (no commands, no
+  timings, no handshake) and says so in its header; do the same if you add one.
 - The one exception, and it is stated: the two tables in `src/nx/data/` (`nx_terrain_data.c`,
   `nx_preset_data.c`) for the built-in Terrain Protocol and the built-in preset. They hold
   frequencies, times and names taken from Spooky2's preset files. They are not this project's own

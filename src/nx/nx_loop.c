@@ -10,6 +10,7 @@
 #include "nx_keys.h"
 #include "nx_resume.h"
 #include "nx_chain.h"
+#include "nx_bfb.h"
 #include "nx_manual.h"
 #include "nx_preset.h"
 #include "nx_terrain.h"
@@ -92,6 +93,7 @@ void nx_loop_pass(void)
         nx_chain_task(now);   /* before the timers: the next program cancels "all finished" */
         nx_terrain_task(now);
         nx_manual_task(now);
+        nx_bfb_task(now);
         nx_preset_task(now);
         nx_timer_task(now);
         nx_hist_task(now);

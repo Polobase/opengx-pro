@@ -1,6 +1,8 @@
 /* nx error and health counters (nx_diag.h). */
 #include "nx_diag.h"
 
+#include "nx_bfb.h"
+
 #include <string.h>
 
 #include "nx_config.h"
@@ -106,6 +108,7 @@ static unsigned tab_cycles(const struct rx *r, unsigned n)
 void nx_rx_tap(unsigned ch, uint8_t c)
 {
     ch &= 1u;
+    nx_bfb_rx(ch, c);   /* the generator's replies to the scan's read lines */
     /* link.c discards the byte while its link has a line pending (the :ok matcher still runs). */
     if (g_ui_flags & UIF_LINE(ch))
         g_nx_diag.rx_dropped[ch]++;

@@ -84,6 +84,7 @@ enum nx_event_type {
     NXE_SLOT_DONE,      /* a slot copy / move / erase ended: ch = 0 done, 1 failed, 2 no quiet moment; a = op << 8 | slot */
     NXE_ALERT,          /* ch: a Terrain Contact session has ended (its 0 Hz step: safe to pause); a = the next session */
     NXE_NO_TABLE,       /* ch: its generator did not answer a preset's wave table: the preset was stopped */
+    NXE_BFB_REFINE,     /* ch: its hits' program ended and a refining scan began: the scan screen comes up */
 };
 
 struct nx_event {

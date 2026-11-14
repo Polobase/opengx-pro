@@ -27,7 +27,8 @@
       {"id": "history", "material": "history"},
       {"id": "copy", "material": "content_copy"},
       {"id": "move", "material": "drive_file_move"},
-      {"id": "chain", "material": "link"}
+      {"id": "chain", "material": "link"},
+      {"id": "bfb", "material": "monitor_heart"}
      ]},
     {"symbol": "nx_icons32", "prefix": "NX_I32_", "size": 32, "bpp": 4, "stroke": 2.3,
      "font": "MaterialSymbolsRounded.ttf", "codepoints": "MaterialSymbolsRounded.codepoints",

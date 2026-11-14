@@ -124,17 +124,22 @@ __attribute__((section(".isr_vector"), used)) const void *const g_vectors[46] = 
     USART3_4_IRQHandler,                /* IRQ 29 */
 };
 
-/* Set our own stack first: don't rely on what the bootloader loaded into MSP. */
+/* Set our own stack first: don't rely on what the bootloader loaded into MSP. The literal pool
+ * sits right here (.ltorg): under link-time optimisation this lands in one big section, and the
+ * assembler's own pool would be out of the ldr's reach. */
 __attribute__((naked, noreturn)) void Reset_Handler(void)
 {
     __asm volatile(
         "ldr r0, =_estack\n"
         "mov sp, r0\n"
         "ldr r0, =reset_c\n"
-        "bx r0\n");
+        "bx r0\n"
+        ".ltorg\n");
 }
 
-void reset_c(void)
+/* Referenced from the assembly above only: 'used' keeps it when link-time optimisation decides
+ * what to drop (it cannot see into the assembly). */
+__attribute__((used)) void reset_c(void)
 {
     /* Whatever the bootloader enabled must not fire into our vector table half-initialised. */
     __disable_irq();

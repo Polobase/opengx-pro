@@ -23,6 +23,9 @@ extern uint64_t nxw_line_us[2][64];  /* start time of every line sent on link ch
 extern uint64_t nxw_line_end_us[2][64];   /* ... and when its last byte left the wire */
 extern unsigned nxw_line_n[2];
 extern uint32_t nxw_table_ack_us;    /* the generators answer a wave table (":a...") this long after its line */
+/* A test's generator model: called with every complete line sent on link ch (without "\r\n");
+ * a string it returns arrives on that link ack_us later (the :ok of a ":w" line still comes). */
+extern const char *(*nxw_on_line)(unsigned ch, const char *line);
 extern jmp_buf nxw_power_off_jmp;    /* power_off_signal() jumps here once armed */
 extern int nxw_power_off_armed;
 extern uint64_t nxw_power_off_us;    /* simulated time of the power-off signal */

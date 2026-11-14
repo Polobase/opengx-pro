@@ -103,7 +103,8 @@ static void test_traffic(void)
     CHECK(g_ui_flags & UIF_RUN_G1);
     grab();
     CHECK(nlines[0] == 3u && strcmp(lines[0][1], ":w11=1,1,") == 0 && strcmp(lines[0][2], ":w12=0,0,") == 0);
-    CHECK(nxw_line_us[0][0] - t < 30000u);
+    CHECK(nxw_line_us[0][0] - t < 180000u);   /* with a hold meaning START acts on
+                                                                               * its release (press: 150 ms) */
     CHECK_EQ(nlines[1], 0);
     nxw_clear();
     press(NX_KEY_START, 150);
@@ -547,6 +548,22 @@ static void test_night_view(void)
 
 /* Settings > Reset all settings: START only asks, START held 1 s resets (the key guide stays
  * seen). */
+/* The menu: UP/DOWN go through every cell and round the end (from Settings, the last, DOWN is
+ * Programs, the first) */
+static void test_menu_wrap(void)
+{
+    boot();
+    press(NX_KEY_DOWN, 150);   /* the menu, on Settings */
+    press(NX_KEY_DOWN, 150);   /* round to Programs */
+    press(NX_KEY_START, 150);
+    CHECK(nx_ui_top() == &nx_scr_lib);
+    press(NX_KEY_STOP, 150);   /* the dashboard */
+    press(NX_KEY_DOWN, 150);   /* the menu, on Programs */
+    press(NX_KEY_UP, 150);     /* round to Settings */
+    press(NX_KEY_START, 150);
+    CHECK(nx_ui_top() == &nx_scr_set);
+}
+
 static void test_reset_settings(void)
 {
     boot();
@@ -622,6 +639,7 @@ void test_nx_ui(void)
     test_original_keys();
     test_first_boot_guide();
     test_night_view();
+    test_menu_wrap();
     test_reset_settings();
     test_traffic();
     test_lock();

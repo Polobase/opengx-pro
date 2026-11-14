@@ -103,7 +103,8 @@ core_calmenu.c, core_actions.c, runner_seq.c (exact wire bytes of the classic ru
 - **Look:**
   - Dark default plus Light and High-contrast themes, as palette tokens. G1 cyan #38C7DA, G2 amber
     #F5B544. Text ≥4.5:1 and UI ≥3:1, enforced by the asset tool. Status is always icon + text.
-  - Fonts: Inter / Inter Display (OFL) 13/16 px plus 28/48 px tabular digits, 4 bpp nibble-RLE (the
+  - Fonts: Inter / Inter Display (OFL) 13/16 px (2 bpp raw since 2026-10-14) plus 28/48 px tabular
+    digits, 4 bpp nibble-RLE (the
     48 px digits are off by default since 2026-10-05, `NX_FEAT_HERO48`).
   - Icons: Material Symbols Rounded (Apache-2.0) plus own SVG icons.
   - English string tables with build-time width checks. Procedural splash (no Spooky2 trademarks).
@@ -196,8 +197,10 @@ See "Resume" above. Host tests: `tests/host/nx/test_nx_resume.c`. Device check:
 ## Budgets
 - **Flash (nx):** the image (the default build, and the released image of `make release`) holds
   the Terrain table and the preset table (committed in `src/nx/data/` since 2026-10-13) and no
-  vendor splash: 108,664 bytes (0.9.1) of the 112,640 the bootloader is proven to take, 102,876 without
-  the two tables (`NX_TERRAIN=0 NX_PRESETS=0`). `make nx-data` writes the tables again from a
+  vendor splash: 112,080 bytes of the 112,640 the bootloader is proven to take (the biofeedback
+  scan built in since 2026-10-17, the text fonts 2 bpp and link-time optimisation since
+  2026-10-14; 0.9.1: 108,664 bytes), 104,726 without the two tables
+  (`NX_TERRAIN=0 NX_PRESETS=0`). `make nx-data` writes the tables again from a
   Spooky2 installation (`TERRAIN_DIR` / `PRESET_FILE`, e.g. in an untracked `local.mk`).
   The linker checks the build budget (`NX_FLASH_LIMIT`, 112,640 bytes); `make flash` refuses
   anything above `FLASH_PROVEN` (112,640 bytes, the size test of 2026-09-25). Breakdown of the

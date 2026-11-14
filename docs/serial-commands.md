@@ -139,7 +139,10 @@ Two independent gates decide whether a command is answered:
 
 The session is opened by a vendor handshake at the start of a Spooky2 connection (`:r90=…` challenge,
 `:w92=…`, `:w91=…`); its algorithm is the vendor's device-authentication mechanism and is **not
-documented here or reimplemented**. Practical effect: without a running Spooky2 session, sending
+documented here**. The one place this project sends it is the nx firmware's biofeedback scan
+(`src/nx/nx_bfb.c`, a build switch that is off by default), to open the session for its own `:r11`
+/ `:r12` reads, with the token rule of the Hunt & Kill port of Spooky2 (`docs/nx/features.md`
+§9.18). Practical effect: without a running Spooky2 session, sending
 these commands directly returns `:err` (well-formed frames) or nothing (malformed) — this is normal,
 not a fault. To exercise the full command set on a real unit, use a tool that performs the
 handshake (the `conformance` suite of the `spooky2` package in github.com/Polobase/freqgen does
