@@ -166,7 +166,9 @@ A card with a ring that fills. When the ring is full, the card answers "yes" by 
 ## Quick settings and settings
 
 UP and DOWN move, G1 and G2 change a value, START opens a page, flips a switch or runs an action,
-STOP closes. A hint line at the bottom says so.
+STOP closes. A hint line at the bottom says so. G1 or G2 held steps a value again and again; a
+switch changes once per press. A change is kept even when POWER held switches off before the
+sheet or the page is closed.
 
 - **Quick settings** (UP on the dashboard): Brightness, Night mode, Lock keys, Screen off,
   Auto-dim, Reduce motion.
@@ -183,10 +185,12 @@ STOP closes. A hint line at the bottom says so.
 
 ## Key lock
 
-Hold G1+G2 for 1.5 s to lock the keys. A lock shows in the status bar, and any key shows the card
+Hold G1+G2 for 1.5 s to lock the keys. The second key may come up to 0.08 s after the first; G1
+or G2 alone acts after that time. A lock shows in the status bar, and any key shows the card
 "Keys locked · Hold START+STOP to unlock". Hold START+STOP for 1.5 s to unlock. POWER keeps
-working: short for the screen, held to switch off. With "Lock keys automatically" the keys lock
-10 seconds after the last key while a generator runs. Quick settings > Lock keys locks at once.
+working: short for the screen, held to switch off. With "Original key behaviour" POWER short does
+nothing while the keys are locked. With "Lock keys automatically" the keys lock 10 seconds after
+the last key while a generator runs. Quick settings > Lock keys locks at once.
 
 ## PC mode and calibration
 
@@ -205,7 +209,7 @@ Settings > Keys & lock > "Original key behaviour" is off by default. Switched on
 
 | Key | Default | With "Original key behaviour" |
 |---|---|---|
-| POWER, short | Screen off and on. | On the dashboard with a program loaded: stop both generators. Elsewhere nothing. The screen goes off only from Quick settings > Screen off. |
+| POWER, short | Screen off and on. | On the dashboard with a program loaded: stop both generators, unless the keys are locked. Elsewhere nothing. The screen goes off only from Quick settings > Screen off. |
 | START on the dashboard | Pause and play keep repeat. | Pause and play clear repeat. |
 | LOOP, short, while running | Repeat on or off. | Pause with repeat on. |
 | UP or DOWN held in a list | The "Key repeat" setting. | First repeat after 0.28 s, then every 26 ms. |

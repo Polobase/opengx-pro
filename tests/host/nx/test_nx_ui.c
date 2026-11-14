@@ -253,6 +253,17 @@ static void test_lock(void)
     press(NX_KEY_START, 150);
     CHECK_EQ(g_ch[0].prog_slot, 4);
 
+    /* G2 70 ms after G1 is still the chord: locked, and G1 did not open the program list */
+    nxw_keys = NX_KEY_G1;
+    nxw_run_ms(70);
+    nxw_keys = NX_KEY_G1 | NX_KEY_G2;
+    nxw_run_ms(1700);
+    nxw_keys = 0;
+    nxw_run_ms(250);
+    CHECK(nx_ui_locked());
+    CHECK(nx_ui_top() == &nx_scr_dash);
+    press(NX_KEY_START | NX_KEY_STOP, 1700);
+    CHECK(!nx_ui_locked());
     /* G1+G2 held 1.5 s: locked; START does nothing, the lock card shows */
     press(NX_KEY_G1 | NX_KEY_G2, 1700);
     CHECK(nx_ui_locked());
@@ -495,6 +506,29 @@ static void test_settings_saved(void)
     memset(g_nx_settings.ui, 0, sizeof g_nx_settings.ui);
 }
 
+/* Quick settings are kept when POWER held switches off while the sheet is still open; G2 held
+ * on a switch flips it once. */
+static void test_quick_power_off(void)
+{
+    boot();
+    press(NX_KEY_UP, 150);    /* quick settings: brightness row */
+    press(NX_KEY_G2, 150);    /* 70 % -> 80 % */
+    press(NX_KEY_DOWN, 150);
+    press(NX_KEY_G2, 900);    /* night mode: on once, not on every repeat */
+    nxw_power_off_armed = 1;
+    if (setjmp(nxw_power_off_jmp) == 0) {
+        nxw_keys = NX_KEY_POWER;
+        nxw_run_ms(3000);
+        CHECK(0);   /* not reached */
+    }
+    nxw_keys = 0;
+    struct nx_settings s;
+    CHECK_EQ(nx_settings_load(&s), NX_OK);
+    CHECK_EQ(s.ui[2], 8);
+    CHECK_EQ(s.ui[5], 1);
+    memset(g_nx_settings.ui, 0, sizeof g_nx_settings.ui);
+}
+
 /* The first boot: the key guide after the splash; the first key closes it and acts on the
  * dashboard (G1 opens G1's program list), and the guide is not shown again. */
 static void test_first_boot_guide(void)
@@ -610,6 +644,18 @@ static void test_original_keys(void)
     CHECK_EQ(g_ui_flags & (UIF_RUN_G1 | UIF_RUN_G2), 0);
     CHECK_EQ(nx_bl_level(), nx_bl_user());
     CHECK(g_vm.g[0].state == NXG_READY && g_vm.g[0].stopped);   /* "STOPPED", as the original */
+    /* the keys locked: POWER short stops nothing (held, it still switches off) */
+    press(NX_KEY_START, 150);
+    press(NX_KEY_G1 | NX_KEY_G2, 1700);
+    CHECK(nx_ui_locked());
+    press(NX_KEY_POWER, 150);
+    nxw_run_ms(700);
+    CHECK(g_ui_flags & UIF_RUN_G1);
+    press(NX_KEY_START | NX_KEY_STOP, 1700);
+    CHECK(!nx_ui_locked());
+    press(NX_KEY_POWER, 150);          /* unlocked: both stop again */
+    nxw_run_ms(700);
+    CHECK_EQ(g_ui_flags & (UIF_RUN_G1 | UIF_RUN_G2), 0);
     g_uiset.origkeys = 0;
     nx_ui_apply();
     press(NX_KEY_POWER, 150);          /* today's keys: screen off */
@@ -647,4 +693,5 @@ void test_nx_ui(void)
     test_detail_target();
     test_screen_power();
     test_settings_saved();
+    test_quick_power_off();
 }

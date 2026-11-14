@@ -140,9 +140,9 @@ A key acts when pressed. If it also has a "hold" meaning, a short press acts on 
 | LOOP | stopped: play with loop; running: pause and set loop | running: repeat on/off only (nothing is sent; with "Original key behaviour": pause with repeat on, as the original); stopped or paused: play with repeat; held: program detail (the manual generator: its screen); in the program detail: slot actions (section 9.6) | Option |
 | G1 / G2 | open that generator's screen; the one already shown, or one without a program: its program list; in the list: switch the target | the same flow; the screen slides | Same |
 | UP / DOWN | list: move (repeat after about 0.28 s, then about every 26 ms); calibration: select a value | list: move (repeat speed is a setting; "Original key behaviour": 280 ms, then 26 ms); dashboard: UP quick settings, DOWN the menu; PC mode: brightness | Changed |
-| POWER short | stop both generators | screen off / on (the first key after "off" only wakes); with "Original key behaviour": stop both on the dashboard, as the original | Option |
+| POWER short | stop both generators | screen off / on (the first key after "off" only wakes); with "Original key behaviour": stop both on the dashboard, as the original (not while the keys are locked) | Option |
 | POWER held 0.8 s | stop both, power off | stop both, power off; a ring shows from 0.2 s; works also when the keys are locked | Same |
-| G1+G2 held 1.5 s | – | lock the keys (lock icon in the status bar) | New |
+| G1+G2 held 1.5 s | – | lock the keys (lock icon in the status bar); the second key within 80 ms of the first. G1 and G2 alone act 80 ms after the press, the whole chord window (2026-11-14; before: 60 ms, so a second key 61–80 ms late came after G1 had acted, and the lock failed) | New |
 | START+STOP held 1.5 s | – | unlock the keys | New |
 | Keys in PC mode | ignored (except power off) | START, STOP, LOOP do nothing; UP/DOWN set the brightness; POWER as everywhere | Changed |
 | A key held while PC mode starts or ends | ignored in the pass that enters or leaves PC mode | does nothing on the next screen: its hold and its release are ignored until it is released once. POWER keeps its meaning (`modes()` in `src/nx/nx_ui.c`) | Same |
@@ -448,7 +448,7 @@ Settings > Keys & lock > "Original key behaviour", default off. When on:
 
 | Key | Does |
 |---|---|
-| POWER short | on the dashboard (not in PC mode, a program loaded): stop both generators, toast "Both generators stopped"; elsewhere nothing. The screen goes off only from quick settings > Screen off |
+| POWER short | on the dashboard (not in PC mode, a program loaded, the keys not locked): stop both generators, toast "Both generators stopped"; elsewhere nothing. The screen goes off only from quick settings > Screen off |
 | START on the dashboard | pause and play with the repeat flag cleared |
 | LOOP short while running | pause with repeat on |
 | Key repeat | after 280 ms, then every 26 ms (lists, calibration); the "Key repeat" setting has no effect |
@@ -687,7 +687,12 @@ positions in them are examples. The host tests keep their own made-up tables
 ## 11. Settings
 
 The original has no settings. nx keeps its settings in the SPI flash (section 13). They are
-written 3 s after the last key when no generator line is due within 1 s, and never in PC mode.
+written 3 s after the last key, once the settings and the quick settings are closed, when no
+generator line is due within 1 s, and never in PC mode. A change on a page or sheet still open
+when POWER held switches off is written at the power-off (2026-11-14; before, a quick setting was
+marked for saving only when the sheet closed, so switching off with it open lost the change).
+G1/G2 held step a value on every repeat; a switch flips once per press (before, it flipped on
+every repeat).
 Defaults from `src/nx/nx_uiset.c` and `src/nx/nx_settings.c`.
 
 | Setting | Where | Values | Default |

@@ -1,7 +1,9 @@
 /* Bottom sheets over the dashboard (docs/nx/design/ui.md W4, W5, W21): quick settings (UP), the
  * hold-START confirmation for destructive actions and the menu (DOWN).
  * Keys: UP/DOWN select; G1/G2 change a value or a switch (-/+); START flips a switch, steps a
- * value, runs an action; STOP closes (a changed setting is saved later, nx_ui_settings_dirty). */
+ * value, runs an action; STOP closes. A change is marked for saving at once (nx_ui_settings_dirty):
+ * it is written once the sheet is closed, or at the power-off if it is still open. A held G key
+ * steps a value again and again, a switch only once. */
 #include "nx_comp.h"
 #include "nx_config.h"
 #include "nx_uifmt.h"
@@ -19,7 +21,6 @@ enum { Q_BRIGHT, Q_NIGHT, Q_LOCK, Q_OFF, Q_DIM, Q_MOTION, Q_N };
 
 struct quick {
     struct nx_list l;
-    uint8_t changed;
 };
 
 static void quick_row(nx_gc *gc, const void *ctx, unsigned i, nx_rect r, int sel, uint32_t sel_ms)
@@ -67,13 +68,6 @@ static void quick_draw(nx_gc *gc, const void *st)
     nx_list_draw(gc, &q->l, NX_PAL_FOCUS, quick_row, 0);
 }
 
-static void quick_close(struct quick *q)
-{
-    if (q->changed)
-        nx_ui_settings_dirty();
-    nx_ui_pop(NX_TR_NONE);
-}
-
 static int quick_key(void *st, const struct nx_kev *e)
 {
     struct quick *q = st;
@@ -85,7 +79,7 @@ static int quick_key(void *st, const struct nx_kev *e)
     switch (e->keys) {
     case NX_KEY_STOP:
         if (e->type == NXK_PRESS)
-            quick_close(q);
+            nx_ui_pop(NX_TR_NONE);
         return 1;
     case NX_KEY_START:
     case NX_KEY_G1:
@@ -100,19 +94,19 @@ static int quick_key(void *st, const struct nx_kev *e)
         if (d && (int)g_uiset.bright + d >= 1 && (int)g_uiset.bright + d <= 10)
             g_uiset.bright = (uint8_t)(g_uiset.bright + d);
         break;
-    case Q_NIGHT:
-        if (d || start)
+    case Q_NIGHT:   /* a switch: once per press, not on G's repeat */
+        if (e->type == NXK_PRESS)
             g_uiset.night ^= 1u;
         break;
     case Q_LOCK:
         if (start) {
-            quick_close(q);
+            nx_ui_pop(NX_TR_NONE);
             nx_ui_lock(1);
         }
         return 1;
     case Q_OFF:
         if (start) {
-            quick_close(q);
+            nx_ui_pop(NX_TR_NONE);
             nx_ui_screen_off();
         }
         return 1;
@@ -122,12 +116,12 @@ static int quick_key(void *st, const struct nx_kev *e)
         g_uiset.dim = (uint8_t)((g_uiset.dim + NX_DIM_N + (unsigned)d) % NX_DIM_N);
         break;
     default:
-        if (d || start)
+        if (e->type == NXK_PRESS)
             g_uiset.motion ^= 1u;
         break;
     }
-    q->changed = 1;
     nx_ui_apply();
+    nx_ui_settings_dirty();
     nx_inval(nx_list_row(&q->l, q->l.sel));
     return 1;
 }

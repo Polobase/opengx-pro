@@ -98,7 +98,7 @@ void test_nx_keys(void)
     hold(NX_KEY_STOP, 1000);
     CHECK_EQ(count(NXK_REPEAT, NX_KEY_STOP), 0);
 
-    /* G1/G2 wait 60 ms for a chord: G1 then G2 40 ms later is one CHORD, no PRESS */
+    /* G1/G2 wait 80 ms for a chord: G1 then G2 40 ms later is one CHORD, no PRESS */
     nx_keys_reset();
     t = 0;
     nx_keys_feed(0, t);                       /* boot-ignore seed (nx_keys.h): an idle first sample */
@@ -114,12 +114,21 @@ void test_nx_keys(void)
     hold(0, 20);
     CHECK(next(&e) && e.type == NXK_RELEASE && e.keys == (NX_KEY_G1 | NX_KEY_G2));
     CHECK(!next(&e));
-    /* G1 alone: PRESS 60 ms after the key went down, stamped with the down time */
+    /* G2 at the end of the chord window, 80 ms after G1: still one CHORD, no PRESS of G1 first */
     nx_keys_reset();
     t = 0;
     nx_keys_feed(0, t);                       /* boot-ignore seed (nx_keys.h): an idle first sample */
     t += 10;
-    hold(NX_KEY_G1, 50);
+    hold(NX_KEY_G1, 80);
+    hold(NX_KEY_G1 | NX_KEY_G2, 100);
+    CHECK(next(&e) && e.type == NXK_CHORD && e.keys == (NX_KEY_G1 | NX_KEY_G2));
+    CHECK(!next(&e));
+    /* G1 alone: PRESS 80 ms after the key went down, stamped with the down time */
+    nx_keys_reset();
+    t = 0;
+    nx_keys_feed(0, t);                       /* boot-ignore seed (nx_keys.h): an idle first sample */
+    t += 10;
+    hold(NX_KEY_G1, 70);
     CHECK(!next(&e));
     hold(NX_KEY_G1, 30);
     CHECK(next(&e) && e.type == NXK_PRESS && e.keys == NX_KEY_G1 && e.t == 20u);

@@ -8,7 +8,8 @@
  * the night view the first key only wakes; dimmed, the key acts and the brightness comes back. Attention (a program finished, a generator stopped answering, PC mode
  * changed) wakes the screen.
  * Key lock (ui.md §5.5): G1+G2 held 1.5 s locks, START+STOP held 1.5 s unlocks; while locked,
- * a key shows the lock card for 2 s; POWER still switches the screen and powers off. */
+ * a key shows the lock card for 2 s; POWER still switches the screen and powers off (with the
+ * original's keys its short press stops nothing while locked). */
 #include "nx_ui.h"
 
 #include <string.h>
@@ -750,8 +751,8 @@ static int global_key(const struct nx_kev *e, uint32_t now)
             s_power_t0 = 0;
             nx_ui_hold_hide();
             if (e->n < NX_KEY_HOLD_MS && !raw) {
-                if (g_uiset.origkeys) {   /* the original: on a generator's screen, stop both */
-                    if (s_depth == 1u && nx_ui_top() == &nx_scr_dash && !g_vm.s.pc
+                if (g_uiset.origkeys) {   /* the original: on a generator's screen, stop both (not locked) */
+                    if (!s_locked && s_depth == 1u && nx_ui_top() == &nx_scr_dash && !g_vm.s.pc
                         && (g_vm.g[0].state != NXG_NONE || g_vm.g[1].state != NXG_NONE)
                         && nx_ui_act(NXA_STOP_ALL, 0, 0, 0) == NX_OK)
                         nx_ui_toast_s(NX_I20_STOP, NX_PAL_TEXT2, NX_S_TOAST_BOTH_STOPPED, 0, 0);
