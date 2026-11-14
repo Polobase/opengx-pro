@@ -38,8 +38,9 @@ jobs:
           make APP=nx NX_TERRAIN=0 BUILD=build/nx-noterrain
           make APP=nx NX_PRESETS=0 BUILD=build/nx-nopreset
           make APP=nx NX_TERRAIN=0 NX_PRESETS=0 BUILD=build/nx-nodata
+          # with the scan built in they fit only with another feature off (docs/guide/build.md)
           for f in HIST HERO48; do
-            make APP=nx NX_LCD_OPTS=-DNX_FEAT_$f=1 BUILD=build/nx-on-$f
+            make APP=nx NX_LCD_OPTS="-DNX_FEAT_$f=1 -DNX_FEAT_DIAG=0" BUILD=build/nx-on-$f
           done
       - uses: actions/upload-artifact@v6
         with:

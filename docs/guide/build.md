@@ -108,8 +108,10 @@ Neither feature has been checked on a real unit yet: [Known issues](./known-issu
 
 Each feature beyond the original has a switch in `src/nx/nx_config.h`. Switching one off removes
 its code and its menu cell. Set a switch on the command line, for example
-`make APP=nx NX_LCD_OPTS=-DNX_FEAT_HIST=1` or
-`make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`.
+`make APP=nx NX_LCD_OPTS="-DNX_FEAT_HIST=1 -DNX_FEAT_DIAG=0"` or
+`make APP=nx NX_LCD_OPTS=-DNX_FEAT_MANUAL=0 BUILD=build/nx-off-MANUAL`. Since the biofeedback scan
+is built in, History and the 48-pixel digits each fit only with another feature off, Diagnostics
+for example (112,148 and 112,100 bytes; on its own History is 460 bytes over the limit).
 
 | Switch | Default | Feature |
 |---|---|---|
